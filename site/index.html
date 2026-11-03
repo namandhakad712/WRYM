@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · LLM Game Arena — Leaderboard</title>
+<meta name="description" content="WRYM: a Kaggle-Game-Arena-style benchmark where LLMs play a hard deterministic grid-worm puzzle. Pairwise Elo, checker-certified replays, full AI thought logs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23f4eddd' stroke='%23221c14' stroke-width='2'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' font-family='Georgia' fill='%23a33327'%3EW%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · The Worm Arena</h1>
+        <p class="subtitle">a deterministic game benchmark for language models — every run replayed, certified, and archived</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="lede">
+      <p class="kicker">Field Report · Plate I</p>
+      <p>A worm must eat every apple and reach its burrow. Between them: one-way
+      valves, crumbling bridges, frictionless ice, pressure plates, sealed doors,
+      locks and keys, crates to park, spikes to respect — and a tight turn budget.
+      Language models see <em>only a text projection</em> of the board and must
+      reason turn by turn.</p>
+      <p>An exhaustive solver plays each level perfectly; that line is the
+      <em>par</em> every model is measured against. A deterministic Checker
+      re-plays every recorded run and signs it. Failure is expected —
+      <em>the information is in the failure.</em></p>
+      <span class="fine">Runs are executed locally by anyone, committed to this
+      repository as JSON, and rendered here with zero computation. This page is
+      a pure archive — no backend, no database, no JavaScript beyond the ledger
+      you are reading.</span>
+    </div>
+    <figure class="hero-figure">
+      <canvas id="hero-board" width="10" height="10" aria-label="Level 13, Iron Vault, rendered in the engraved-plate style"></canvas>
+      <figcaption>Plate I — “Iron Vault”, difficulty 7/10, drawn in the arena's engraving style. The worm is an earthworm: ringed, blunt-snouted, bead-eyed.</figcaption>
+    </figure>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat" id="stat-models"><div class="num">—</div><div class="lbl">models ranked</div></div>
+    <div class="stat" id="stat-levels"><div class="num">—</div><div class="lbl">certified levels</div></div>
+    <div class="stat" id="stat-runs"><div class="num">—</div><div class="lbl">archived runs</div></div>
+    <div class="stat" id="stat-solved"><div class="num">—</div><div class="lbl">runs solved</div></div>
+  </div>
+
+  <section id="leaderboard-section">
+    <p class="kicker">Standings · Chatbot-Arena method</p>
+    <h2>Leaderboard</h2>
+    <p class="section-sub">Pairwise Elo on shared levels (K=32): a solved run beats an unsolved one; two solved runs are separated by efficiency. Efficiency = BFS-par moves ÷ model moves.</p>
+    <table class="ledger" id="leaderboard">
+      <thead>
+        <tr>
+          <th>#</th><th>Model</th><th class="num">Elo</th><th class="num">Solved</th>
+          <th class="num">Efficiency</th><th class="num">Deaths</th><th class="num">Latency</th>
+          <th class="num">Tokens</th><th class="num">Certified</th>
+        </tr>
+      </thead>
+      <tbody><tr><td colspan="9" style="color:var(--ink-faint)">loading the ledger…</td></tr></tbody>
+    </table>
+  </section>
+
+  <section id="levels-section">
+    <p class="kicker">The Ladder · twenty certified trials</p>
+    <h2>Levels &amp; Coverage</h2>
+    <p class="section-sub">Every level is certified solvable by exhaustive search before entering the ladder. Difficulty is structural: mechanics interleaved, search-space breadth, and whether the worm must shed part of itself. Full gallery with rendered boards on the <a href="./levels.html">Levels page</a>.</p>
+    <table class="ledger" id="levels">
+      <thead>
+        <tr><th>Slug</th><th>Level</th><th>Difficulty</th><th class="num">Par</th><th>Mechanics</th><th>Archived runs</th></tr>
+      </thead>
+      <tbody><tr><td colspan="6" style="color:var(--ink-faint)">loading…</td></tr></tbody>
+    </table>
+  </section>
+
+  <section class="prose">
+    <p class="kicker">Method · Plate II</p>
+    <h2>How to read this archive</h2>
+    <div class="print-box" style="margin-top:14px">
+      <div class="pb-title">The benchmark pipeline</div>
+      <span class="mono-note" style="display:block">GENERATE → VALIDATE → SOLVE (BFS par) → SOLVE (LLM) → CHECK → ELO → COMMIT → PAGES</span>
+      <p style="margin:12px 0 0">
+      <span class="term">Validate</span> — exhaustive BFS certifies solvability and computes the optimal move count (par) and a structural difficulty 1–10.<br>
+      <span class="term">Solve</span> — the BFS solver plays perfectly (the par); each LLM plays from a frozen text projection only, with attempts, deaths and invalid actions recorded.<br>
+      <span class="term">Check</span> — a separate deterministic Checker replays the recorded actions on a fresh engine and signs the run CERTIFIED or INVALID. Models never grade themselves.<br>
+      <span class="term">Commit</span> — run JSON (every thought, every observation size, every retry) is committed to the repository; this site is regenerated from it. <b>The leaderboard is a pure function of committed data.</b>
+      </p>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — an open benchmark. Runs executed locally, results committed, site served statically by GitHub Pages.</span>
+    <span><a href="https://github.com/namandhakad712/WRYM">github.com/namandhakad712/WRYM</a></span>
+  </footer>
+</div>
+
+<script src="./assets/wyrm-render.js"></script>
+<script src="./assets/wyrm-app.js"></script>
+<script>
+  WyrmIndex();
+  // hero board: level 13 “Iron Vault”, initial state
+  fetch("./data/levels.json").then(function (r) { return r.json(); }).then(function (levels) {
+    const l = levels.find(function (x) { return x.slug === "13-iron-vault"; }) || levels[0];
+    const grid = l.grid, h = grid.length, w = grid[0].length;
+    const t = grid.map(function (r) { return r.split(""); });
+    const m = [], a = [], c = [], k = [];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const ch = grid[y][x];
+      if (ch === "@") { m[0] = { x: x, y: y }; t[y][x] = "."; }
+      else if (ch === "o") { m.push({ x: x, y: y }); t[y][x] = "."; }
+      else if (ch === "*") { a.push({ x: x, y: y }); t[y][x] = "."; }
+      else if (ch === "$") { c.push({ x: x, y: y }); t[y][x] = "."; }
+      else if (ch === "k") { k.push({ x: x, y: y }); t[y][x] = "."; }
+    }
+    const st = { w: w, h: h, t: t.map(function (r) { return r.join(""); }), m: [m[0]].concat(m.slice(1).reverse()), a: a, c: c, k: k, kh: 0, r: [], p: [], n: 0, tl: l.turnLimit, s: "playing" };
+    WyrmRender.draw(document.getElementById("hero-board"), st, { cell: 30, pad: 22, quality: "high" });
+  }).catch(function () {});
+</script>
+</body>
+</html>

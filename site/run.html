@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Run Replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · Run Replay</h1>
+        <p class="subtitle">the model's world on the left, the model's mind on the right — certified frame by frame</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <div id="run-root" style="margin-top:24px">
+    <div class="run-head">
+      <h2 id="run-title">loading run…</h2>
+      <span class="crumbs" id="run-crumbs"></span>
+    </div>
+    <p id="run-status" style="margin:0 0 18px;font-size:14.5px;color:var(--ink-soft)"></p>
+
+    <div class="replay-layout">
+      <div class="stage-panel">
+        <canvas id="stage"></canvas>
+        <div class="replay-controls">
+          <button id="btn-prev" title="previous step">← prev</button>
+          <button id="btn-play" class="primary" title="autoplay">▶ play</button>
+          <button id="btn-next" title="next step">next →</button>
+          <button id="btn-end" title="jump to the final position">final ⇥</button>
+          <input type="range" id="scrubber" class="scrubber" min="0" max="0" value="0" step="1" aria-label="step scrubber">
+          <span class="turn-readout" id="turn-readout">—</span>
+        </div>
+        <div class="event-strip" id="event-strip"></div>
+      </div>
+
+      <div class="thought-panel">
+        <div class="tp-head">
+          <span>the model's mind · teleprinter page</span>
+          <span class="tp-status" id="tp-status">—</span>
+        </div>
+        <div class="thought-body">
+          <span class="lbl">thought</span>
+          <span id="tp-thought">—</span>
+          <span class="lbl">raw reply (verbatim)</span>
+          <span class="raw" id="tp-raw">—</span>
+          <div><span id="tp-action" class="action-chip">—</span></div>
+          <span class="lbl">step telemetry</span>
+          <span id="tp-meta" style="color:#b3a789">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="reliability" style="margin-top:22px"></div>
+
+    <div class="print-box prose" style="margin-top:22px">
+      <div class="pb-title">How this replay is certified</div>
+      Every recorded action is re-executed on a fresh, deterministic engine instance. The replayed board must match the recorded board at every step, and the final status must match the claimed one — otherwise the run is signed <b>INVALID</b> and discounted. What you are watching is not a video: it is the game re-happening.
+    </div>
+  </div>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — an open, static, reproducible benchmark.</span>
+    <span><a href="./index.html">← leaderboard</a></span>
+  </footer>
+</div>
+
+<script src="./assets/wyrm-render.js"></script>
+<script src="./assets/wyrm-app.js"></script>
+<script>window.addEventListener("DOMContentLoaded", WyrmRun);</script>
+</body>
+</html>

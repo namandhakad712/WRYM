@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Level Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · The Worm Arena</h1>
+        <p class="subtitle">twenty certified trials — every mechanic interlocked, every greedy line punished</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <section style="margin-top:26px">
+    <p class="kicker">The Gallery · Plate III</p>
+    <h2>Certified Levels</h2>
+    <p class="section-sub">Each board is drawn from its canonical grid by the same renderer the arena uses. Difficulty is certified by exhaustive search, not by opinion: it counts mechanic interleaving, search-space breadth, and whether the worm must split itself to win. Click a model's verdict to open its full replay with the AI's every thought.</p>
+    <div class="level-grid" id="level-grid" style="margin-top:18px">
+      <div class="notice"><span class="n-title">loading</span>drawing twenty boards…</div>
+    </div>
+  </section>
+
+  <section class="prose">
+    <p class="kicker">Legend · Plate IV</p>
+    <h2>The pieces, drawn as they are meant</h2>
+    <div class="print-box" style="margin-top:14px">
+      <div class="pb-title">Reading the engraving</div>
+      <p style="margin:0">
+      The <b>earthworm</b> — ringed, blunt-snouted, bead-eyed — grows by one segment per apple and may <b>split</b>, leaving inert remains that still carry weight.
+      <b>Dirt</b> is dug through at the cost of a turn. <b>Crates</b> push sokoban-style and park on <b>pressure plates</b>; a <b>door</b> stays sealed while any plate stands unweighted.
+      <b>One-way valves</b> only forgive travel with the arrow. <b>Ice</b> slides the worm until something stops it — one action, many cells. <b>Bridges</b> crumble the instant the last weight leaves them.
+      <b>Keys</b> open <b>locks</b> permanently. <b>Spikes</b> kill on contact, even mid-slide. The <b>burrow</b> — the dark hole in the earth — opens only when every apple is eaten.</p>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — an open, static, reproducible benchmark.</span>
+    <span><a href="./index.html">← leaderboard</a></span>
+  </footer>
+</div>
+
+<script src="./assets/wyrm-render.js"></script>
+<script src="./assets/wyrm-app.js"></script>
+<script>window.addEventListener("DOMContentLoaded", WyrmLevels);</script>
+</body>
+</html>

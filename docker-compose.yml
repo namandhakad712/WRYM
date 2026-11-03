@@ -1,0 +1,46 @@
+# ── WYRM.LAB · compose stack ────────────────────────────────────────
+# One service, one volume. The SQLite database persists on disk;
+# upgrade the image freely — runs, levels and telemetry survive.
+
+services:
+  wyrm:
+    build: .
+    image: wyrm-lab:latest
+    container_name: wyrm-lab
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # SQLite file inside the mounted volume
+      DATABASE_URL: file:/app/db/custom.db
+      # Optional: pin the built-in fallback model
+      # WYRM_MODEL: glm-4.6
+    volumes:
+      - wyrm-data:/app/db
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://127.0.0.1:3000/api/models').then(r=>{if(!r.ok)throw 0}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+  # ── optional reverse proxy with automatic HTTPS ────────────────────
+  # Uncomment and set your domain, then run `docker compose --profile proxy up`
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["proxy"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - wyrm
+
+volumes:
+  wyrm-data:
+  caddy-data:
+  caddy-config:

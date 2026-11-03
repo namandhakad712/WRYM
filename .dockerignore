@@ -1,0 +1,19 @@
+# build context excludes — keep the image lean & hermetic
+.git
+.gitignore
+.next
+db/*.db
+db/*.db-journal
+download
+tool-results
+examples
+skills
+upload
+scripts
+tests
+dev.log
+server.log
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore

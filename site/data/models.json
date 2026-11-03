@@ -1,0 +1,17 @@
+[
+  {
+    "key": "wyrm-bfs",
+    "name": "WYRM-BFS",
+    "kind": "solver",
+    "note": "Exhaustive breadth-first solver. Provably optimal play — the reference line every LLM is measured against. No API, no cost, deterministic.",
+    "enabled": true
+  },
+  {
+    "key": "glm-4.6",
+    "name": "GLM-4.6",
+    "kind": "zai",
+    "modelId": "glm-4.6",
+    "note": "Built-in sandbox model. Zero-config fallback brain of the arena.",
+    "enabled": true
+  }
+]

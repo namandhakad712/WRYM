@@ -1,0 +1,121 @@
+{
+  "$schema": "./models.schema.md",
+  "version": 1,
+  "comment": "WYRM.LAB benchmark entrants. API keys are NEVER stored here \u2014 each model names an environment variable (apiKeyEnv) that must be exported before `bun scripts/run-benchmark.ts` runs. Resilience fields (contextWindow, rpm, tpm, concurrency, timeoutMs, maxRetries, retryBaseMs, costPerMtok) map 1:1 onto the provider reliability engine; 0/absent = engine default.",
+  "defaults": {
+    "temperature": 0.4,
+    "maxTokens": 1024,
+    "contextWindow": 0,
+    "rpm": 0,
+    "tpm": 0,
+    "concurrency": 0,
+    "timeoutMs": 120000,
+    "maxRetries": 3,
+    "retryBaseMs": 800,
+    "attempts": 3,
+    "maxConsecutiveInvalid": 6
+  },
+  "models": [
+    {
+      "key": "wyrm-bfs",
+      "name": "WYRM-BFS",
+      "kind": "solver",
+      "note": "Exhaustive breadth-first solver. Provably optimal play \u2014 the reference line every LLM is measured against. No API, no cost, deterministic.",
+      "enabled": true
+    },
+    {
+      "key": "glm-4.6",
+      "name": "GLM-4.6",
+      "kind": "zai",
+      "modelId": "glm-4.6",
+      "note": "Built-in sandbox model. Zero-config fallback brain of the arena.",
+      "rpm": 6,
+      "concurrency": 1,
+      "maxRetries": 8,
+      "retryBaseMs": 5000,
+      "enabled": true
+    },
+    {
+      "key": "gpt-4o",
+      "name": "GPT-4o",
+      "kind": "openai",
+      "modelId": "gpt-4o",
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "costPerMtok": 2.5,
+      "contextWindow": 128000,
+      "rpm": 480,
+      "tpm": 150000,
+      "concurrency": 4,
+      "fallback": "glm-4.6",
+      "enabled": false
+    },
+    {
+      "key": "claude-sonnet-4-5",
+      "name": "Claude Sonnet 4.5",
+      "kind": "anthropic",
+      "modelId": "claude-sonnet-4-5",
+      "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "costPerMtok": 3.0,
+      "contextWindow": 200000,
+      "rpm": 300,
+      "tpm": 200000,
+      "concurrency": 4,
+      "fallback": "glm-4.6",
+      "enabled": false
+    },
+    {
+      "key": "gemini-2.5-pro",
+      "name": "Gemini 2.5 Pro",
+      "kind": "google",
+      "modelId": "gemini-2.5-pro",
+      "apiKeyEnv": "GEMINI_API_KEY",
+      "costPerMtok": 1.25,
+      "contextWindow": 1000000,
+      "rpm": 200,
+      "tpm": 1000000,
+      "concurrency": 4,
+      "fallback": "glm-4.6",
+      "enabled": false
+    },
+    {
+      "key": "deepseek-chat",
+      "name": "DeepSeek V3",
+      "kind": "deepseek",
+      "modelId": "deepseek-chat",
+      "apiKeyEnv": "DEEPSEEK_API_KEY",
+      "costPerMtok": 0.27,
+      "contextWindow": 64000,
+      "rpm": 60,
+      "concurrency": 2,
+      "fallback": "glm-4.6",
+      "enabled": false
+    },
+    {
+      "key": "llama-3.3-70b",
+      "name": "Llama 3.3 70B (Groq)",
+      "kind": "groq",
+      "modelId": "llama-3.3-70b-versatile",
+      "apiKeyEnv": "GROQ_API_KEY",
+      "costPerMtok": 0.59,
+      "contextWindow": 128000,
+      "rpm": 30,
+      "tpm": 6000,
+      "concurrency": 1,
+      "timeoutMs": 30000,
+      "maxRetries": 5,
+      "fallback": "glm-4.6",
+      "enabled": false
+    },
+    {
+      "key": "qwen2.5-14b-local",
+      "name": "Qwen 2.5 14B (Ollama)",
+      "kind": "ollama",
+      "modelId": "qwen2.5:14b",
+      "baseUrl": "http://localhost:11434/v1",
+      "contextWindow": 8192,
+      "concurrency": 1,
+      "note": "Fully local, no key. Demonstrates the small-context path: the context fitter truncates history with a visible marker.",
+      "enabled": false
+    }
+  ]
+}

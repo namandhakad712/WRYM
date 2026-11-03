@@ -1,0 +1,758 @@
+[
+  {
+    "slug": "01-first-crawl",
+    "name": "First Crawl",
+    "grid": [
+      "#######",
+      "#..*..#",
+      "#.....#",
+      "#..X..#",
+      "#..oo@#",
+      "#.....#",
+      "#######"
+    ],
+    "turnLimit": 120,
+    "mechanics": [
+      "classic"
+    ],
+    "width": 7,
+    "height": 7,
+    "difficulty": 1,
+    "minMoves": 7,
+    "statesExplored": 76,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 1,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "02-crate-gate",
+    "name": "Crate & Gate",
+    "grid": [
+      "########",
+      "#..*...#",
+      "#..oo@.#",
+      "#......#",
+      "#..$...#",
+      "#..%.D.#",
+      "#.....X#",
+      "########"
+    ],
+    "turnLimit": 120,
+    "mechanics": [
+      "classic"
+    ],
+    "width": 8,
+    "height": 8,
+    "difficulty": 4,
+    "minMoves": 11,
+    "statesExplored": 1290,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 1,
+      "crates": 1,
+      "plates": 1,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "03-thorn-run",
+    "name": "Thorn Run",
+    "grid": [
+      "########",
+      "#oo@...#",
+      "#~..~..#",
+      "#.*..*.#",
+      "#~..~..#",
+      "#..##..#",
+      "#...X..#",
+      "########"
+    ],
+    "turnLimit": 120,
+    "mechanics": [
+      "classic"
+    ],
+    "width": 8,
+    "height": 8,
+    "difficulty": 2,
+    "minMoves": 10,
+    "statesExplored": 258,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "04-self-service",
+    "name": "Self Service",
+    "grid": [
+      "############",
+      "#...ooo@...#",
+      "#..........#",
+      "#####.######",
+      "#####%######",
+      "#..........#",
+      "##########D#",
+      "##########X#",
+      "############"
+    ],
+    "turnLimit": 120,
+    "mechanics": [
+      "classic"
+    ],
+    "width": 12,
+    "height": 9,
+    "difficulty": 5,
+    "minMoves": 14,
+    "statesExplored": 5176,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 0,
+      "crates": 0,
+      "plates": 1,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "05-growth-spurt",
+    "name": "Growth Spurt",
+    "grid": [
+      "##########",
+      "#..o@.*..#",
+      "#........#",
+      "####%%####",
+      "#.$......#",
+      "#....*...#",
+      "#####D####",
+      "#####X####",
+      "##########"
+    ],
+    "turnLimit": 120,
+    "mechanics": [
+      "classic"
+    ],
+    "width": 10,
+    "height": 9,
+    "difficulty": 6,
+    "minMoves": 23,
+    "statesExplored": 4607,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 1,
+      "plates": 2,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "06-gauntlet",
+    "name": "The Gauntlet",
+    "grid": [
+      "############",
+      "#...oo@....#",
+      "#.*......~.#",
+      "####.####..#",
+      "#..$#%%%#..#",
+      "#...#...#..#",
+      "#.........D#",
+      "#.........X#",
+      "#~~~~~~~~~~#",
+      "############"
+    ],
+    "turnLimit": 120,
+    "mechanics": [
+      "classic"
+    ],
+    "width": 12,
+    "height": 10,
+    "difficulty": 5,
+    "minMoves": 22,
+    "statesExplored": 268,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 1,
+      "crates": 1,
+      "plates": 3,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "07-key-note",
+    "name": "Key Note",
+    "grid": [
+      "##############",
+      "#............#",
+      "#..oo@.......#",
+      "#............#",
+      "#...........k#",
+      "#............#",
+      "######L#######",
+      "#............#",
+      "#..*.....*...#",
+      "#............#",
+      "#.....X......#",
+      "##############"
+    ],
+    "turnLimit": 70,
+    "mechanics": [
+      "classic",
+      "keys"
+    ],
+    "width": 14,
+    "height": 12,
+    "difficulty": 6,
+    "minMoves": 33,
+    "statesExplored": 2000,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 1,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "08-slippery-slope",
+    "name": "Slippery Slope",
+    "grid": [
+      "###########",
+      "#.........#",
+      "#..oo@....#",
+      "#.........#",
+      "#.______.*#",
+      "#.........#",
+      "#.*......X#",
+      "#.........#",
+      "###########"
+    ],
+    "turnLimit": 70,
+    "mechanics": [
+      "classic",
+      "ice"
+    ],
+    "width": 11,
+    "height": 9,
+    "difficulty": 4,
+    "minMoves": 13,
+    "statesExplored": 646,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 6,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "09-no-return",
+    "name": "No Return",
+    "grid": [
+      "############",
+      "#..*.......#",
+      "#..oo@..*..#",
+      "#..........#",
+      "####v###v###",
+      "#..........#",
+      "#.*......~.#",
+      "#..........#",
+      "#######v####",
+      "#....*.....#",
+      "#..........#",
+      "#####X######",
+      "############"
+    ],
+    "turnLimit": 90,
+    "mechanics": [
+      "classic",
+      "valves"
+    ],
+    "width": 12,
+    "height": 13,
+    "difficulty": 5,
+    "minMoves": 29,
+    "statesExplored": 5490,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 3,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "10-burnt-bridges",
+    "name": "Burnt Bridges",
+    "grid": [
+      "###########",
+      "#..*...*..#",
+      "#..oo@....#",
+      "#.........#",
+      "#..==..==.#",
+      "#.........#",
+      "#..*....*.#",
+      "#####==####",
+      "#....X....#",
+      "###########"
+    ],
+    "turnLimit": 80,
+    "mechanics": [
+      "classic",
+      "bridges"
+    ],
+    "width": 11,
+    "height": 10,
+    "difficulty": 5,
+    "minMoves": 24,
+    "statesExplored": 393139,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 6,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "11-cold-ledger",
+    "name": "Cold Ledger",
+    "grid": [
+      "###########",
+      "#.........#",
+      "#..oo@....#",
+      "#.........#",
+      "#.__%%_...#",
+      "#.........#",
+      "#..$..*...#",
+      "#.........#",
+      "####D######",
+      "#....X....#",
+      "###########"
+    ],
+    "turnLimit": 90,
+    "mechanics": [
+      "classic",
+      "ice"
+    ],
+    "width": 11,
+    "height": 11,
+    "difficulty": 8,
+    "minMoves": 16,
+    "statesExplored": 196731,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 1,
+      "crates": 1,
+      "plates": 2,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 3,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "12-wyrm-trial",
+    "name": "WYRM Trial",
+    "grid": [
+      "#############",
+      "#..*.....*..#",
+      "#..oo@......#",
+      "#...........#",
+      "####v##v#####",
+      "#...........#",
+      "#...______k.#",
+      "#...........#",
+      "####L##v#####",
+      "#...........#",
+      "#..*.....~..#",
+      "####===#==###",
+      "#..........X#",
+      "#############"
+    ],
+    "turnLimit": 100,
+    "mechanics": [
+      "classic",
+      "valves",
+      "bridges",
+      "ice",
+      "keys"
+    ],
+    "width": 13,
+    "height": 14,
+    "difficulty": 10,
+    "minMoves": 33,
+    "statesExplored": 49026,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 3,
+      "crates": 0,
+      "plates": 0,
+      "keys": 1,
+      "valves": 3,
+      "bridges": 5,
+      "ice": 6,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "13-iron-vault",
+    "name": "Iron Vault",
+    "grid": [
+      "###############",
+      "#..oo@......k.#",
+      "#.............#",
+      "#######L#######",
+      "#.....+....~..#",
+      "#..$.......%..#",
+      "#.....*.......#",
+      "#####D#########",
+      "#..........X###",
+      "###############"
+    ],
+    "turnLimit": 64,
+    "mechanics": [
+      "classic",
+      "keys"
+    ],
+    "width": 15,
+    "height": 10,
+    "difficulty": 7,
+    "minMoves": 43,
+    "statesExplored": 39351,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 1,
+      "crates": 1,
+      "plates": 1,
+      "keys": 1,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "14-ratchet-frost",
+    "name": "Ratchet & Frost",
+    "grid": [
+      "#############",
+      "#..*....*...#",
+      "#.oo@_______#",
+      "#...........#",
+      "####v###v####",
+      "#.___...___*#",
+      "#...........#",
+      "#####v#######",
+      "#.*..$.__...#",
+      "#...........#",
+      "#####%#D#####",
+      "#######X#####",
+      "#############"
+    ],
+    "turnLimit": 72,
+    "mechanics": [
+      "classic",
+      "valves",
+      "ice"
+    ],
+    "width": 13,
+    "height": 13,
+    "difficulty": 9,
+    "minMoves": 33,
+    "statesExplored": 16699,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 4,
+      "crates": 1,
+      "plates": 1,
+      "keys": 0,
+      "valves": 3,
+      "bridges": 0,
+      "ice": 15,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "15-cathedral-rust",
+    "name": "Cathedral of Rust",
+    "grid": [
+      "###########",
+      "#...oo@...#",
+      "#..*....*.#",
+      "####==#####",
+      "#.........#",
+      "#..+..~~..#",
+      "#.........#",
+      "####=######",
+      "#....*....#",
+      "#.........#",
+      "####=######",
+      "####X######",
+      "###########"
+    ],
+    "turnLimit": 70,
+    "mechanics": [
+      "classic",
+      "bridges"
+    ],
+    "width": 11,
+    "height": 13,
+    "difficulty": 5,
+    "minMoves": 22,
+    "statesExplored": 9202,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 3,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 4,
+      "ice": 0,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "16-the-siphon",
+    "name": "The Siphon",
+    "grid": [
+      "##############",
+      "#...oo@......#",
+      "#....*.......#",
+      "#..$.....*...#",
+      "#....__......#",
+      "#....__......#",
+      "#............#",
+      "####%#D#%#####",
+      "#............#",
+      "##########X###",
+      "##############"
+    ],
+    "turnLimit": 80,
+    "mechanics": [
+      "classic",
+      "ice"
+    ],
+    "width": 14,
+    "height": 11,
+    "difficulty": 6,
+    "minMoves": 16,
+    "statesExplored": 16952,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 1,
+      "plates": 2,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 4,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "17-uroboros",
+    "name": "Uroboros",
+    "grid": [
+      "############",
+      "#..oo@.....#",
+      "#..*...*...#",
+      "#..........#",
+      "#...*..*...#",
+      "#..%.$.%...#",
+      "#####D######",
+      "#..........#",
+      "#####==#####",
+      "#....X.....#",
+      "############"
+    ],
+    "turnLimit": 84,
+    "mechanics": [
+      "classic",
+      "bridges"
+    ],
+    "width": 12,
+    "height": 11,
+    "difficulty": 6,
+    "minMoves": 24,
+    "statesExplored": 161383,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 4,
+      "crates": 1,
+      "plates": 2,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 2,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "18-clockwork-heart",
+    "name": "Clockwork Heart",
+    "grid": [
+      "##############",
+      "#..oo@......k#",
+      "#.....L......#",
+      "######v#######",
+      "#...$....%*..#",
+      "#............#",
+      "#.>......%...#",
+      "#............#",
+      "#########D####",
+      "#......~.X~..#",
+      "##############"
+    ],
+    "turnLimit": 70,
+    "mechanics": [
+      "classic",
+      "valves",
+      "keys"
+    ],
+    "width": 14,
+    "height": 11,
+    "difficulty": 8,
+    "minMoves": 38,
+    "statesExplored": 4515,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 1,
+      "crates": 1,
+      "plates": 2,
+      "keys": 1,
+      "valves": 2,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "19-the-gaol",
+    "name": "The Gaol",
+    "grid": [
+      "#############",
+      "#...oo@..k..#",
+      "#...........#",
+      "######L######",
+      "#..*.....~..#",
+      "#...........#",
+      "#....%......#",
+      "#########D###",
+      "#........X..#",
+      "#############"
+    ],
+    "turnLimit": 64,
+    "mechanics": [
+      "classic",
+      "keys"
+    ],
+    "width": 13,
+    "height": 10,
+    "difficulty": 7,
+    "minMoves": 23,
+    "statesExplored": 19331,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 1,
+      "crates": 0,
+      "plates": 1,
+      "keys": 1,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "20-wyrm-crown",
+    "name": "WYRM Crown",
+    "grid": [
+      "##############",
+      "#...oo@....k.#",
+      "#............#",
+      "#####L########",
+      "#...____...*.#",
+      "#............#",
+      "#..*..$......#",
+      "#..%.........#",
+      "#####D########",
+      "#............#",
+      "#.....====...#",
+      "#......~....*#",
+      "#########v####",
+      "#########X####",
+      "##############"
+    ],
+    "turnLimit": 100,
+    "mechanics": [
+      "classic",
+      "valves",
+      "bridges",
+      "ice",
+      "keys"
+    ],
+    "width": 14,
+    "height": 15,
+    "difficulty": 9,
+    "minMoves": 46,
+    "statesExplored": 298591,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 3,
+      "crates": 1,
+      "plates": 1,
+      "keys": 1,
+      "valves": 1,
+      "bridges": 4,
+      "ice": 4,
+      "dirt": 0
+    }
+  }
+]

@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── WYRM.LAB schema ─────────────────────────────────────────────
+// A complete agentic pipeline for an AI-played grid puzzle game.
+
+// pi-style LLM endpoint configuration: any provider, any base URL,
+// any model — assigned to an agent role. Stored server-side only;
+// API keys are never returned to the client in full.
+//
+// Reliability block (v3): every knob of the retry / rate-limit /
+// context / fallback engine is a column here, fully configurable
+// from the admin dashboard. 0 / null means "engine default".
+model Provider {
+  id          String   @id @default(cuid())
+  name        String   @unique // display name, e.g. "GPT-4o via OpenAI"
+  kind        String   // zai | openai | anthropic | google | openrouter | groq | deepseek | mistral | xai | together | ollama | lmstudio | custom
+  baseUrl     String   // endpoint root, e.g. https://api.openai.com/v1
+  apiKey      String   @default("") // stored server-side only
+  modelId     String   // e.g. "gpt-4o", "claude-sonnet-4-5", "gemini-2.5-pro"
+  temperature Float    @default(0.4)
+  maxTokens   Int      @default(1024)
+  role        String   @default("thinker") // thinker | levelThinker | reviewer | checker
+  enabled     Boolean  @default(true)
+
+  // ── resilience & limits (0 ⇒ engine default) ──────────────────────
+  contextWindow Int    @default(0) // custom context size in tokens; 0 = auto by kind
+  rpm           Int    @default(0) // requests per minute ceiling (client-side)
+  tpm           Int    @default(0) // tokens per minute ceiling (client-side)
+  concurrency   Int    @default(0) // max parallel in-flight requests
+  timeoutMs     Int    @default(0) // per-request hard timeout
+  maxRetries    Int    @default(0) // retry budget per request (per provider)
+  retryBaseMs   Int    @default(0) // exponential backoff base delay
+  priority      Int    @default(0) // role resolution order (higher wins)
+  costPerMtok   Float  @default(0) // blended USD per 1M tokens (tracking only)
+  fallbackId    String? // fail over to this provider on terminal failure
+  notes         String?
+
+  // ── health (written by the test endpoint / live traffic) ─────────
+  lastStatus  String?  // "ok" | "error" | null (never tested)
+  lastError   String?
+  lastLatencyMs Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  models Model[]
+
+  fallback    Provider?  @relation("FallbackChain", fields: [fallbackId], references: [id])
+  fallbackFor Provider[] @relation("FallbackChain")
+}
+
+// Telemetry: one row per logical LLM call (not per retry attempt —
+// the full attempt log rides inside `detail`). Powers the admin
+// Reliability panel: success rates, retries, fallback rescues,
+// rate-limit waits, token spend and error taxonomy.
+model LlmCall {
+  id          String   @id @default(cuid())
+  ts          DateTime @default(now())
+  role        String   // thinker | levelThinker | reviewer | checker | test
+  provider    String   // provider name that ACTUALLY answered
+  model       String
+  ok          Boolean
+  degraded    Boolean  @default(false) // resolved via fallback chain
+  attempts    Int      @default(1)     // total attempts across all providers
+  retries     Int      @default(0)     // retries on the primary provider
+  rateWaitMs  Int      @default(0)     // time spent waiting in the limiter
+  latencyMs   Int      @default(0)     // end-to-end wall time
+  tokensIn    Int      @default(0)     // estimated prompt tokens
+  tokensOut   Int      @default(0)     // estimated completion tokens
+  costUsd     Float    @default(0)     // estimated cost (costPerMtok)
+  errorClass  String?  // rate_limit | quota | auth | context | server | network | timeout | aborted | unknown
+  error       String?
+  detail      String?  // JSON attempt log (bounded)
+
+  @@index([ts])
+  @@index([provider, ts])
+}
+
+model Model {
+  id          String   @id @default(cuid())
+  key         String   @unique // "glm-4.6" | "wyrm-bfs"
+  name        String
+  kind        String // "llm" | "solver"
+  elo         Int      @default(1200)
+  runs        Int      @default(0)
+  wins        Int      @default(0)
+  losses      Int      @default(0)
+  totalMoves  Int      @default(0)
+  totalDeaths Int      @default(0)
+  providerId  String?
+  createdAt   DateTime @default(now())
+
+  provider Provider? @relation(fields: [providerId], references: [id])
+  runRecords Run[]
+}
+
+model Level {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  source      String // "handcrafted" | "procedural" | "llm"
+  grid        String // multiline level definition
+  difficulty  Int // 1..10 (from validator)
+  minMoves    Int // optimal solution length (BFS)
+  turnLimit   Int        @default(120) // hard move budget for this level
+  mechanics   String     @default("classic") // csv of mechanic families used
+  width       Int
+  height      Int
+  validated   Boolean       @default(false)
+  validatorJson String? // full BFS report
+  genThought  String? // LLM generator's raw reasoning (if source=llm)
+  cycleId     String?
+  createdAt   DateTime      @default(now())
+
+  runs   Run[]
+  cycles Cycle[]
+}
+
+model Cycle {
+  id           String   @id @default(cuid())
+  index        Int // sequential cycle number
+  status       String // "running" | "done" | "failed"
+  stage        String // generate | validate | solve | check | review | done
+  genMode      String // "llm" | "procedural"
+  notes        String?
+  genThought   String? // level generator output (raw)
+  validatorJson String? // validator report JSON
+  reviewSummary String?
+  levelId      String?
+  levelSlug    String?
+  level        Level?  @relation(fields: [levelId], references: [id])
+  startedAt    DateTime @default(now())
+  endedAt      DateTime?
+}
+
+model Run {
+  id           String   @id @default(cuid())
+  levelId      String
+  modelId      String
+  cycleId      String?
+  attempt      Int      @default(1)
+  status       String // "running" | "won" | "lost" | "dead" | "exhausted" | "invalid" | "aborted" | "interrupted"
+  movesUsed    Int      @default(0)
+  applesEaten  Int      @default(0)
+  splitsUsed   Int      @default(0)
+  deaths       Int      @default(0)
+  score        Int      @default(0)
+  latencyMs    Int      @default(0) // total LLM time
+  steers       Int      @default(0) // operator steering injections
+  pauses       Int      @default(0) // operator pause/resume cycles
+  systemPrompt String? // EXACT instructions given to the model
+  firstObs     String? // EXACT first observation text
+  checkerVerdict String? // "CERTIFIED" | "INVALID"
+  checkerJson  String?
+  reviewJson   String? // reviewer output JSON
+  startedAt    DateTime @default(now())
+  endedAt      DateTime?
+
+  level Level @relation(fields: [levelId], references: [id])
+  model Model @relation(fields: [modelId], references: [id])
+  steps Step[]
+}
+
+model Step {
+  id        String   @id @default(cuid())
+  runId     String
+  turn      Int
+  attempt   Int      @default(1)
+  action    String // up|down|left|right|split (+invalid attempts recorded too)
+  valid     Boolean
+  thought   String? // LLM raw reasoning for THIS step
+  rawOutput String? // full LLM raw output
+  obsText   String? // observation the model saw BEFORE acting
+  stateAscii String // board AFTER the action
+  stateJson  String // serialized dynamic state AFTER the action
+  events    String // JSON array of events
+  invalidReason String?
+  latencyMs Int      @default(0)
+  sandbox   String? // isolation audit: bytes in/out, schema verdict, violations
+  createdAt DateTime @default(now())
+
+  run Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, turn])
+}

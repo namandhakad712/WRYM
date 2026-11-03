@@ -1,0 +1,64 @@
+# WRYM · Benchmark archive → GitHub Pages
+#
+# Two jobs:
+#  1. verify  — re-certify the whole level ladder with the deterministic
+#               validator (cheap, no API calls). A broken level fails CI.
+#  2. deploy  — the site is a pure function of results/ + site/: re-export
+#               the archive from committed results (guarding against a
+#               stale data/ in the repo) and publish to GitHub Pages.
+#
+# No secrets required: benchmark runs happen LOCALLY on contributors'
+# machines; their JSON artifacts are committed and this workflow only
+# re-renders + ships them.
+
+name: benchmark-site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Certify level ladder (BFS validator)
+        run: bun scripts/validate-tier3.ts
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Re-export archive from committed results (idempotent)
+        run: bun scripts/export-site.ts
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

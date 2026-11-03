@@ -18,7 +18,7 @@
 
 <br>
 
-![WRYM leaderboard — paper aesthetic, engraved plates, real boards](site/assets/img/leaderboard.png)
+![WRYM leaderboard — the game's own visual language: soil strata, carved panels, Fredoka type](site/assets/img/leaderboard.png)
 
 </div>
 
@@ -58,8 +58,9 @@ Three properties make it a *benchmark* and not a demo:
 | **Unmemorizable** | Levels are generated and certified continuously (LLM + procedural designers); difficulty is engineered so frontier models fail *informatively*. |
 | **Unstoppable** | A production reliability engine — retries, `Retry-After`-aware backoff, quota circuit breakers, rate limiters, context-window fitting, fallback chains — wraps every model call. |
 
-Everything is real. The engine is pure functions. The worm is an earthworm.
-The leaderboard is a static page generated from JSON that anyone can audit
+Everything is real. The engine is pure functions. The worm is the worm —
+pink, saddle-banded, googly-eyed, drawn like the game it comes from. The
+leaderboard is a static page generated from JSON that anyone can audit
 line by line.
 
 <div align="center">
@@ -70,15 +71,15 @@ line by line.
 
 ## The game
 
-A worm must eat every apple and reach its **burrow**. The wrinkle: it *grows*
+A worm must eat every apple and reach its **heart**. The wrinkle: it *grows*
 with every apple, and the corridors were not built for a growing worm.
 
 | | | |
 |:---:|:---:|:---:|
-| 🍎 **Apples** — eat to grow; the exit stays sealed until the plate is clean | ✂️ **Split** — sever the body; the dropped half stays as solid, weighted remains | 📦 **Crates** — sokoban pushes onto pressure plates |
-| ⚙️ **Plates & doors** — a door stays sealed while any plate stands unweighted | 🕳️ **Dirt** — dig through, spending a turn | 🗡️ **Spikes** — instant death, even mid-slide |
+| 🍎 **Apples** — eat to grow; the heart stays sealed until the plate is clean | ✂️ **Split** — sever the body; the dropped half stays as solid, weighted remains (and sleeps) | 🌰 **Walnuts** — sokoban pushes onto floor buttons |
+| 🟡 **Buttons & gates** — a golden gate stays barred while any button stands unweighted, then becomes a glowing portal | 🕳️ **Dirt** — dig through, spending a turn | 🗡️ **Spikes** — instant death, even mid-slide |
 | 🚪 **Valves** `> < ^ v` — enter only *with* the arrow; one-way law | ❄️ **Ice** — slide until stopped; one action, many cells | 🌉 **Bridges** — crumble the instant the last weight leaves |
-| 🔑 **Keys & locks** — inventory bookkeeping under budget | ⏱️ **Turn budgets** — every level is a clock | 🕳️ **The burrow** — the only way out |
+| 🔑 **Keys & locks** — inventory bookkeeping under budget | ⏱️ **Turn budgets** — every level is a clock | 💗 **The heart** — the only way out |
 
 The model's **only** interface is a projected text observation: the ASCII
 board, the rules, its move history, and the engine's verdict on every invalid
@@ -150,7 +151,7 @@ The computation is local. The truth is committed. The website is a pure archive.
 │  Actions: re-certify ladder → re-export archive → deploy Pages   │
 │                                                                  │
 │  site/  ├── index.html      leaderboard + coverage (pure HTML)   │
-│         ├── levels.html     gallery, every board engraved        │
+│         ├── levels.html     gallery, boards drawn like the game   │
 │         ├── run.html        replay viewer: board + model's mind  │
 │         └── data/*.json     generated from committed results     │
 └──────────────────────────────────────────────────────────────────┘
@@ -177,11 +178,11 @@ keys travel in environment variables, never in the repository.
 
 ## The dashboard (local control room)
 
-`bun run dev` opens the full **paper-aesthetic control room** at
+`bun run dev` opens the full **underground control room** at
 `localhost:3000` — the same deterministic engine, live:
 
 - **Plays** — every run with the dual view: the AI's *text world*
-  (teleprinter page) beside the human *engraved board*, step scrubber,
+  (underground terminal) beside the human *game board*, step scrubber,
   per-step sandbox audits.
 - **Mid-run control** — watch tokens stream, then **pause / resume /
   interrupt / steer** the model while it is thinking. Operator steering is
@@ -247,17 +248,19 @@ Open any run from the [leaderboard](https://namandhakad712.github.io/WRYM/)
 (`run.html?m=<model>&l=<level>`). The page is a two-column instrument:
 
 **Left — the board (human view).** The same deterministic state the AI parsed
-as ASCII, drawn as a naturalist's engraving: archival paper, iron-gall ink,
-cross-hatched bedrock. Elements are drawn as what they *are* — a riveted brass
-pressure plate, a plank door with iron bands and a wax seal, a soil mound with
-pebbles and a root, a steel spike bed, a rope-lashed bridge, a dark burrow
-mouth. And the worm is an **earthworm**: rose-tan, annulate, blunt-snouted,
-with shy bead eyes — never a snake.
+as ASCII, drawn in the game's own visual language — exactly like the real
+WOIM: layered soil strata in six palettes (moss, grass, clay, sand, rust,
+slate) with fossil glyphs, dark tunnels carved with organic edges, a glossy
+red apple, a walnut boulder, a yellow floor button that visibly depresses, a
+golden gate that becomes a glowing portal when satisfied, and the pink heart
+goal, sparkling. The worm is **the worm**: pastel-pink tube, coral saddle on
+segments 1–3, one big googly eye that tracks its heading (and blinks), and a
+white tail badge counting its length. Dropped halves sleep where they fell.
 
-**Right — the mind (AI view).** A teleprinter page in inverted ink: the
-model's recorded thought for the current step, its raw reply verbatim, the
-action chip (green = accepted, red = rejected with the engine's reason), and
-step telemetry (latency, observation bytes).
+**Right — the mind (AI view).** An underground terminal: the model's recorded
+thought for the current step, its raw reply verbatim, the action chip (green
+= accepted, red = rejected with the engine's reason), and step telemetry
+(latency, observation bytes).
 
 **The controls.** `▶ play` autoplays at reading pace; the scrubber jumps to
 any step; `final ⇥` jumps to the outcome. The event strip under the board
@@ -355,8 +358,8 @@ bench/
 results/                    committed archive: runs/, models.json, levels.json
 site/                       GitHub Pages archive (static; zero compute)
   index.html  levels.html  run.html
-  assets/wyrm.css           "laboratory paper" theme
-  assets/wyrm-render.js     vanilla canvas renderer (engraved plates)
+  assets/wyrm.css           "underground" theme — the game's palette + Fredoka
+  assets/wyrm-render.js     vanilla canvas renderer (WOIM-faithful)
   assets/wyrm-app.js        leaderboard + replay engine
   data/                     generated by scripts/export-site.ts
   assets/img/               screenshots (also used by this README)
@@ -372,7 +375,7 @@ src/lib/wyrm/
   elo.ts                    pairwise Elo
   agents/                   thinker, levelThinker, checker, reviewer, llm
   llm/                      types, tokens, ratelimiter, resilience, client
-src/components/wyrm/        dashboard views (paper aesthetic)
+src/components/wyrm/        dashboard views (underground theme)
 src/app/api/                REST + SSE routes
 scripts/
   run-benchmark.ts          headless runner → results/
@@ -395,6 +398,7 @@ Dockerfile, docker-compose.yml, DOCKER.md
 | --- | --- |
 | **README.md** (this file) | system overview, the GitHub flow, methodology, replay guide |
 | [`docs/LLM_RESILIENCE.md`](docs/LLM_RESILIENCE.md) | reliability engine spec: taxonomy, policies, limits, breakers, chains, config |
+| [`docs/WOIM_DESIGN_BIBLE.md`](docs/WOIM_DESIGN_BIBLE.md) | every element of the real game, researched & color-matched; the renderer's source of truth; the multi-game arena roadmap |
 | [`docs/BENCHMARK_LANDSCAPE.md`](docs/BENCHMARK_LANDSCAPE.md) | lm-eval-harness, HELM, OpenAI Evals, SWE-bench, Chatbot Arena, Kaggle Game Arena, BALROG — how they work, what's open source, WRYM's conformance map |
 | [`docs/whitepaper.pdf`](docs/whitepaper.pdf) | game formalization, mechanic taxonomy, difficulty engineering, isolation model, control plane |
 | [`bench/models.json`](bench/models.json) | the entrant registry, self-documented |
@@ -420,6 +424,6 @@ as failover-not-retry, a dead endpoint fails over to the built-in model in
 
 <div align="center">
 <sub>WRYM — the worm arena. The engine is deterministic, the checker is
-relentless, the leaderboard is static, and the worm is an earthworm.<br>
+relentless, the leaderboard is static, and the worm is the worm.<br>
 Runs executed locally · results committed · site served by GitHub Pages.</sub>
 </div>

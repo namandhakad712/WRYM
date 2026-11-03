@@ -1,720 +1,735 @@
 /* ═══════════════════════════════════════════════════════════════════
-   WRYM · wyrm-render.js — the engraved-plate board renderer (vanilla)
-   A faithful port of the dashboard's StageCanvas: parchment ground,
-   cross-hatched bedrock, real material icons, and ONE earthworm with
-   annular rings, a blunt snout and shy bead eyes — never a snake.
-   Exposes: WyrmRender.draw(canvas, state, opts)
+   WRYM · wyrm-render.js — the WOIM-faithful board renderer (vanilla)
+   Visual DNA extracted from the real game (Steam app 4272020, dogspawn):
+   layered soil strata with fossil glyphs, carved dark tunnels, ONE pink
+   worm with a coral saddle, a single googly eye and a tail length badge,
+   and the true element set — apples, walnuts, yellow floor buttons,
+   golden bar gates, the heart goal, dirt, spikes, valves, ice, bridges,
+   locks & keys. Every colour below was lifted from reference material.
+   Exposes: WyrmRender.draw(canvas, st, opts)
+            WyrmRender.THEMES · WyrmRender.themeFor(st)
    ═══════════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
 
-  const C = {
-    page: "#f4eddd", pageLo: "#ece2cc", pageHi: "#faf5e9",
-    ink: "#221c14", inkSoft: "#3a3226",
-    wax: "#a33327", waxDeep: "#7c221a",
-    sepia: "#8a6a42", sepiaDark: "#6b4f2e",
-    ice: "#dfe9ec", iceEdge: "#9fb6bd",
-    wood: "#a07a48", woodDark: "#77572f",
-    apple: "#b03a2a", appleHi: "#d0604f", appleLeaf: "#5a7242",
-    wormBody: "#c9917a", wormBodyLo: "#a56d58", wormBelly: "#dcae9a",
-    wormRing: "#8f5a44", wormEdge: "#5c3a2c", wormEye: "#2b201a",
-    soil: "#6e4f30", soilDark: "#4c3722", soilHi: "#8a6a42", pebble: "#9a8a72",
-    woodDoor: "#8a6238", woodDoorDark: "#5f4224",
-    iron: "#4a4a52", ironHi: "#7a7a86",
-    brassPlate: "#b09248", brassDark: "#7c6528",
-    burrow: "#2e2317",
+  /* ── soil themes — one per stratum of the world ─────────────────── */
+  var THEMES = {
+    moss:  { base: "#586248", wave1: "#4a533c", wave2: "#687455",
+             glyph: "rgba(50,58,40,0.45)", tunnel: "#1c1b18", ridge: "#282522" },
+    grass: { base: "#7a965a", wave1: "#5c733e", wave2: "#8fae6c",
+             glyph: "rgba(46,58,30,0.45)", tunnel: "#1e2b18", ridge: "#2a3a20", daisies: true },
+    clay:  { base: "#874936", wave1: "#743d2c", wave2: "#9e5640",
+             glyph: "rgba(68,30,20,0.45)", tunnel: "#1d1310", ridge: "#2a1a15" },
+    sand:  { base: "#9c6b43", wave1: "#7a5032", wave2: "#b07f52",
+             glyph: "rgba(60,36,18,0.40)", tunnel: "#3e2723", ridge: "#4d302a" },
+    rust:  { base: "#a4443b", wave1: "#732820", wave2: "#b95a4e",
+             glyph: "rgba(60,16,12,0.40)", tunnel: "#2b1010", ridge: "#3a1815" },
+    slate: { base: "#2b3a42", wave1: "#3e5866", wave2: "#223038",
+             glyph: "rgba(200,220,230,0.10)", tunnel: "#11151c", ridge: "#1a2129" },
+  };
+  var THEME_KEYS = ["moss", "grass", "clay", "sand", "rust", "slate"];
+
+  function themeFor(st) {
+    if (st.theme && THEMES[st.theme]) return THEMES[st.theme];
+    var h = 0, s = (st.slug || (st.t || "").join("")) + "";
+    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) & 0x7fffffff; }
+    return THEMES[THEME_KEYS[h % THEME_KEYS.length]];
+  }
+
+  /* ── the worm — pink, googly, beloved ───────────────────────────── */
+  var W = {
+    body: "#fca5b8",       // soft pastel pink
+    saddle: "#ea6a65",     // coral clitellum band
+    saddleEdge: "#c95167",
+    edge: "rgba(120,40,50,0.35)",
+    eyeWhite: "#ffffff",
+    eyeRim: "#2b1c1d",
+    pupil: "#0a0a0a",
+    gleam: "#ffffff",
+    badge: "#ffffff",
+    badgeInk: "#111111",
+    shadow: "rgba(0,0,0,0.30)",
   };
 
+  var VALVE_DIR = { ">": [1, 0], "<": [-1, 0], "^": [0, -1], "v": [0, 1] };
+
   function cellRand(x, y, salt) {
-    let r = ((x * 73856093) ^ (y * 19349663) ^ ((salt || 0) * 83492791)) & 0x7fffffff;
+    var r = ((x * 73856093) ^ (y * 19349663) ^ ((salt || 0) * 83492791)) & 0x7fffffff;
     return function () { r = (r * 1103515245 + 12345) & 0x7fffffff; return r / 0x7fffffff; };
   }
 
-  const VALVE_DIR = { ">": [1, 0], "<": [-1, 0], "^": [0, -1], "v": [0, 1] };
-
-  /** Is a plate-door currently passable? doorsOpen(state). */
   function doorsOpen(st) {
-    const plates = [];
-    for (let y = 0; y < st.h; y++)
-      for (let x = 0; x < st.w; x++)
+    var plates = [];
+    for (var y = 0; y < st.h; y++)
+      for (var x = 0; x < st.w; x++)
         if (st.t[y][x] === "%") plates.push([x, y]);
     if (!plates.length) return true;
-    const w = occupied(st);
-    return plates.every(function (p) { return w.has(p[0] + "," + p[1]); });
+    var occ = occupied(st);
+    for (var i = 0; i < plates.length; i++)
+      if (!occ.has(plates[i][0] + "," + plates[i][1])) return false;
+    return true;
   }
   function occupied(st) {
-    const s = new Set();
+    var s = new Set();
     (st.c || []).forEach(function (p) { s.add(p.x + "," + p.y); });
     (st.r || []).forEach(function (p) { s.add(p.x + "," + p.y); });
     (st.m || []).forEach(function (p) { s.add(p.x + "," + p.y); });
     return s;
   }
 
-  /**
-   * Draw one game state onto a canvas.
-   * st: serialized state JSON (w,h,t,c,a,k,kh,r,p,m,n,tl,s)
-   * opts: { pad, cell (optional fixed cell px), quality, showCoords }
-   */
+  /* ── main draw ──────────────────────────────────────────────────── */
   function draw(canvas, st, opts) {
     opts = opts || {};
-    const quality = opts.quality || "high";
-    const pad = opts.pad != null ? opts.pad : 22;
-    const cell = opts.cell || 40;
-    const w = st.w * cell + pad * 2;
-    const h = st.h * cell + pad * 2;
-    const dpr = Math.min(2, (typeof window !== "undefined" && window.devicePixelRatio) || 1);
+    var cell = opts.cell || 40;
+    var pad = opts.pad != null ? opts.pad : Math.round(cell * 0.55);
+    var t = opts.t || 0;                       // ms clock; 0 → still frame
+    var th = themeFor(st);
+    var w = st.w * cell + pad * 2;
+    var h = st.h * cell + pad * 2;
+    var dpr = Math.min(2, (typeof window !== "undefined" && window.devicePixelRatio) || 1);
     if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.aspectRatio = w + " / " + h;
     }
-    const g = canvas.getContext("2d");
+    var g = canvas.getContext("2d");
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, w, h);
 
-    // parchment
-    const bg = g.createLinearGradient(0, 0, w, h);
-    bg.addColorStop(0, C.pageHi); bg.addColorStop(0.5, C.page); bg.addColorStop(1, C.pageLo);
-    g.fillStyle = bg; g.fillRect(0, 0, w, h);
-    const fr = cellRand(7, 13);
-    const flecks = (w * h) / 900;
-    for (let i = 0; i < flecks; i++) {
-      const fx = fr() * w, fy = fr() * h;
-      g.fillStyle = fr() > 0.6 ? "rgba(120,96,60,0.05)" : "rgba(34,28,20,0.03)";
-      g.fillRect(fx, fy, 1 + fr() * 1.6, 0.8 + fr());
-    }
+    drawSoil(g, w, h, th, cell, st);
+    drawTunnels(g, st, cell, pad, th);
+    drawTerrain(g, st, cell, pad, th, t);
+    drawEntities(g, st, cell, pad, t);
+    drawWorm(g, st.m || [], cell, pad, t);
+    drawFrame(g, w, h, cell, pad, th);
 
-    // terrain
-    for (let y = 0; y < st.h; y++) {
-      for (let x = 0; x < st.w; x++) {
-        const t = st.t[y][x];
-        const px = pad + x * cell, py = pad + y * cell;
-        if (t === "#") {
-          const isPit = (st.p || []).some(function (p) { return p.x === x && p.y === y; });
-          drawRock(g, px, py, cell, x, y, st, isPit);
-        } else {
-          drawGround(g, px, py, cell, x, y, t, st);
-        }
-      }
-    }
-
-    // entities
-    (st.k || []).forEach(function (p) { drawKey(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell, 1); });
-    (st.a || []).forEach(function (p, i) { drawApple(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell, i * 1.3); });
-    (st.c || []).forEach(function (p) { drawCrate(g, pad + p.x * cell, pad + p.y * cell, cell, p.x, p.y); });
-    (st.r || []).forEach(function (p) { drawRemain(g, pad + p.x * cell, pad + p.y * cell, cell, p.x, p.y); });
-
-    // the worm
-    drawWorm(g, st.m || [], cell, pad);
-
-    // frame — fine double rule
-    g.strokeStyle = C.ink; g.lineWidth = 1.6;
-    g.strokeRect(pad - 8.5, pad - 8.5, w - pad * 2 + 17, h - pad * 2 + 17);
-    g.strokeStyle = "rgba(34,28,20,0.45)"; g.lineWidth = 0.7;
-    g.strokeRect(pad - 5.5, pad - 5.5, w - pad * 2 + 11, h - pad * 2 + 11);
-
-    // status vignettes
     if (st.s === "dead") {
-      g.fillStyle = "rgba(58,50,38,0.22)"; g.fillRect(0, 0, w, h);
+      g.fillStyle = "rgba(10,8,6,0.35)"; g.fillRect(0, 0, w, h);
     } else if (st.s === "won") {
-      const gl = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.6);
-      gl.addColorStop(0, "rgba(217,198,138,0.30)"); gl.addColorStop(1, "rgba(217,198,138,0)");
+      var gl = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.62);
+      gl.addColorStop(0, "rgba(255,150,190,0.30)");
+      gl.addColorStop(1, "rgba(255,150,190,0)");
       g.fillStyle = gl; g.fillRect(0, 0, w, h);
+      drawHeartsBurst(g, w, h, t);
     }
     return { width: w, height: h, cell: cell, pad: pad };
   }
 
-  function drawGround(g, px, py, cell, x, y, t, st) {
-    if ((x + y) % 2 === 0) {
-      g.fillStyle = "rgba(34,28,20,0.022)";
-      g.fillRect(px + 1, py + 1, cell - 2, cell - 2);
-    }
-    g.strokeStyle = "rgba(34,28,20,0.055)"; g.lineWidth = 1;
-    g.strokeRect(px + 0.5, py + 0.5, cell - 1, cell - 1);
-    g.fillStyle = "rgba(34,28,20,0.10)";
-    g.beginPath(); g.arc(px + cell / 2, py + cell / 2, 0.9, 0, Math.PI * 2); g.fill();
+  /* ── the underground: layered strata with fossil glyphs ─────────── */
+  function drawSoil(g, w, h, th, cell, st) {
+    g.fillStyle = th.base;
+    g.fillRect(0, 0, w, h);
 
-    if (t === "+") drawDirt(g, px, py, cell, x, y);
-    else if (t === "%") drawPlate(g, px, py, cell);
-    else if (t === "~") drawSpikes(g, px, py, cell, x, y);
-    else if (t === "X") drawExit(g, px, py, cell);
-    else if (t === "D") drawDoor(g, px, py, cell, st);
-    else if (t === "_") drawIce(g, px, py, cell, x, y);
-    else if (t === "=") drawBridge(g, px, py, cell, x, y);
-    else if (t === "L") drawLock(g, px, py, cell);
-    else if (VALVE_DIR[t]) drawValve(g, px, py, cell, t);
-  }
-
-  function drawRock(g, px, py, cell, x, y, st, isPit) {
-    g.save();
-    g.beginPath(); g.rect(px, py, cell, cell); g.clip();
-    if (isPit) {
-      g.fillStyle = "#e6dcc4"; g.fillRect(px, py, cell, cell);
-      const c = px + cell / 2, cy = py + cell / 2;
-      g.beginPath(); g.ellipse(c, cy, cell * 0.38, cell * 0.34, 0, 0, Math.PI * 2);
-      g.fillStyle = "#3a3226"; g.fill();
-      g.strokeStyle = C.ink; g.lineWidth = 1.4; g.stroke();
-      g.strokeStyle = "rgba(244,237,221,0.25)"; g.lineWidth = 0.8;
-      for (let i = -cell; i < cell; i += 4.5) {
+    var waveH = cell * 1.6, waveL = cell * 6.0, amp = cell * 0.55;
+    // two alternating bands of darker / lighter earth
+    for (var pass = 0; pass < 2; pass++) {
+      g.fillStyle = pass === 0 ? th.wave1 : th.wave2;
+      var step = waveH * 2.1, phase = pass * waveH;
+      for (var y = -waveH + phase; y < h + waveH * 2; y += step) {
         g.beginPath();
-        g.moveTo(c - cell * 0.4 + i, cy + cell * 0.4);
-        g.lineTo(c - cell * 0.4 + i + cell * 0.5, cy - cell * 0.4);
-        g.stroke();
+        g.moveTo(0, y);
+        for (var x = 0; x <= w + 40; x += 28) {
+          g.lineTo(x, y + Math.sin((x / waveL) * Math.PI * 2 + pass * 1.7) * amp);
+        }
+        g.lineTo(w, y + waveH * 0.55);
+        for (x = w; x >= 0; x -= 28) {
+          g.lineTo(x, y + waveH * 0.55 + Math.sin((x / waveL) * Math.PI * 2 + pass * 1.7) * amp);
+        }
+        g.closePath();
+        g.fill();
       }
-      g.restore(); return;
     }
-    g.fillStyle = "#3d352a"; g.fillRect(px, py, cell, cell);
-    const rand = cellRand(x, y, 3);
-    const phase = rand() * 4;
-    g.strokeStyle = "rgba(244,237,221,0.16)"; g.lineWidth = 1;
-    for (let i = -cell; i < cell * 2; i += 4.5) {
-      g.beginPath();
-      g.moveTo(px + i + phase, py - 1);
-      g.lineTo(px + i + phase - cell * 0.35, py + cell + 1);
-      g.stroke();
+
+    // fossil glyphs — spirals, fishbones, insect trails, daisies
+    var gw = cell * 3.6, gh = cell * 3.0;
+    var cols = Math.ceil(w / gw) + 1, rows = Math.ceil(h / gh) + 1;
+    g.lineCap = "round";
+    for (var c2 = 0; c2 < cols; c2++) {
+      for (var r2 = 0; r2 < rows; r2++) {
+        var rnd = cellRand(c2, r2, 77);
+        if (rnd() > 0.62) continue;
+        var gx = c2 * gw + rnd() * gw * 0.7;
+        var gy = r2 * gh + rnd() * gh * 0.7;
+        var kind = Math.floor(rnd() * (th.daisies ? 4 : 3));
+        g.save(); g.translate(gx, gy);
+        if (kind === 0) {                       // ammonite spiral
+          g.strokeStyle = th.glyph; g.lineWidth = Math.max(1.5, cell * 0.05);
+          g.beginPath();
+          var turns = 2.2, rr = cell * 0.30;
+          for (var a = 0; a < turns * Math.PI * 2; a += 0.25) {
+            var rad = rr * (a / (turns * Math.PI * 2));
+            var px = Math.cos(a) * rad, py = Math.sin(a) * rad;
+            a === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+          }
+          g.stroke();
+        } else if (kind === 1) {                // fishbone
+          g.strokeStyle = th.glyph; g.lineWidth = Math.max(1.4, cell * 0.045);
+          g.beginPath();
+          g.moveTo(-cell * 0.28, 0); g.lineTo(cell * 0.28, 0);
+          g.moveTo(-cell * 0.10, -cell * 0.16); g.lineTo(-cell * 0.02, 0);
+          g.moveTo(-cell * 0.10, cell * 0.16); g.lineTo(-cell * 0.02, 0);
+          g.moveTo(cell * 0.08, -cell * 0.16); g.lineTo(cell * 0.16, 0);
+          g.moveTo(cell * 0.08, cell * 0.16); g.lineTo(cell * 0.16, 0);
+          g.stroke();
+        } else if (kind === 2) {                // insect trail
+          g.strokeStyle = th.glyph; g.lineWidth = Math.max(1.2, cell * 0.04);
+          g.beginPath(); g.arc(0, 0, cell * 0.05, 0, Math.PI * 2); g.stroke();
+          g.beginPath();
+          g.moveTo(-cell * 0.18, -cell * 0.10); g.lineTo(-cell * 0.05, 0);
+          g.moveTo(cell * 0.18, -cell * 0.10); g.lineTo(cell * 0.05, 0);
+          g.stroke();
+        } else {                                // daisy (garden strata)
+          g.fillStyle = "rgba(250,246,230,0.75)";
+          for (var p = 0; p < 6; p++) {
+            var an = (p / 6) * Math.PI * 2;
+            g.beginPath();
+            g.ellipse(Math.cos(an) * cell * 0.11, Math.sin(an) * cell * 0.11,
+              cell * 0.075, cell * 0.045, an, 0, Math.PI * 2);
+            g.fill();
+          }
+          g.fillStyle = "#f4c430";
+          g.beginPath(); g.arc(0, 0, cell * 0.055, 0, Math.PI * 2); g.fill();
+        }
+        g.restore();
+      }
     }
-    g.strokeStyle = "rgba(244,237,221,0.07)";
-    for (let i = -cell; i < cell * 2; i += 6.5) {
-      g.beginPath();
-      g.moveTo(px + i + phase, py + cell + 1);
-      g.lineTo(px + i + phase - cell * 0.35, py - 1);
-      g.stroke();
-    }
-    const above = y > 0 ? st.t[y - 1][x] : "#";
-    if (above !== "#") {
-      g.strokeStyle = "rgba(34,28,20,0.95)"; g.lineWidth = 2.2;
-      g.beginPath(); g.moveTo(px, py + 1); g.lineTo(px + cell, py + 1); g.stroke();
-      g.strokeStyle = "rgba(244,237,221,0.32)"; g.lineWidth = 1;
-      g.beginPath(); g.moveTo(px, py + 2.6); g.lineTo(px + cell, py + 2.6); g.stroke();
-    }
-    g.restore();
+    void st;
   }
 
+  /* ── carved tunnels — dark earth with a soft inner ridge ────────── */
+  function drawTunnels(g, st, cell, pad, th) {
+    var i, x, y;
+    var at = function (x2, y2) {
+      return x2 >= 0 && y2 >= 0 && y2 < st.h && x2 < st.w ? st.t[y2][x2] : "#";
+    };
+    for (y = 0; y < st.h; y++) {
+      for (x = 0; x < st.w; x++) {
+        if (at(x, y) === "#") continue;
+        var px = pad + x * cell, py = pad + y * cell;
+        g.fillStyle = th.tunnel;
+        g.fillRect(px - 1, py - 1, cell + 2, cell + 2);
+        // inner strata ridge
+        g.fillStyle = th.ridge;
+        g.fillRect(px, py + cell * 0.36, cell, cell * 0.27);
+      }
+    }
+    // organic carved edge against the soil
+    g.strokeStyle = "rgba(12,9,6,0.85)";
+    g.lineWidth = Math.max(3, cell * 0.11);
+    g.lineCap = "round";
+    for (y = 0; y < st.h; y++) {
+      for (x = 0; x < st.w; x++) {
+        if (at(x, y) === "#") continue;
+        var px2 = pad + x * cell, py2 = pad + y * cell;
+        if (at(x, y - 1) === "#") line(g, px2, py2, px2 + cell, py2);
+        if (at(x, y + 1) === "#") line(g, px2, py2 + cell, px2 + cell, py2 + cell);
+        if (at(x - 1, y) === "#") line(g, px2, py2, px2, py2 + cell);
+        if (at(x + 1, y) === "#") line(g, px2 + cell, py2, px2 + cell, py2 + cell);
+      }
+    }
+  }
+  function line(g, x1, y1, x2, y2) {
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  }
+
+  /* ── terrain pieces ─────────────────────────────────────────────── */
+  function drawTerrain(g, st, cell, pad, th, t) {
+    var open = doorsOpen(st);
+    var occupiedSet = occupied(st);
+    for (var y = 0; y < st.h; y++) {
+      for (var x = 0; x < st.w; x++) {
+        var ch = st.t[y][x];
+        var px = pad + x * cell, py = pad + y * cell;
+        var cx = px + cell / 2, cy = py + cell / 2;
+        if (ch === "+") drawDirt(g, px, py, cell, x, y);
+        else if (ch === "%") drawButton(g, cx, cy, cell, occupiedSet.has(x + "," + y));
+        else if (ch === "D") drawGate(g, px, py, cell, open);
+        else if (ch === "X") drawHeartGoal(g, cx, cy, cell, t, x, y);
+        else if (ch === "~") drawSpikes(g, px, py, cell, x, y);
+        else if (ch === "_") drawIce(g, px, py, cell, x, y);
+        else if (ch === "=") drawBridge(g, px, py, cell, x, y);
+        else if (ch === "L") drawLock(g, cx, cy, cell);
+        else if (VALVE_DIR[ch]) drawValve(g, cx, cy, cell, ch);
+      }
+    }
+    void th;
+  }
+
+  /* dirt — the soft diggable earth block, lifted from the real game */
   function drawDirt(g, px, py, cell, x, y) {
-    const rand = cellRand(x, y, 5);
-    const inset = cell * 0.08;
-    const x0 = px + inset, y0 = py + inset, x1 = px + cell - inset, y1 = py + cell - inset;
-    g.beginPath();
-    const steps = 7, wob = cell * 0.07;
-    for (let i = 0; i <= steps; i++) { const t = i / steps; const wx = x0 + (x1 - x0) * t, wy = y0 + (rand() - 0.5) * wob; i === 0 ? g.moveTo(wx, wy) : g.lineTo(wx, wy); }
-    for (let i = 0; i <= steps; i++) { const t = i / steps; g.lineTo(x1 + (rand() - 0.5) * wob, y0 + (y1 - y0) * t); }
-    for (let i = 0; i <= steps; i++) { const t = i / steps; g.lineTo(x1 - (x1 - x0) * t, y1 + (rand() - 0.5) * wob); }
-    for (let i = 0; i <= steps; i++) { const t = i / steps; g.lineTo(x0 + (rand() - 0.5) * wob, y1 - (y1 - y0) * t); }
-    g.closePath();
-    const sg = g.createLinearGradient(x0, y0, x0, y1);
-    sg.addColorStop(0, C.soilHi); sg.addColorStop(0.55, C.soil); sg.addColorStop(1, C.soilDark);
-    g.fillStyle = sg; g.fill();
-    g.save(); g.clip();
-    for (let i = 0; i < 5; i++) {
-      const bx = x0 + cell * (0.15 + rand() * 0.7), by = y0 + cell * (0.15 + rand() * 0.7), br = cell * (0.09 + rand() * 0.1);
-      g.beginPath(); g.arc(bx, by, br, Math.PI, Math.PI * 2);
-      g.fillStyle = "rgba(190,160,110,0.35)"; g.fill();
-      g.strokeStyle = "rgba(60,44,26,0.4)"; g.lineWidth = 0.8; g.stroke();
-    }
-    g.strokeStyle = "rgba(40,28,16,0.55)"; g.lineWidth = 0.9;
-    for (let i = 0; i < 3; i++) {
-      let cx = x0 + cell * (0.1 + rand() * 0.8), cy = y0 + cell * (0.15 + rand() * 0.3);
-      g.beginPath(); g.moveTo(cx, cy);
-      for (let s = 0; s < 3; s++) { cx += (rand() - 0.5) * cell * 0.24; cy += cell * 0.12; g.lineTo(cx, cy); }
-      g.stroke();
-    }
-    for (let i = 0; i < 3; i++) {
-      const bx = x0 + cell * (0.15 + rand() * 0.7), by = y0 + cell * (0.2 + rand() * 0.6), br = cell * (0.045 + rand() * 0.035);
-      g.beginPath(); g.ellipse(bx, by, br, br * 0.8, rand() * Math.PI, 0, Math.PI * 2);
-      g.fillStyle = C.pebble; g.fill();
-      g.strokeStyle = "rgba(60,50,40,0.6)"; g.lineWidth = 0.6; g.stroke();
-    }
-    g.strokeStyle = "rgba(150,110,64,0.8)"; g.lineWidth = 1.1;
-    g.beginPath();
-    g.moveTo(x0 + cell * 0.08, y0 + cell * (0.3 + rand() * 0.3));
-    g.quadraticCurveTo(x0 + cell * 0.5, y0 + cell * (0.35 + rand() * 0.4), x1 - cell * 0.06, y0 + cell * (0.45 + rand() * 0.3));
-    g.stroke();
-    g.fillStyle = "rgba(46,34,20,0.5)";
-    for (let i = 0; i < 12; i++) { g.beginPath(); g.arc(x0 + rand() * (x1 - x0), y0 + rand() * (y1 - y0), 0.6 + rand() * 0.8, 0, Math.PI * 2); g.fill(); }
-    g.restore();
-    g.strokeStyle = C.soilDark; g.lineWidth = 1.3; g.stroke();
-  }
-
-  function drawPlate(g, px, py, cell) {
-    const c = px + cell / 2, cy = py + cell / 2, r = cell * 0.32;
-    g.beginPath(); g.arc(c + 1, cy + 1.5, r, 0, Math.PI * 2);
-    g.fillStyle = "rgba(34,28,20,0.18)"; g.fill();
-    const pg = g.createRadialGradient(c - r * 0.35, cy - r * 0.35, r * 0.15, c, cy, r);
-    pg.addColorStop(0, "#d8bc74"); pg.addColorStop(0.6, C.brassPlate); pg.addColorStop(1, C.brassDark);
-    g.beginPath(); g.arc(c, cy, r, 0, Math.PI * 2); g.fillStyle = pg; g.fill();
-    g.strokeStyle = C.ink; g.lineWidth = 1.2; g.stroke();
-    g.beginPath(); g.arc(c, cy, r * 0.78, 0, Math.PI * 2);
-    g.strokeStyle = "rgba(255,244,214,0.5)"; g.lineWidth = 1; g.stroke();
-    g.beginPath();
-    g.moveTo(c, cy - r * 0.34); g.lineTo(c + r * 0.34, cy); g.lineTo(c, cy + r * 0.34); g.lineTo(c - r * 0.34, cy);
-    g.closePath();
-    g.strokeStyle = "rgba(76,58,20,0.75)"; g.lineWidth = 1.1; g.stroke();
-    g.fillStyle = "rgba(76,58,20,0.28)"; g.fill();
-    g.fillStyle = C.iron;
-    [[-0.62, -0.62], [0.62, -0.62], [-0.62, 0.62], [0.62, 0.62]].forEach(function (p) {
-      g.beginPath(); g.arc(c + r * p[0], cy + r * p[1], r * 0.1, 0, Math.PI * 2); g.fill();
-    });
-  }
-
-  function drawSpikes(g, px, py, cell, x, y) {
-    const rand = cellRand(x, y, 9);
-    const bh = cell * 0.16;
-    g.fillStyle = "rgba(52,52,60,0.9)";
-    g.fillRect(px + cell * 0.08, py + cell * 0.74, cell * 0.84, bh);
-    g.strokeStyle = C.ink; g.lineWidth = 1.1;
-    g.strokeRect(px + cell * 0.08, py + cell * 0.74, cell * 0.84, bh);
-    g.fillStyle = C.ironHi;
-    [0.16, 0.84].forEach(function (bx) {
-      g.beginPath(); g.arc(px + cell * bx, py + cell * 0.74 + bh / 2, cell * 0.028, 0, Math.PI * 2); g.fill();
-    });
-    const tips = [[0.24, 0.45], [0.42, 0.33], [0.6, 0.41], [0.78, 0.49]];
-    tips.forEach(function (tp) {
-      const tipX = px + cell * tp[0], tipY = py + cell * (tp[1] + rand() * 0.06);
-      const halfW = cell * 0.055, baseY = py + cell * 0.76;
-      g.beginPath();
-      g.moveTo(tipX - halfW, baseY);
-      g.quadraticCurveTo(tipX - halfW * 0.8, (tipY + baseY) / 2, tipX, tipY);
-      g.quadraticCurveTo(tipX + halfW * 0.8, (tipY + baseY) / 2, tipX + halfW, baseY);
-      g.closePath();
-      const mg = g.createLinearGradient(tipX - halfW, 0, tipX + halfW, 0);
-      mg.addColorStop(0, "#8b939e"); mg.addColorStop(0.45, "#5c6670"); mg.addColorStop(1, "#3a4048");
-      g.fillStyle = mg; g.fill();
-      g.strokeStyle = C.ink; g.lineWidth = 0.9; g.stroke();
-      g.beginPath();
-      g.moveTo(tipX - halfW * 0.5, baseY - cell * 0.04);
-      g.lineTo(tipX - halfW * 0.12, tipY + cell * 0.06);
-      g.strokeStyle = "rgba(235,240,246,0.65)"; g.lineWidth = 0.8; g.stroke();
-    });
-  }
-
-  function drawExit(g, px, py, cell) {
-    const c = px + cell / 2, cy = py + cell / 2;
-    const rx = cell * 0.34, ry = cell * 0.26;
-    g.beginPath(); g.arc(c, cy, cell * 0.42, 0, Math.PI * 2);
-    g.strokeStyle = "rgba(34,28,20,0.4)"; g.lineWidth = 1; g.setLineDash([3, 3]); g.stroke(); g.setLineDash([]);
-    g.beginPath(); g.ellipse(c, cy + cell * 0.02, rx * 1.3, ry * 1.45, 0, 0, Math.PI * 2);
-    g.fillStyle = C.soil; g.fill();
-    g.strokeStyle = C.soilDark; g.lineWidth = 1.2; g.stroke();
-    g.beginPath(); g.ellipse(c, cy + cell * 0.02, rx * 1.08, ry * 1.18, 0, Math.PI * 0.95, Math.PI * 2.05);
-    g.strokeStyle = "rgba(178,142,96,0.75)"; g.lineWidth = 1.6; g.stroke();
-    g.beginPath(); g.ellipse(c, cy + cell * 0.03, rx, ry, 0, 0, Math.PI * 2);
-    const hg = g.createRadialGradient(c, cy + cell * 0.05, cell * 0.03, c, cy + cell * 0.03, rx);
-    hg.addColorStop(0, "#0d0a06"); hg.addColorStop(0.75, C.burrow); hg.addColorStop(1, "#4a3a26");
-    g.fillStyle = hg; g.fill();
-    g.strokeStyle = C.soilDark; g.lineWidth = 1.1; g.stroke();
-    const rand = cellRand(3, 9, 21);
-    g.strokeStyle = "rgba(92,66,40,0.7)"; g.lineWidth = 0.9;
-    for (let i = 0; i < 5; i++) {
-      const ang = Math.PI * (0.15 + rand() * 0.7) + (rand() > 0.5 ? Math.PI : 0);
-      const r1 = rx * 1.25;
-      g.beginPath();
-      g.moveTo(c + Math.cos(ang) * r1 * 0.9, cy + Math.sin(ang) * ry * 1.3);
-      g.quadraticCurveTo(c + Math.cos(ang) * r1 * 1.25, cy + Math.sin(ang) * ry * 1.7, c + Math.cos(ang + (rand() - 0.5) * 0.4) * r1 * 1.5, cy + Math.sin(ang) * ry * 1.9);
-      g.stroke();
-    }
-    g.fillStyle = "rgba(52,38,22,0.8)";
-    for (let i = 0; i < 6; i++) {
-      const ang = rand() * Math.PI * 2;
-      g.beginPath();
-      g.arc(c + Math.cos(ang) * rx * (1.35 + rand() * 0.35), cy + Math.sin(ang) * ry * (1.5 + rand() * 0.4), 0.8 + rand(), 0, Math.PI * 2);
+    var rnd = cellRand(x, y, 5);
+    var inset = cell * 0.06;
+    var x0 = px + inset, y0 = py + inset, s = cell - inset * 2;
+    var grad = g.createLinearGradient(x0, y0, x0, y0 + s);
+    grad.addColorStop(0, "#9a7648");
+    grad.addColorStop(0.55, "#7d5c34");
+    grad.addColorStop(1, "#5f4426");
+    roundRect(g, x0, y0, s, s, cell * 0.18);
+    g.fillStyle = grad; g.fill();
+    g.strokeStyle = "#4a3420"; g.lineWidth = 2; g.stroke();
+    g.save();
+    roundRect(g, x0, y0, s, s, cell * 0.18); g.clip();
+    // pebbles + roots in the fresh earth
+    for (var i = 0; i < 5; i++) {
+      var bx = x0 + s * (0.15 + rnd() * 0.7), by = y0 + s * (0.15 + rnd() * 0.7);
+      var br = s * (0.05 + rnd() * 0.06);
+      g.beginPath(); g.arc(bx, by, br, 0, Math.PI * 2);
+      g.fillStyle = rnd() > 0.5 ? "rgba(210,180,130,0.5)" : "rgba(58,42,24,0.5)";
       g.fill();
     }
+    g.strokeStyle = "rgba(46,32,16,0.6)"; g.lineWidth = 1.2;
+    g.beginPath();
+    g.moveTo(x0 + s * 0.1, y0 + s * 0.35);
+    g.quadraticCurveTo(x0 + s * 0.5, y0 + s * 0.5, x0 + s * 0.92, y0 + s * 0.3);
+    g.stroke();
+    g.restore();
   }
 
-  function drawDoor(g, px, py, cell, st) {
-    const open = doorsOpen(st);
-    const f = cell * 0.06;
-    g.fillStyle = "#cfc4a6"; g.fillRect(px, py, cell, cell);
-    g.strokeStyle = "rgba(34,28,20,0.5)"; g.lineWidth = 0.8;
-    for (let i = 1; i < 3; i++) {
-      g.beginPath();
-      g.moveTo(px, py + (cell * i) / 3); g.lineTo(px + f, py + (cell * i) / 3);
-      g.moveTo(px + cell - f, py + (cell * i) / 3); g.lineTo(px + cell, py + (cell * i) / 3);
-      g.stroke();
-    }
-    g.fillStyle = open ? "rgba(30,24,16,0.85)" : "rgba(52,42,28,0.9)";
-    g.fillRect(px + f, py + f, cell - f * 2, cell - f * 2);
+  /* the yellow floor button — press it with body or walnut */
+  function drawButton(g, cx, cy, cell, pressed) {
+    var rx = cell * 0.36, ry = cell * (pressed ? 0.20 : 0.30);
+    var oy = pressed ? cell * 0.06 : 0;
+    // rim
+    g.beginPath();
+    g.ellipse(cx, cy + oy, rx * 1.12, ry * 1.35 + cell * 0.04, 0, 0, Math.PI * 2);
+    g.fillStyle = "#b88914"; g.fill();
+    // platter
+    g.beginPath();
+    g.ellipse(cx, cy + oy - cell * 0.02, rx, ry, 0, 0, Math.PI * 2);
+    g.fillStyle = pressed ? "#e6b422" : "#ffcf33";
+    g.fill();
+    g.strokeStyle = "#b88914"; g.lineWidth = 2; g.stroke();
+    // shine
+    g.beginPath();
+    g.ellipse(cx - rx * 0.25, cy + oy - ry * 0.55, rx * 0.42, ry * 0.32, -0.3, 0, Math.PI * 2);
+    g.fillStyle = pressed ? "rgba(255,238,150,0.55)" : "#ffea75";
+    g.fill();
+  }
+
+  /* the golden gate — bars when sealed, a glowing portal when open */
+  function drawGate(g, px, py, cell, open) {
+    var cx = px + cell / 2, cy = py + cell / 2;
     if (open) {
-      g.save();
-      g.translate(px + f, py + cell * 0.5);
-      g.transform(1, 0, -0.38, 1, 0, 0);
-      const dw = (cell - f * 2) * 0.34;
-      g.fillStyle = C.woodDoor; g.fillRect(0, -cell * 0.44, dw, cell * 0.88);
-      g.strokeStyle = C.woodDoorDark; g.lineWidth = 1; g.strokeRect(0, -cell * 0.44, dw, cell * 0.88);
-      g.beginPath(); g.moveTo(dw * 0.5, -cell * 0.44); g.lineTo(dw * 0.5, cell * 0.44); g.stroke();
-      g.restore();
-      g.fillStyle = "rgba(244,237,221,0.10)";
-      g.fillRect(px + f + dw * 0.4, py + f, cell - f * 2 - dw * 0.5, cell - f * 2);
-    } else {
-      const dx = px + f, dy = py + f, dw = cell - f * 2, dh = cell - f * 2;
-      const planks = 3, pw = dw / planks;
-      for (let i = 0; i < planks; i++) {
-        const wx = dx + i * pw;
-        g.fillStyle = i % 2 === 0 ? C.woodDoor : "#7d5730";
-        g.fillRect(wx, dy, pw, dh);
-        const rand = cellRand(i, 7, 31);
-        g.strokeStyle = "rgba(74,52,26,0.5)"; g.lineWidth = 0.7;
-        for (let k = 0; k < 2; k++) {
-          const gy = dy + dh * (0.25 + rand() * 0.5);
-          g.beginPath();
-          g.moveTo(wx + 1.5, gy);
-          g.bezierCurveTo(wx + pw * 0.4, gy + 1.5, wx + pw * 0.6, gy - 1.5, wx + pw - 1.5, gy);
-          g.stroke();
-        }
-      }
-      g.strokeStyle = C.woodDoorDark; g.lineWidth = 1;
-      for (let i = 1; i < planks; i++) { g.beginPath(); g.moveTo(dx + i * pw, dy); g.lineTo(dx + i * pw, dy + dh); g.stroke(); }
-      g.strokeStyle = C.ink; g.lineWidth = 1.4; g.strokeRect(dx, dy, dw, dh);
-      g.fillStyle = C.iron;
-      [dy + dh * 0.22, dy + dh * 0.72].forEach(function (by) {
-        g.fillRect(dx - 1, by, dw + 2, cell * 0.075);
-        g.strokeStyle = C.ink; g.lineWidth = 0.8; g.strokeRect(dx - 1, by, dw + 2, cell * 0.075);
-        g.fillStyle = C.ironHi;
-        [dx + dw * 0.18, dx + dw * 0.82].forEach(function (rx) {
-          g.beginPath(); g.arc(rx, by + cell * 0.037, cell * 0.018, 0, Math.PI * 2); g.fill();
-        });
-        g.fillStyle = C.iron;
-      });
-      g.strokeStyle = "#3d3d45"; g.lineWidth = 1.6;
-      g.beginPath(); g.arc(dx + dw * 0.74, dy + dh * 0.47, cell * 0.055, 0, Math.PI * 2); g.stroke();
-      g.beginPath(); g.arc(dx + dw * 0.26, dy + dh * 0.47, cell * 0.075, 0, Math.PI * 2);
-      g.fillStyle = C.wax; g.fill();
-      g.strokeStyle = C.waxDeep; g.lineWidth = 1; g.stroke();
-      const k = cell * 0.028;
-      g.beginPath();
-      g.moveTo(dx + dw * 0.26 - k, dy + dh * 0.47 - k); g.lineTo(dx + dw * 0.26 + k, dy + dh * 0.47 + k);
-      g.moveTo(dx + dw * 0.26 + k, dy + dh * 0.47 - k); g.lineTo(dx + dw * 0.26 - k, dy + dh * 0.47 + k);
-      g.strokeStyle = "rgba(244,237,221,0.85)"; g.lineWidth = 0.9; g.stroke();
+      var grad = g.createRadialGradient(cx, cy, cell * 0.05, cx, cy, cell * 0.62);
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.45, "#fce570");
+      grad.addColorStop(1, "#e8b630");
+      roundRect(g, px + cell * 0.06, py + cell * 0.06, cell * 0.88, cell * 0.88, cell * 0.16);
+      g.fillStyle = grad; g.fill();
+      g.strokeStyle = "#b88914"; g.lineWidth = 2; g.stroke();
+      return;
     }
-    g.strokeStyle = C.ink; g.lineWidth = 1.5;
-    g.strokeRect(px + 0.5, py + 0.5, cell - 1, cell - 1);
+    // sealed: dark chamber with golden bars
+    g.fillStyle = "#161310";
+    g.fillRect(px, py, cell, cell);
+    g.fillStyle = "#d99f18";
+    var n = 3, bw = cell * 0.13;
+    for (var i = 0; i < n; i++) {
+      var bx = px + cell * (0.5 + (i - 1) * 0.27) - bw / 2;
+      g.fillRect(bx, py + cell * 0.08, bw, cell * 0.84);
+      g.fillStyle = "#fce570";
+      g.fillRect(bx + bw * 0.18, py + cell * 0.10, bw * 0.3, cell * 0.78);
+      g.fillStyle = "#d99f18";
+    }
+    g.strokeStyle = "#8a6210"; g.lineWidth = 2;
+    g.strokeRect(px + 1, py + 1, cell - 2, cell - 2);
   }
 
-  function drawIce(g, px, py, cell, x, y) {
-    const m = 1.5;
-    g.beginPath(); g.rect(px + m, py + m, cell - m * 2, cell - m * 2);
-    const ig = g.createLinearGradient(px, py, px + cell, py + cell);
-    ig.addColorStop(0, "#eef6f8"); ig.addColorStop(0.5, C.ice); ig.addColorStop(1, "#cfe0e6");
-    g.fillStyle = ig; g.fill();
-    g.strokeStyle = C.iceEdge; g.lineWidth = 1.1; g.stroke();
-    g.strokeStyle = "rgba(255,255,255,0.8)"; g.lineWidth = 1;
+  /* the heart goal — “WOIM IN LOVE!” */
+  function drawHeartGoal(g, cx, cy, cell, t, x, y) {
+    var size = cell * 0.42;
+    var bob = t ? Math.sin(t * 0.003 + x) * cell * 0.05 : 0;
+    var pulse = t ? 1 + Math.sin(t * 0.005) * 0.05 : 1;
+    g.save();
+    g.translate(cx, cy + bob);
+    g.scale(pulse, pulse);
+    // glow
+    var gl = g.createRadialGradient(0, 0, size * 0.2, 0, 0, size * 1.8);
+    gl.addColorStop(0, "rgba(255,105,160,0.35)");
+    gl.addColorStop(1, "rgba(255,105,160,0)");
+    g.fillStyle = gl;
+    g.beginPath(); g.arc(0, 0, size * 1.8, 0, Math.PI * 2); g.fill();
+    // heart body
     g.beginPath();
-    g.moveTo(px + m + 1.5, py + cell - m - 1.5); g.lineTo(px + m + 1.5, py + m + 1.5); g.lineTo(px + cell - m - 1.5, py + m + 1.5);
-    g.stroke();
-    g.strokeStyle = "rgba(130,160,172,0.55)";
-    g.beginPath();
-    g.moveTo(px + cell - m - 1.5, py + m + 1.5); g.lineTo(px + cell - m - 1.5, py + cell - m - 1.5); g.lineTo(px + m + 1.5, py + cell - m - 1.5);
-    g.stroke();
-    const rand = cellRand(x, y, 11);
-    g.strokeStyle = "rgba(120,155,168,0.6)"; g.lineWidth = 0.8;
-    for (let i = 0; i < 2; i++) {
-      let ax = px + cell * (0.15 + rand() * 0.6), ay = py + cell * (0.15 + rand() * 0.2);
-      g.beginPath(); g.moveTo(ax, ay);
-      for (let s = 0; s < 3; s++) { ax += (rand() - 0.35) * cell * 0.22; ay += cell * (0.12 + rand() * 0.14); g.lineTo(ax, ay); }
-      g.stroke();
-    }
-    g.fillStyle = "rgba(255,255,255,0.9)";
-    for (let i = 0; i < 3; i++) {
-      const gx = px + cell * (0.2 + rand() * 0.6), gy = py + cell * (0.2 + rand() * 0.6), gr = cell * 0.05;
+    g.moveTo(0, size * 0.38);
+    g.bezierCurveTo(-size * 0.95, -size * 0.28, -size * 0.72, -size * 1.02, 0, -size * 0.42);
+    g.bezierCurveTo(size * 0.72, -size * 1.02, size * 0.95, -size * 0.28, 0, size * 0.38);
+    g.fillStyle = "#ff3377"; g.fill();
+    g.strokeStyle = "#d11a58"; g.lineWidth = 2; g.stroke();
+    // shine
+    g.fillStyle = "#ffb3cc";
+    g.beginPath(); g.arc(-size * 0.3, -size * 0.38, size * 0.13, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(size * 0.34, -size * 0.05, size * 0.08, 0, Math.PI * 2); g.fill();
+    g.restore();
+    // orbiting sparkles
+    g.fillStyle = "#ffd1e0";
+    for (var i = 0; i < 3; i++) {
+      var an = (t ? t * 0.002 : x * 2.1) + (i * Math.PI * 2) / 3;
+      var sx = cx + Math.cos(an) * size * 0.95;
+      var sy = cy + bob + Math.sin(an) * size * 0.95;
       g.beginPath();
-      for (let k = 0; k < 4; k++) {
-        const ang = (k / 4) * Math.PI * 2;
-        const rr = k % 2 === 0 ? gr * 1.8 : gr * 0.55;
-        if (k === 0) g.moveTo(gx + Math.cos(ang) * rr, gy + Math.sin(ang) * rr); else g.lineTo(gx + Math.cos(ang) * rr, gy + Math.sin(ang) * rr);
+      g.moveTo(sx, sy - 3.2); g.lineTo(sx + 1.6, sy - 1.1); g.lineTo(sx + 3.2, sy - 3.2);
+      g.lineTo(sx + 1.1, sy + 0.4); g.lineTo(sx + 3.2, sy + 2.2); g.lineTo(sx, sy + 1.2);
+      g.lineTo(sx - 3.2, sy + 2.2); g.lineTo(sx - 1.1, sy + 0.4); g.lineTo(sx - 3.2, sy - 3.2);
+      g.lineTo(sx - 1.6, sy - 1.1);
+      g.closePath(); g.fill();
+    }
+  }
+
+  /* spikes — the one hazard, cartoon steel */
+  function drawSpikes(g, px, py, cell, x, y) {
+    var rnd = cellRand(x, y, 9);
+    // base plate
+    roundRect(g, px + cell * 0.08, py + cell * 0.72, cell * 0.84, cell * 0.16, cell * 0.05);
+    g.fillStyle = "#4a4a52"; g.fill();
+    g.strokeStyle = "#26262c"; g.lineWidth = 1.5; g.stroke();
+    // three rounded teeth
+    var tips = [0.26, 0.5, 0.74];
+    for (var i = 0; i < tips.length; i++) {
+      var tx = px + cell * tips[i];
+      var ty = py + cell * (0.30 + rnd() * 0.08);
+      var hw = cell * 0.085;
+      g.beginPath();
+      g.moveTo(tx - hw, py + cell * 0.74);
+      g.quadraticCurveTo(tx - hw, ty + cell * 0.12, tx, ty);
+      g.quadraticCurveTo(tx + hw, ty + cell * 0.12, tx + hw, py + cell * 0.74);
+      g.closePath();
+      var mg = g.createLinearGradient(tx - hw, 0, tx + hw, 0);
+      mg.addColorStop(0, "#aab3bd"); mg.addColorStop(0.5, "#6d7681"); mg.addColorStop(1, "#454c55");
+      g.fillStyle = mg; g.fill();
+      g.strokeStyle = "#26262c"; g.lineWidth = 1.4; g.stroke();
+    }
+  }
+
+  /* one-way valve — a wooden sign with a white chevron */
+  function drawValve(g, cx, cy, cell, ch) {
+    var d = VALVE_DIR[ch];
+    roundRect(g, cx - cell * 0.36, cy - cell * 0.36, cell * 0.72, cell * 0.72, cell * 0.16);
+    g.fillStyle = "#543b2d"; g.fill();
+    g.strokeStyle = "#3a291e"; g.lineWidth = 2; g.stroke();
+    roundRect(g, cx - cell * 0.28, cy - cell * 0.28, cell * 0.56, cell * 0.56, cell * 0.12);
+    g.fillStyle = "#6b4c38"; g.fill();
+    // chevron arrow
+    var ax = d[0], ay = d[1];
+    g.strokeStyle = "#fdeccc"; g.lineWidth = Math.max(2.5, cell * 0.09);
+    g.lineCap = "round"; g.lineJoin = "round";
+    var s = cell * 0.2;
+    g.beginPath();
+    g.moveTo(cx - ax * s - ay * s * 0.85, cy - ay * s + ax * s * 0.85);
+    g.lineTo(cx + ax * s * 0.9, cy + ay * s * 0.9);
+    g.lineTo(cx - ax * s + ay * s * 0.85, cy - ay * s - ax * s * 0.85);
+    g.stroke();
+  }
+
+  /* ice — frictionless frost */
+  function drawIce(g, px, py, cell, x, y) {
+    var rnd = cellRand(x, y, 11);
+    roundRect(g, px + 1.5, py + 1.5, cell - 3, cell - 3, cell * 0.14);
+    var ig = g.createLinearGradient(px, py, px + cell, py + cell);
+    ig.addColorStop(0, "#e8f7fe"); ig.addColorStop(0.5, "#c7e9f8"); ig.addColorStop(1, "#a5d8ef");
+    g.fillStyle = ig; g.fill();
+    g.strokeStyle = "#7fb8d4"; g.lineWidth = 1.5; g.stroke();
+    g.strokeStyle = "rgba(255,255,255,0.9)"; g.lineWidth = 1.6;
+    g.beginPath();
+    g.moveTo(px + cell * 0.14, py + cell * 0.8); g.lineTo(px + cell * 0.14, py + cell * 0.2);
+    g.lineTo(px + cell * 0.44, py + cell * 0.2);
+    g.stroke();
+    // frost crystals
+    g.fillStyle = "rgba(255,255,255,0.85)";
+    for (var i = 0; i < 3; i++) {
+      var gx = px + cell * (0.25 + rnd() * 0.5), gy = py + cell * (0.3 + rnd() * 0.45);
+      var gr = cell * 0.045;
+      g.beginPath();
+      for (var k = 0; k < 6; k++) {
+        var an = (k / 6) * Math.PI * 2;
+        var rr = k % 2 === 0 ? gr * 1.7 : gr * 0.6;
+        k === 0 ? g.moveTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr)
+                : g.lineTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
       }
       g.closePath(); g.fill();
     }
   }
 
+  /* crumbling bridge — warm planks */
   function drawBridge(g, px, py, cell, x, y) {
-    g.fillStyle = "rgba(34,28,20,0.16)"; g.fillRect(px + 1, py + 1, cell - 2, cell - 2);
-    g.fillStyle = C.woodDark;
-    g.fillRect(px + 3, py + cell * 0.2, cell - 6, cell * 0.08);
-    g.fillRect(px + 3, py + cell * 0.72, cell - 6, cell * 0.08);
-    const planks = 4, pw = (cell - 6) / planks;
-    for (let i = 0; i < planks; i++) {
-      const bx = px + 3 + i * pw;
-      g.fillStyle = C.wood;
-      g.fillRect(bx + 0.5, py + cell * 0.16, pw - 1.5, cell * 0.68);
-      g.strokeStyle = C.woodDark; g.lineWidth = 0.9;
-      g.strokeRect(bx + 0.5, py + cell * 0.16, pw - 1.5, cell * 0.68);
-      const rand = cellRand(x, y, i + 17);
-      g.strokeStyle = "rgba(119,87,47,0.55)"; g.lineWidth = 0.6;
-      g.beginPath();
-      g.moveTo(bx + 2, py + cell * (0.3 + rand() * 0.1));
-      g.lineTo(bx + pw - 3, py + cell * (0.55 + rand() * 0.1));
-      g.stroke();
+    var planks = 4, pw = (cell - 4) / planks;
+    for (var i = 0; i < planks; i++) {
+      var bx = px + 2 + i * pw;
+      g.fillStyle = i % 2 === 0 ? "#a07a48" : "#8d6a3d";
+      roundRect(g, bx + 0.5, py + cell * 0.16, pw - 1.5, cell * 0.68, 2);
+      g.fill();
+      g.strokeStyle = "#6b4c28"; g.lineWidth = 1; g.stroke();
+      // nail
+      g.fillStyle = "#4a3a22";
+      g.beginPath(); g.arc(bx + pw / 2, py + cell * 0.5, cell * 0.03, 0, Math.PI * 2); g.fill();
     }
-    g.strokeStyle = "#a68a55"; g.lineWidth = 1.2;
-    for (let i = 0; i <= planks; i++) {
-      const rx = px + 3 + i * pw;
-      g.beginPath();
-      g.moveTo(rx - 2, py + cell * 0.22); g.lineTo(rx + 2, py + cell * 0.72);
-      g.moveTo(rx + 2, py + cell * 0.22); g.lineTo(rx - 2, py + cell * 0.72);
-      g.stroke();
-    }
+    g.strokeStyle = "#5f4426"; g.lineWidth = 1.6;
+    g.beginPath(); g.moveTo(px + 2, py + cell * 0.16); g.lineTo(px + cell - 2, py + cell * 0.16);
+    g.moveTo(px + 2, py + cell * 0.84); g.lineTo(px + cell - 2, py + cell * 0.84);
+    g.stroke();
+    void x; void y;
   }
 
-  function drawLock(g, px, py, cell) {
-    const c = px + cell / 2;
-    g.fillStyle = "rgba(34,28,20,0.06)"; g.fillRect(px + 1, py + 1, cell - 2, cell - 2);
-    const shR = cell * 0.19, shY = py + cell * 0.42;
-    g.beginPath(); g.arc(c, shY, shR, Math.PI, Math.PI * 2);
-    g.lineTo(c + shR, shY + cell * 0.12); g.lineTo(c - shR, shY + cell * 0.12);
-    g.strokeStyle = C.iron; g.lineWidth = cell * 0.07; g.lineCap = "round"; g.stroke();
-    g.beginPath(); g.arc(c, shY, shR, Math.PI * 1.12, Math.PI * 1.55);
-    g.strokeStyle = C.ironHi; g.lineWidth = cell * 0.024; g.stroke();
-    const bw = cell * 0.5, bh = cell * 0.38, bx = c - bw / 2, by = py + cell * 0.5;
-    const bg = g.createLinearGradient(bx, by, bx + bw, by + bh);
-    bg.addColorStop(0, "#d4b168"); bg.addColorStop(0.55, C.brassPlate); bg.addColorStop(1, C.brassDark);
+  /* the padlock — needs a key */
+  function drawLock(g, cx, cy, cell) {
+    var s = cell * 0.32;
+    // shackle
     g.beginPath();
-    g.moveTo(bx + 3, by);
-    g.arcTo(bx + bw, by, bx + bw, by + bh, 3); g.arcTo(bx + bw, by + bh, bx, by + bh, 3);
-    g.arcTo(bx, by + bh, bx, by, 3); g.arcTo(bx, by, bx + bw, by, 3);
-    g.closePath();
-    g.fillStyle = bg; g.fill();
-    g.strokeStyle = C.ink; g.lineWidth = 1.2; g.stroke();
-    g.fillStyle = C.ink;
-    g.beginPath(); g.arc(c, by + bh * 0.42, cell * 0.045, 0, Math.PI * 2); g.fill();
-    g.beginPath();
-    g.moveTo(c - cell * 0.02, by + bh * 0.45); g.lineTo(c + cell * 0.02, by + bh * 0.45);
-    g.lineTo(c + cell * 0.014, by + bh * 0.82); g.lineTo(c - cell * 0.014, by + bh * 0.82);
-    g.closePath(); g.fill();
-    g.fillStyle = "rgba(80,60,20,0.8)";
-    [bx + bw * 0.14, bx + bw * 0.86].forEach(function (rx) {
-      g.beginPath(); g.arc(rx, by + bh * 0.5, cell * 0.018, 0, Math.PI * 2); g.fill();
+    g.arc(cx, cy - s * 0.55, s * 0.62, Math.PI, Math.PI * 2);
+    g.strokeStyle = "#8a6210"; g.lineWidth = Math.max(3, cell * 0.08);
+    g.stroke();
+    // body
+    roundRect(g, cx - s, cy - s * 0.35, s * 2, s * 1.55, s * 0.3);
+    var lg = g.createLinearGradient(cx, cy - s * 0.35, cx, cy + s * 1.2);
+    lg.addColorStop(0, "#f2c232"); lg.addColorStop(1, "#c9920f");
+    g.fillStyle = lg; g.fill();
+    g.strokeStyle = "#8a6210"; g.lineWidth = 2; g.stroke();
+    // keyhole
+    g.fillStyle = "#6b4a08";
+    g.beginPath(); g.arc(cx, cy + s * 0.28, s * 0.2, 0, Math.PI * 2); g.fill();
+    g.fillRect(cx - s * 0.07, cy + s * 0.28, s * 0.14, s * 0.5);
+  }
+
+  /* ── entities ───────────────────────────────────────────────────── */
+  function drawEntities(g, st, cell, pad, t) {
+    (st.k || []).forEach(function (p) {
+      drawKey(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell, t, p.x);
+    });
+    (st.a || []).forEach(function (p, i) {
+      drawApple(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell * 0.42, t ? t * 0.003 + i * 1.3 : i * 1.3);
+    });
+    (st.c || []).forEach(function (p) {
+      drawWalnut(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell * 0.40, p.x, p.y);
+    });
+    (st.r || []).forEach(function (p) {
+      drawSleeper(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell);
     });
   }
 
-  function drawValve(g, px, py, cell, t) {
-    const c = px + cell / 2, cy = py + cell / 2;
-    const m = cell * 0.12;
-    g.beginPath();
-    g.moveTo(px + m + 2, py + m); g.lineTo(px + cell - m - 2, py + m);
-    g.lineTo(px + cell - m, py + m + 2); g.lineTo(px + cell - m, py + cell - m - 2);
-    g.lineTo(px + cell - m - 2, py + cell - m); g.lineTo(px + m + 2, py + cell - m);
-    g.lineTo(px + m, py + cell - m - 2); g.lineTo(px + m, py + m + 2);
-    g.closePath();
-    g.fillStyle = "#d4c9ab"; g.fill();
-    g.strokeStyle = "rgba(34,28,20,0.65)"; g.lineWidth = 1.1; g.stroke();
+  /* the apple — glossy red with a leaf, straight from the orchard */
+  function drawApple(g, cx, cy, r, t, seed) {
+    var bob = t ? Math.sin(t * 2.2 + seed) * r * 0.06 : 0;
     g.save();
-    g.translate(c, cy);
-    const d = VALVE_DIR[t] || [1, 0];
-    g.rotate(Math.atan2(d[1], d[0]));
-    g.translate(-c, -cy);
-    g.strokeStyle = "rgba(80,60,30,0.35)"; g.lineWidth = 2.6;
-    g.lineCap = "round"; g.lineJoin = "round";
-    [-cell * 0.1, cell * 0.12].forEach(function (off) {
-      g.beginPath();
-      g.moveTo(c - cell * 0.1 + off, cy - cell * 0.17);
-      g.lineTo(c + cell * 0.1 + off, cy);
-      g.lineTo(c - cell * 0.1 + off, cy + cell * 0.17);
-      g.stroke();
-    });
-    g.strokeStyle = "rgba(163,51,39,0.9)"; g.lineWidth = 1.7;
-    [-cell * 0.1, cell * 0.12].forEach(function (off) {
-      g.beginPath();
-      g.moveTo(c - cell * 0.1 + off - 0.6, cy - cell * 0.17 - 0.6);
-      g.lineTo(c + cell * 0.1 + off - 0.6, cy - 0.6);
-      g.lineTo(c - cell * 0.1 + off - 0.6, cy + cell * 0.17 - 0.6);
-      g.stroke();
-    });
+    g.translate(cx, cy + bob);
+    // shadow
+    g.fillStyle = "rgba(0,0,0,0.28)";
+    g.beginPath(); g.ellipse(0, r * 0.95, r * 0.62, r * 0.22, 0, 0, Math.PI * 2); g.fill();
+    // stem
+    g.strokeStyle = "#6b4226"; g.lineWidth = Math.max(2, r * 0.14); g.lineCap = "round";
+    g.beginPath(); g.moveTo(0, -r * 0.7); g.lineTo(r * 0.08, -r * 1.05); g.stroke();
+    // body
+    g.beginPath();
+    g.moveTo(0, -r * 0.42);
+    g.bezierCurveTo(r * 0.95, -r * 0.95, r * 1.12, r * 0.62, 0, r * 0.98);
+    g.bezierCurveTo(-r * 1.12, r * 0.62, -r * 0.95, -r * 0.95, 0, -r * 0.42);
+    g.fillStyle = "#e82f3a"; g.fill();
+    g.strokeStyle = "#9c1c24"; g.lineWidth = 2; g.stroke();
+    // shine
+    g.fillStyle = "#ff878f";
+    g.beginPath(); g.ellipse(-r * 0.38, -r * 0.25, r * 0.24, r * 0.14, -0.4, 0, Math.PI * 2); g.fill();
+    // leaf
+    g.fillStyle = "#5fb833";
+    g.beginPath(); g.ellipse(r * 0.28, -r * 0.78, r * 0.32, r * 0.16, 0.6, 0, Math.PI * 2); g.fill();
     g.restore();
   }
 
-  function drawCrate(g, px, py, cell, x, y) {
-    const m = cell * 0.14;
-    const x0 = px + m, y0 = py + m, cw = cell - m * 2;
-    g.fillStyle = "rgba(34,28,20,0.16)"; g.fillRect(x0 + 1.5, y0 + 2, cw, cw);
-    g.fillStyle = "#c9a56a"; g.fillRect(x0, y0, cw, cw);
-    const rand = cellRand(x, y, 41);
-    g.strokeStyle = "rgba(122,90,50,0.5)"; g.lineWidth = 0.7;
-    for (let i = 1; i < 3; i++) { g.beginPath(); g.moveTo(x0 + 1, y0 + (cw * i) / 3); g.lineTo(x0 + cw - 1, y0 + (cw * i) / 3); g.stroke(); }
-    for (let i = 0; i < 2; i++) {
-      const gy = y0 + cw * (0.2 + rand() * 0.6);
-      g.beginPath(); g.moveTo(x0 + 2, gy);
-      g.bezierCurveTo(x0 + cw * 0.3, gy + 1.4, x0 + cw * 0.6, gy - 1.4, x0 + cw - 2, gy);
-      g.stroke();
+  /* the walnut — the game's pushable boulder */
+  function drawWalnut(g, cx, cy, r, x, y) {
+    var rnd = cellRand(x, y, 21);
+    // shadow
+    g.fillStyle = "rgba(0,0,0,0.28)";
+    g.beginPath(); g.ellipse(cx, cy + r * 0.9, r * 0.75, r * 0.24, 0, 0, Math.PI * 2); g.fill();
+    // shell
+    g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
+    var wg = g.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.15, cx, cy, r);
+    wg.addColorStop(0, "#dda15e"); wg.addColorStop(0.65, "#c48957"); wg.addColorStop(1, "#9a683c");
+    g.fillStyle = wg; g.fill();
+    g.strokeStyle = "#7a4f28"; g.lineWidth = 2.2; g.stroke();
+    // seam + bumps
+    g.strokeStyle = "rgba(122,79,40,0.85)"; g.lineWidth = 1.6; g.lineCap = "round";
+    g.beginPath();
+    g.moveTo(cx - r * 0.42, cy - r * 0.52);
+    g.quadraticCurveTo(cx + r * 0.1, cy + r * 0.1, cx - r * 0.18, cy + r * 0.62);
+    g.stroke();
+    for (var i = 0; i < 4; i++) {
+      var bx = cx + (rnd() - 0.5) * r * 1.1, by = cy + (rnd() - 0.5) * r * 1.1;
+      if (Math.hypot(bx - cx, by - cy) < r * 0.72) {
+        g.beginPath(); g.arc(bx, by, r * 0.1, 0, Math.PI * 2);
+        g.fillStyle = "rgba(122,79,40,0.35)"; g.fill();
+      }
     }
-    g.strokeStyle = "#8a6434"; g.lineWidth = cell * 0.075; g.strokeRect(x0, y0, cw, cw);
-    g.lineWidth = cell * 0.055;
-    g.beginPath();
-    g.moveTo(x0 + 1, y0 + 1); g.lineTo(x0 + cw - 1, y0 + cw - 1);
-    g.moveTo(x0 + cw - 1, y0 + 1); g.lineTo(x0 + 1, y0 + cw - 1);
-    g.stroke();
-    g.strokeStyle = C.ink; g.lineWidth = 1.2; g.strokeRect(x0, y0, cw, cw);
-    g.fillStyle = C.ink;
-    [[x0, y0], [x0 + cw, y0], [x0, y0 + cw], [x0 + cw, y0 + cw]].forEach(function (p) {
-      g.beginPath(); g.arc(p[0], p[1], cell * 0.042, 0, Math.PI * 2); g.fill();
-    });
   }
 
-  function drawApple(g, c, cy, cell, i) {
-    const r = cell * 0.26;
-    const bob = Math.sin(i * 1.1) * cell * 0.015;
-    cy += bob;
-    g.beginPath(); g.ellipse(c, cy + r * 0.95, r * 0.8, r * 0.28, 0, 0, Math.PI * 2);
-    g.fillStyle = "rgba(34,28,20,0.14)"; g.fill();
+  /* the key */
+  function drawKey(g, cx, cy, cell, t, seed) {
+    var r = cell * 0.19;
+    var bob = t ? Math.sin(t * 0.0028 + seed) * cell * 0.04 : 0;
+    g.save();
+    g.translate(cx, cy + bob);
+    g.rotate(-0.6);
+    g.strokeStyle = "#8a6210"; g.lineWidth = Math.max(3, cell * 0.10); g.lineCap = "round";
+    g.beginPath(); g.arc(-cell * 0.13, 0, r, 0, Math.PI * 2); g.stroke();
+    g.beginPath(); g.moveTo(-cell * 0.13 + r, 0); g.lineTo(cell * 0.2, 0); g.stroke();
     g.beginPath();
-    g.moveTo(c, cy - r * 0.72);
-    g.bezierCurveTo(c + r * 0.95, cy - r * 1.15, c + r * 1.18, cy + r * 0.5, c + r * 0.28, cy + r * 0.98);
-    g.bezierCurveTo(c + r * 0.1, cy + r * 1.1, c - r * 0.1, cy + r * 1.1, c - r * 0.28, cy + r * 0.98);
-    g.bezierCurveTo(c - r * 1.18, cy + r * 0.5, c - r * 0.95, cy - r * 1.15, c, cy - r * 0.72);
-    g.closePath();
-    const ag = g.createRadialGradient(c - r * 0.35, cy - r * 0.4, r * 0.15, c, cy + r * 0.1, r * 1.25);
-    ag.addColorStop(0, C.appleHi); ag.addColorStop(0.65, C.apple); ag.addColorStop(1, "#7c2318");
-    g.fillStyle = ag; g.fill();
-    g.strokeStyle = C.ink; g.lineWidth = 1.2; g.stroke();
-    g.beginPath(); g.ellipse(c - r * 0.38, cy - r * 0.3, r * 0.22, r * 0.32, -0.6, 0, Math.PI * 2);
-    g.fillStyle = "rgba(250,245,233,0.55)"; g.fill();
-    g.strokeStyle = C.ink; g.lineWidth = 1.2; g.lineCap = "round";
-    g.beginPath(); g.moveTo(c, cy - r * 0.78);
-    g.quadraticCurveTo(c + r * 0.18, cy - r * 1.3, c + r * 0.08, cy - r * 1.5);
+    g.moveTo(cell * 0.2, 0); g.lineTo(cell * 0.2, cell * 0.1);
+    g.moveTo(cell * 0.12, 0); g.lineTo(cell * 0.12, cell * 0.08);
     g.stroke();
-    g.fillStyle = C.appleLeaf;
-    g.beginPath(); g.ellipse(c + r * 0.42, cy - r * 1.28, r * 0.34, r * 0.16, -0.5, 0, Math.PI * 2); g.fill();
-  }
-
-  function drawKey(g, c, cy, cell) {
-    const r = cell * 0.24;
-    g.beginPath(); g.ellipse(c, cy + r * 0.9, r * 0.75, r * 0.22, 0, 0, Math.PI * 2);
-    g.fillStyle = "rgba(34,28,20,0.13)"; g.fill();
-    g.save(); g.translate(c, cy); g.rotate(-0.6);
-    const kg = g.createLinearGradient(-r, -r, r, r);
-    kg.addColorStop(0, "#d4b168"); kg.addColorStop(0.5, C.brassPlate); kg.addColorStop(1, C.brassDark);
-    g.strokeStyle = kg; g.lineCap = "round";
-    g.beginPath(); g.moveTo(-r * 0.1, 0); g.lineTo(r * 1.05, 0); g.lineWidth = r * 0.28; g.stroke();
-    g.beginPath(); g.arc(-r * 0.55, 0, r * 0.52, 0, Math.PI * 2); g.lineWidth = r * 0.24; g.stroke();
-    g.beginPath();
-    g.moveTo(r * 0.62, 0); g.lineTo(r * 0.62, r * 0.46);
-    g.moveTo(r * 0.95, 0); g.lineTo(r * 0.95, r * 0.38);
-    g.lineWidth = r * 0.22; g.stroke();
-    g.beginPath(); g.arc(-r * 0.55, -r * 0.1, r * 0.5, Math.PI * 1.15, Math.PI * 1.5);
-    g.strokeStyle = "rgba(250,242,220,0.8)"; g.lineWidth = r * 0.1; g.stroke();
+    g.strokeStyle = "#f2c232"; g.lineWidth = Math.max(1.8, cell * 0.05);
+    g.beginPath(); g.arc(-cell * 0.13, 0, r, -0.6, Math.PI * 1.4); g.stroke();
     g.restore();
   }
 
-  function drawRemain(g, px, py, cell, x, y) {
-    const c = px + cell / 2, cy = py + cell / 2;
-    const w = cell * 0.52;
-    g.save(); g.translate(c, cy);
-    g.rotate((((x * 7 + y * 13) % 4) * 0.5) - 0.75);
-    g.beginPath(); g.ellipse(0, 0, w, w * 0.56, 0, 0, Math.PI * 2);
-    g.fillStyle = "rgba(146,112,96,0.85)"; g.fill();
-    g.strokeStyle = "rgba(74,50,38,0.9)"; g.lineWidth = 1.2; g.stroke();
-    g.strokeStyle = "rgba(74,50,38,0.55)"; g.lineWidth = 0.9;
-    [-w * 0.45, -w * 0.15, w * 0.15, w * 0.45].forEach(function (off) {
-      g.beginPath(); g.moveTo(off, -w * 0.42);
-      g.quadraticCurveTo(off + w * 0.06, 0, off, w * 0.42);
-      g.stroke();
-    });
-    g.beginPath();
-    g.moveTo(w * 0.72, -w * 0.3); g.lineTo(w * 0.98, -w * 0.08); g.lineTo(w * 0.8, w * 0.05);
-    g.lineTo(w * 1.02, w * 0.22); g.lineTo(w * 0.68, w * 0.32);
-    g.strokeStyle = "rgba(74,50,38,0.95)"; g.lineWidth = 1.1; g.stroke();
-    g.fillStyle = "rgba(58,40,30,0.85)"; g.fill();
-    g.restore();
+  /* a dropped half — a sleeping friend (“once part of you”) */
+  function drawSleeper(g, cx, cy, cell) {
+    var r = cell * 0.34;
+    g.fillStyle = "rgba(0,0,0,0.25)";
+    g.beginPath(); g.ellipse(cx, cy + r * 0.8, r * 0.9, r * 0.25, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
+    g.fillStyle = "#fca5b8"; g.fill();
+    g.strokeStyle = "rgba(120,40,50,0.35)"; g.lineWidth = 1.5; g.stroke();
+    // closed sleeping eye
+    g.strokeStyle = "#5c2a34"; g.lineWidth = Math.max(1.8, cell * 0.05); g.lineCap = "round";
+    g.beginPath(); g.arc(cx - r * 0.25, cy - r * 0.15, r * 0.22, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+    // tiny breath bubble
+    g.fillStyle = "rgba(255,255,255,0.75)";
+    g.beginPath(); g.arc(cx + r * 0.55, cy - r * 0.55, r * 0.14, 0, Math.PI * 2); g.fill();
   }
 
-  /** THE WORM — Lumbricus, drawn in ink over rose-tan. */
-  function drawWorm(g, cells, cell, pad) {
-    if (!cells || !cells.length) return;
-    const pts = cells.map(function (p) { return { x: pad + (p.x + 0.5) * cell, y: pad + (p.y + 0.5) * cell }; });
+  /* ── THE WORM — pink, saddle-banded, one big googly eye ─────────── */
+  function drawWorm(g, cells, cell, pad, t) {
+    if (!cells.length) return;
+    var pts = cells.map(function (p) {
+      return { x: pad + (p.x + 0.5) * cell, y: pad + (p.y + 0.5) * cell };
+    });
+    var wdt = cell * 0.74;
 
     // ground shadow
     g.save();
-    g.strokeStyle = "rgba(34,28,20,0.13)";
-    g.lineWidth = cell * 0.5; g.lineCap = "round"; g.lineJoin = "round";
+    g.strokeStyle = W.shadow;
+    g.lineWidth = wdt * 0.92;
+    g.lineCap = "round"; g.lineJoin = "round";
     g.beginPath();
-    g.moveTo(pts[0].x + 2, pts[0].y + cell * 0.16);
-    for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x + 2, pts[i].y + cell * 0.16);
-    if (pts.length === 1) g.lineTo(pts[0].x + 2.1, pts[0].y + cell * 0.16);
+    g.moveTo(pts[0].x, pts[0].y + cell * 0.14);
+    for (var i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y + cell * 0.14);
+    if (pts.length === 1) g.lineTo(pts[0].x + 0.1, pts[0].y + cell * 0.14);
     g.stroke();
     g.restore();
 
-    const maxW = cell * 0.56;
     g.lineCap = "round"; g.lineJoin = "round";
-    function widthAt(i) {
-      const frac = i / Math.max(1, pts.length - 1);
-      const base = maxW * (0.42 + 0.58 * (1 - frac));
-      const clit = Math.exp(-Math.pow((frac - 0.22) / 0.09, 2));
-      return base * (1 + clit * 0.16);
+
+    // body tube — segments 1..3 wear the coral saddle
+    for (var j = pts.length - 1; j > 0; j--) {
+      var saddle = j >= 1 && j <= 3;
+      g.strokeStyle = saddle ? W.saddle : W.body;
+      g.lineWidth = saddle ? wdt * 1.02 : wdt;
+      g.beginPath();
+      g.moveTo(pts[j].x, pts[j].y);
+      g.lineTo(pts[j - 1].x, pts[j - 1].y);
+      g.stroke();
     }
-    // outline tube
-    for (let i = pts.length - 1; i > 0; i--) {
-      g.strokeStyle = C.wormEdge;
-      g.lineWidth = widthAt(i) + 2.4;
-      g.beginPath(); g.moveTo(pts[i].x, pts[i].y); g.lineTo(pts[i - 1].x, pts[i - 1].y); g.stroke();
+    // knuckle joints — the segmented read
+    for (var k = pts.length - 1; k >= 0; k--) {
+      var saddle2 = k >= 1 && k <= 3;
+      g.beginPath(); g.arc(pts[k].x, pts[k].y, (saddle2 ? wdt * 1.02 : wdt) / 2, 0, Math.PI * 2);
+      g.fillStyle = saddle2 ? W.saddle : W.body;
+      g.fill();
     }
-    // body tube
-    for (let i = pts.length - 1; i > 0; i--) {
-      const grad = g.createLinearGradient(pts[i].x, pts[i].y - widthAt(i), pts[i].x, pts[i].y + widthAt(i));
-      grad.addColorStop(0, C.wormBody); grad.addColorStop(0.55, C.wormBodyLo); grad.addColorStop(1, C.wormBelly);
-      g.strokeStyle = grad;
-      g.lineWidth = widthAt(i);
-      g.beginPath(); g.moveTo(pts[i].x, pts[i].y); g.lineTo(pts[i - 1].x, pts[i - 1].y); g.stroke();
-    }
-    // annular rings
-    g.strokeStyle = C.wormRing;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const dx = pts[i + 1].x - pts[i].x, dy = pts[i + 1].y - pts[i].y;
-      const seg = Math.hypot(dx, dy) || 1;
-      const nx = -dy / seg, ny = dx / seg;
-      for (let r = 1; r <= 3; r++) {
-        const tt = r / 4;
-        const mx = pts[i].x + dx * tt, my = pts[i].y + dy * tt;
-        const w0 = widthAt(i + tt) * 0.42;
-        g.lineWidth = 0.9;
-        g.beginPath();
-        g.moveTo(mx - nx * w0, my - ny * w0);
-        g.quadraticCurveTo(mx + (dx / seg) * w0 * 0.3, my + (dy / seg) * w0 * 0.3, mx + nx * w0, my + ny * w0);
-        g.stroke();
-      }
-    }
-    // slime sheen
-    g.strokeStyle = "rgba(250,240,228,0.34)";
-    g.lineWidth = maxW * 0.13;
+    // soft top light
+    g.strokeStyle = "rgba(255,235,240,0.35)";
+    g.lineWidth = wdt * 0.16;
     g.beginPath();
-    g.moveTo(pts[0].x, pts[0].y - maxW * 0.18);
-    for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y - maxW * 0.18);
+    g.moveTo(pts[0].x, pts[0].y - wdt * 0.22);
+    for (var m = 1; m < pts.length; m++) g.lineTo(pts[m].x, pts[m].y - wdt * 0.22);
     g.stroke();
 
-    // head — blunt snout, bead eyes, small mouth
-    const head = pts[0];
-    let dirX = 1, dirY = 0;
+    // look direction (head → neck)
+    var dx = 1, dy = 0;
     if (pts.length > 1) {
-      const dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
-      const m = Math.hypot(dx, dy) || 1;
-      dirX = dx / m; dirY = dy / m;
+      dx = pts[0].x - pts[1].x; dy = pts[0].y - pts[1].y;
+      var mm = Math.hypot(dx, dy) || 1; dx /= mm; dy /= mm;
     }
-    const hr = widthAt(0) * 0.62;
-    const ang = Math.atan2(dirY, dirX);
-    g.beginPath();
-    g.ellipse(head.x + dirX * hr * 0.18, head.y + dirY * hr * 0.18, hr * 1.06, hr * 0.94, ang, 0, Math.PI * 2);
-    const hg = g.createLinearGradient(head.x, head.y - hr, head.x, head.y + hr);
-    hg.addColorStop(0, C.wormBody); hg.addColorStop(0.6, C.wormBodyLo); hg.addColorStop(1, C.wormBelly);
-    g.fillStyle = hg; g.fill();
-    g.strokeStyle = C.wormEdge; g.lineWidth = 2; g.stroke();
-    g.beginPath();
-    g.ellipse(head.x + dirX * hr * 0.92, head.y + dirY * hr * 0.92, hr * 0.34, hr * 0.5, ang, 0, Math.PI * 2);
-    g.fillStyle = C.wormBodyLo; g.fill();
-    g.strokeStyle = C.wormEdge; g.lineWidth = 1.2; g.stroke();
 
-    const ex = -dirY, ey = dirX;
-    const eo = hr * 0.34, ef = hr * 0.34;
-    [-1, 1].forEach(function (side) {
-      const px = head.x + ex * eo * side + dirX * ef;
-      const py = head.y + ey * eo * side + dirY * ef;
-      g.beginPath(); g.ellipse(px, py, hr * 0.115, hr * 0.115, 0, 0, Math.PI * 2);
-      g.fillStyle = C.wormEye; g.fill();
+    // tail badge — the length counter, like the real game
+    if (pts.length >= 4) {
+      var tail = pts[pts.length - 1];
+      g.beginPath(); g.arc(tail.x, tail.y, cell * 0.24, 0, Math.PI * 2);
+      g.fillStyle = W.badge; g.fill();
+      g.strokeStyle = "#222222"; g.lineWidth = 2; g.stroke();
+      g.fillStyle = W.badgeInk;
+      g.font = "700 " + Math.floor(cell * 0.27) + "px Fredoka, 'Trebuchet MS', sans-serif";
+      g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(String(pts.length), tail.x, tail.y + 1);
+    }
+
+    // the head — one big googly eye
+    var head = pts[0];
+    var er = cell * 0.26;
+    // blink cycle
+    var blink = t ? (Math.sin(t * 0.0016 + 1.7) > 0.965 ? 0.12 : 1) : 1;
+    g.beginPath(); g.arc(head.x, head.y, er, 0, Math.PI * 2);
+    g.fillStyle = W.eyeWhite; g.fill();
+    g.strokeStyle = W.eyeRim; g.lineWidth = Math.max(2, cell * 0.055); g.stroke();
+    if (blink < 1) {
+      g.strokeStyle = "#1a1a1a"; g.lineWidth = Math.max(2, cell * 0.06);
       g.beginPath();
-      g.arc(px - hr * 0.03 + dirX * hr * 0.02, py - hr * 0.03 + dirY * hr * 0.02, hr * 0.032, 0, Math.PI * 2);
-      g.fillStyle = "rgba(250,245,233,0.85)"; g.fill();
-    });
-    g.beginPath();
-    g.ellipse(head.x + dirX * hr * 1.02, head.y + dirY * hr * 1.02, hr * 0.09, hr * 0.13, ang, 0, Math.PI * 2);
-    g.strokeStyle = C.wormEdge; g.lineWidth = 1; g.stroke();
+      g.moveTo(head.x - er * 0.7, head.y); g.lineTo(head.x + er * 0.7, head.y);
+      g.stroke();
+    } else {
+      g.beginPath();
+      g.arc(head.x + dx * er * 0.35, head.y + dy * er * 0.35, er * 0.52, 0, Math.PI * 2);
+      g.fillStyle = W.pupil; g.fill();
+      g.beginPath();
+      g.arc(head.x + dx * er * 0.35 - er * 0.16, head.y + dy * er * 0.35 - er * 0.16, er * 0.17, 0, Math.PI * 2);
+      g.fillStyle = W.gleam; g.fill();
+    }
   }
 
-  window.WyrmRender = { draw: draw, C: C };
+  /* win confetti — tiny hearts */
+  function drawHeartsBurst(g, w, h, t) {
+    g.fillStyle = "rgba(255,120,170,0.9)";
+    for (var i = 0; i < 7; i++) {
+      var ph = t * 0.001 + i * 0.9;
+      var yy = h * 0.3 + ((ph * 60 + i * 47) % (h * 0.5));
+      var xx = w * (0.2 + 0.6 * ((i * 0.37 + ph * 0.1) % 1));
+      var s = 3 + (i % 3);
+      g.save(); g.translate(xx, yy); g.rotate(Math.sin(ph) * 0.4);
+      g.beginPath();
+      g.moveTo(0, s);
+      g.bezierCurveTo(-s * 1.2, -s * 0.4, -s * 0.7, -s * 1.3, 0, -s * 0.5);
+      g.bezierCurveTo(s * 0.7, -s * 1.3, s * 1.2, -s * 0.4, 0, s);
+      g.fill();
+      g.restore();
+    }
+  }
+
+  /* ── frame — a soft game-card edge ─────────────────────────────── */
+  function drawFrame(g, w, h, cell, pad, th) {
+    var r = cell * 0.45;
+    g.beginPath();
+    roundRect(g, pad - cell * 0.18, pad - cell * 0.18,
+      w - pad * 2 + cell * 0.36, h - pad * 2 + cell * 0.36, r);
+    g.strokeStyle = "rgba(15,10,7,0.55)";
+    g.lineWidth = Math.max(3, cell * 0.10);
+    g.stroke();
+    // vignette
+    var vg = g.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.42, w / 2, h / 2, Math.max(w, h) * 0.74);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(0,0,0,0.16)");
+    g.fillStyle = vg;
+    g.fillRect(0, 0, w, h);
+    void th;
+  }
+
+  function roundRect(g, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.arcTo(x + w, y, x + w, y + h, r);
+    g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r);
+    g.arcTo(x, y, x + w, y, r);
+    g.closePath();
+  }
+
+  window.WyrmRender = { draw: draw, THEMES: THEMES, themeFor: themeFor };
 })();

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Fredoka, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const display = Space_Grotesk({
+const display = Fredoka({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -21,17 +21,17 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WYRM.LAB — Agentic Puzzle Laboratory",
+  title: "WYRM.LAB — The Worm Arena for LLMs",
   description:
-    "A full agentic pipeline where AI models play, generate, validate, check and review levels of WYRM — an original grid-worm puzzle game. Watch every thought, every move, every verdict.",
-  keywords: ["AI agents", "puzzle games", "LLM", "BFS", "game arena", "Elo"],
+    "A Kaggle-Game-Arena-style benchmark where LLMs play a hard deterministic worm puzzle drawn like the real game. Watch every thought, every move, every verdict.",
+  keywords: ["AI agents", "puzzle games", "LLM", "BFS", "game arena", "Elo", "benchmark"],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23ea6a65'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23fff'/%3E%3Ccircle cx='17' cy='13' r='3' fill='%23111'/%3E%3C/svg%3E",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f2ecdd",
+  themeColor: "#2b221a",
 };
 
 export default function RootLayout({

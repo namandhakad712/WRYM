@@ -38,53 +38,51 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 6px);
 }
 
-/* ══ WYRM.LAB · "LABORATORY PAPER" design system ══════════════════
-   The product is a scientific instrument: every surface is archival
-   paper, every stroke is ink, every emphasis is sealing wax.
-   Duotone: warm paper ground + near-black ink; one accent (wax red)
-   reserved for live states, key data and the worm's world.
-   Typography: serif display (engraved-plate voice), grotesk body,
-   mono for telemetry. Hairline rules, small-caps eyebrows, tabular
-   figures. Nothing glows; everything is PRINTED. */
+/* ══ WYRM.LAB · "UNDERGROUND" design system ═══════════════════════
+   The product speaks the game's own language: warm soil strata,
+   carved panels, cream lettering, coral & gold accents. Typography:
+   Fredoka display (the game's voice), Inter body for dense data,
+   mono telemetry. Rounded corners, soft depth, friendly but precise.
+   The worm's world is dark and warm — the instrument lives inside it. */
 :root {
-  --radius: 0.375rem;
-  --background: #efe7d3;             /* laid paper */
-  --foreground: #221c14;             /* iron-gall ink */
-  --card: #fbf7ec;                   /* plate paper */
-  --card-foreground: #221c14;
-  --popover: #fdfaf1;
-  --popover-foreground: #221c14;
-  --primary: #2c2318;                /* ink actions */
-  --primary-foreground: #f7f2e4;
-  --secondary: #eae0c9;              /* margin tint */
-  --secondary-foreground: #3a3226;
-  --muted: #eae1c9;
-  --muted-foreground: #6e6350;       /* graphite */
-  --accent: #a33327;                 /* sealing wax */
-  --accent-foreground: #f9f3e3;
-  --destructive: #a33327;
-  --border: #d8cfb6;                 /* hairline rule */
-  --input: #cfc5aa;
-  --ring: #2c2318;
-  --chart-1: #a33327;                /* wax */
-  --chart-2: #2c2318;                /* ink */
-  --chart-3: #9c7c2f;                /* brass */
-  --chart-4: #5a7242;                /* leaf */
-  --chart-5: #6b4f2e;                /* sepia */
-  --sidebar: #ede5d0;
-  --sidebar-foreground: #221c14;
-  --sidebar-primary: #2c2318;
-  --sidebar-primary-foreground: #f7f2e4;
-  --sidebar-accent: #e2d8bd;
-  --sidebar-accent-foreground: #221c14;
-  --sidebar-border: #d8cfb6;
-  --sidebar-ring: #2c2318;
+  --radius: 0.9rem;
+  --background: #2b221a;             /* deep soil */
+  --foreground: #fce8d5;             /* cream lettering */
+  --card: #3a2e24;                   /* carved panel */
+  --card-foreground: #fce8d5;
+  --popover: #443627;                /* raised panel */
+  --popover-foreground: #fce8d5;
+  --primary: #ea6a65;                /* coral — the worm's saddle */
+  --primary-foreground: #ffffff;
+  --secondary: #443627;              /* raised soil */
+  --secondary-foreground: #fce8d5;
+  --muted: #2f251c;
+  --muted-foreground: rgba(252, 232, 213, 0.55);
+  --accent: #ffcf33;                 /* gold — buttons & gates */
+  --accent-foreground: #4a3410;
+  --destructive: #ea6a65;
+  --border: #6b5545;                 /* soil edge */
+  --input: #6b5545;
+  --ring: #ea6a65;
+  --chart-1: #ea6a65;                /* coral */
+  --chart-2: #ffcf33;                /* gold */
+  --chart-3: #ff7090;                /* heart pink */
+  --chart-4: #7ec46a;                /* leaf */
+  --chart-5: #9bd4ef;                /* frost */
+  --sidebar: #332820;
+  --sidebar-foreground: #fce8d5;
+  --sidebar-primary: #ea6a65;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #443627;
+  --sidebar-accent-foreground: #fce8d5;
+  --sidebar-border: #6b5545;
+  --sidebar-ring: #ea6a65;
 }
 
 @layer base {
@@ -92,123 +90,124 @@
     @apply border-border outline-ring/50;
   }
   html {
-    color-scheme: light;
+    color-scheme: dark;
   }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv11", "ss01", "tnum";
   }
   ::selection {
-    background: rgba(163, 51, 39, 0.22);
+    background: rgba(234, 106, 101, 0.4);
   }
 }
 
-/* ── backdrop: paper wash + graph grid + fiber ───────────────────── */
+/* ── backdrop: soil wash + strata bands + grain ───────────────────── */
 .wyrm-mesh {
   background:
-    radial-gradient(1100px 520px at 12% -8%, rgba(255, 252, 240, 0.9), transparent 60%),
-    radial-gradient(900px 480px at 88% -10%, rgba(233, 225, 204, 0.55), transparent 55%),
-    radial-gradient(1000px 620px at 50% 115%, rgba(214, 202, 172, 0.5), transparent 60%),
+    radial-gradient(1100px 520px at 12% -8%, rgba(255, 207, 51, 0.05), transparent 60%),
+    radial-gradient(900px 480px at 88% -10%, rgba(234, 106, 101, 0.06), transparent 55%),
+    radial-gradient(1000px 620px at 50% 115%, rgba(0, 0, 0, 0.35), transparent 60%),
     var(--background);
 }
 .wyrm-grid-bg {
   background-image:
-    linear-gradient(rgba(34, 28, 20, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 28, 20, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(252, 232, 213, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(252, 232, 213, 0.03) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 75%);
 }
 .wyrm-grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  opacity: 0.065;
-  mix-blend-mode: multiply;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
 }
 
 /* ── typography utilities ────────────────────────────────────────── */
 .font-display { font-family: var(--font-display), sans-serif; }
 .display-1 {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.04;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
 }
 .display-2 {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
   font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.12;
+  letter-spacing: -0.005em;
+  line-height: 1.16;
 }
 .eyebrow {
-  font-family: var(--font-mono-code), monospace;
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-display), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.28em;
-  color: #8a7d62;
+  letter-spacing: 0.22em;
+  color: rgba(252, 232, 213, 0.5);
 }
 .eyebrow-wax {
-  font-family: var(--font-mono-code), monospace;
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-display), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.28em;
-  color: #a33327;
+  letter-spacing: 0.22em;
+  color: #ffcf33;
 }
 .text-glow {
   text-shadow: none;
 }
 .text-glow-accent {
-  color: #a33327;
+  color: #ea6a65;
 }
 .stat-num {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
-.serif-tick { color: #a33327; }
+.serif-tick { color: #ffcf33; }
 
-/* ── surfaces ────────────────────────────────────────────────────── */
+/* ── surfaces: carved panels ──────────────────────────────────────── */
 .panel {
-  background: rgba(250, 246, 234, 0.92);
-  border: 1px solid #cfc5aa;
+  background: rgba(58, 46, 36, 0.92);
+  border: 1px solid #6b5545;
   box-shadow:
-    0 1px 0 rgba(255, 255, 240, 0.8) inset,
-    0 1px 2px rgba(58, 50, 38, 0.06),
-    0 8px 24px -16px rgba(58, 50, 38, 0.18);
+    inset 0 1px 0 rgba(252, 232, 213, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 12px 32px -16px rgba(0, 0, 0, 0.5);
 }
 .panel-inset {
-  background: #f4eedd;
-  border: 1px solid #ddd3ba;
-  box-shadow: inset 0 1px 4px rgba(58, 50, 38, 0.08);
+  background: #2f251c;
+  border: 1px solid #54432f;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .card-lift {
   transition: transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1), border-color 0.28s, box-shadow 0.28s;
 }
 .card-lift:hover {
   transform: translateY(-2px);
-  border-color: #2c2318;
+  border-color: #ea6a65;
   box-shadow:
-    0 2px 0 rgba(255, 255, 240, 0.8) inset,
-    0 2px 3px rgba(58, 50, 38, 0.08),
-    0 14px 30px -18px rgba(58, 50, 38, 0.28);
+    inset 0 1px 0 rgba(252, 232, 213, 0.08),
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 18px 36px -18px rgba(0, 0, 0, 0.55);
 }
 .hairline {
-  background: linear-gradient(90deg, transparent, rgba(34, 28, 20, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(252, 232, 213, 0.22), transparent);
   height: 1px;
 }
 .hairline-wax {
-  background: linear-gradient(90deg, transparent, rgba(163, 51, 39, 0.6), transparent);
-  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(234, 106, 101, 0.65), transparent);
+  height: 2px;
+  border-radius: 999px;
 }
 .glow-ring {
-  box-shadow: 0 0 0 1px #2c2318, 0 0 0 5px rgba(44, 35, 24, 0.08);
+  box-shadow: 0 0 0 1.5px #ea6a65, 0 0 0 6px rgba(234, 106, 101, 0.14);
 }
 .glow-ring-accent {
-  box-shadow: 0 0 0 1px #a33327, 0 0 0 5px rgba(163, 51, 39, 0.12);
+  box-shadow: 0 0 0 1.5px #ffcf33, 0 0 0 6px rgba(255, 207, 51, 0.14);
 }
 .rule-double {
-  border-top: 3px double #b5a988;
+  border-top: 2px solid #6b5545;
 }
 
 /* ── live indicators & control chips ─────────────────────────────── */
@@ -224,80 +223,80 @@
   letter-spacing: 0.14em;
 }
 @keyframes pulsering {
-  0% { box-shadow: 0 0 0 0 rgba(163, 51, 39, 0.35); }
-  70% { box-shadow: 0 0 0 8px rgba(163, 51, 39, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(163, 51, 39, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(234, 106, 101, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(234, 106, 101, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(234, 106, 101, 0); }
 }
 @keyframes pulsering-ink {
-  0% { box-shadow: 0 0 0 0 rgba(44, 35, 24, 0.3); }
-  70% { box-shadow: 0 0 0 8px rgba(44, 35, 24, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(44, 35, 24, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(255, 207, 51, 0.35); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 207, 51, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 207, 51, 0); }
 }
 .pulse-dot {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: #a33327;
+  background: #ea6a65;
   animation: pulsering 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 .pulse-dot-ink {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: #2c2318;
+  background: #ffcf33;
   animation: pulsering-ink 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* ── tab bar: printed index tabs ─────────────────────────────────── */
+/* ── tab bar: rounded game chips ──────────────────────────────────── */
 .tab-btn {
   position: relative;
-  font-family: var(--font-mono-code), monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: #7a6f5a;
-  padding: 8px 13px;
-  border: 1px solid transparent;
-  border-radius: 3px;
+  font-family: var(--font-display), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(252, 232, 213, 0.6);
+  padding: 8px 14px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
   transition: color 0.2s, background 0.2s, border-color 0.2s;
 }
 .tab-btn:hover {
-  color: #221c14;
-  background: rgba(234, 226, 205, 0.6);
+  color: #fce8d5;
+  background: rgba(68, 54, 39, 0.7);
 }
 .tab-btn[data-active="true"] {
-  color: #221c14;
-  background: #faf6ea;
-  border-color: #b5a988;
-  box-shadow: 0 1px 0 rgba(255, 255, 240, 0.9) inset, 0 2px 6px -3px rgba(58, 50, 38, 0.25);
+  color: #fce8d5;
+  background: #443627;
+  border-color: #6b5545;
+  box-shadow: inset 0 1px 0 rgba(252, 232, 213, 0.07), 0 2px 6px -3px rgba(0, 0, 0, 0.5);
 }
 .tab-btn[data-active="true"]::after {
   content: "";
   position: absolute;
-  left: 8px;
-  right: 8px;
+  left: 10px;
+  right: 10px;
   bottom: -1px;
-  height: 2px;
-  background: #a33327;
+  height: 2.5px;
+  border-radius: 999px;
+  background: #ea6a65;
 }
 
-/* ── code & telemetry panels: the teleprinter page ───────────────── */
+/* ── code & telemetry panels: the underground terminal ────────────── */
 .tty-panel {
-  background: #2a2318;
-  color: #e8dfc8;
-  border: 1px solid #1d1810;
-  border-radius: 4px;
+  background: #1c150e;
+  color: #e8d9c2;
+  border: 1px solid #54432f;
+  border-radius: 12px;
   font-family: var(--font-mono-code), monospace;
 }
-.tty-panel ::selection { background: rgba(163, 51, 39, 0.5); }
+.tty-panel ::selection { background: rgba(234, 106, 101, 0.5); }
 .ascii-board {
   font-family: var(--font-mono-code), monospace;
   font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1.12;
   white-space: pre;
-  color: #2c2318;
+  color: #fce8d5;
 }
 .mono-num { font-variant-numeric: tabular-nums; }
 
@@ -306,15 +305,15 @@
   font-family: var(--font-mono-code), monospace;
   font-size: 10px;
   letter-spacing: 0.06em;
-  color: #8a7d62;
-  border-top: 1px solid #ddd3ba;
+  color: rgba(252, 232, 213, 0.45);
+  border-top: 1px solid #54432f;
   padding-top: 8px;
   margin-top: 10px;
 }
 .margin-note {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
   font-style: italic;
-  color: #7a6f5a;
+  color: rgba(252, 232, 213, 0.55);
 }
 
 /* ── stamps & seals (status marks) ───────────────────────────────── */
@@ -328,22 +327,21 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   border: 1.5px solid currentColor;
-  border-radius: 3px;
-  padding: 3px 8px;
-  transform: rotate(-1.2deg);
+  border-radius: 999px;
+  padding: 3px 10px;
 }
-.stamp-certified { color: #3f6b34; }
-.stamp-invalid { color: #a33327; }
+.stamp-certified { color: #7ec46a; }
+.stamp-invalid { color: #ea6a65; }
 
-/* scrollbars: ink on paper */
+/* scrollbars: soil on cream */
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  background: #cfc5aa;
+  background: #54432f;
   border-radius: 999px;
-  border: 2px solid #f2ecdd;
+  border: 2px solid #2b221a;
 }
-*::-webkit-scrollbar-thumb:hover { background: #b5a988; }
+*::-webkit-scrollbar-thumb:hover { background: #6b5545; }
 
 /* ── breathe (live status) ───────────────────────────────────────── */
 @keyframes breathe {
@@ -353,7 +351,8 @@
 .breathe { animation: breathe 2.4s ease-in-out infinite; }
 
 /* ── ASCII board tokens — the AI's textual view, printed on the
-     dark teleprinter page (machine view contrasts the paper world) ── */
+     dark terminal. Token colors mirror the real game pieces so a
+     human can map machine view ⇄ game view at a glance. ──────────── */
 .ascii-grid {
   font-family: var(--font-mono-code), monospace;
   font-size: 13.5px;
@@ -361,23 +360,23 @@
   letter-spacing: 0.06em;
   white-space: pre;
 }
-.tk-wall { color: #8a7d62; }
-.tk-floor { color: #6b5f4a; }
+.tk-wall { color: #7a6753; }
+.tk-floor { color: #5d4e3f; }
 .tk-dirt { color: #c9a56a; }
-.tk-head { color: #e8dfc8; font-weight: 700; }
-.tk-body { color: #b5a988; }
-.tk-remain { color: #7a6f5a; }
-.tk-apple { color: #d0604f; font-weight: 700; }
-.tk-crate { color: #b98a4f; }
-.tk-plate { color: #9c7c2f; }
-.tk-door { color: #c0563f; }
-.tk-exit { color: #e2b23f; font-weight: 700; }
-.tk-spike { color: #a33327; }
-.tk-ice { color: #9fb6bd; }
+.tk-head { color: #ffffff; font-weight: 700; }
+.tk-body { color: #fca5b8; }
+.tk-remain { color: #b08d94; }
+.tk-apple { color: #ff6b6b; font-weight: 700; }
+.tk-crate { color: #dda15e; }
+.tk-plate { color: #ffcf33; }
+.tk-door { color: #e8b630; }
+.tk-exit { color: #ff7090; font-weight: 700; }
+.tk-spike { color: #ea6a65; }
+.tk-ice { color: #9bd4ef; }
 .tk-bridge { color: #b98a4f; font-weight: 700; }
-.tk-valve { color: #d0604f; font-weight: 700; }
-.tk-key { color: #e2b23f; font-weight: 700; }
-.tk-lock { color: #c0563f; font-weight: 700; }
+.tk-valve { color: #ffb37a; font-weight: 700; }
+.tk-key { color: #ffd54d; font-weight: 700; }
+.tk-lock { color: #e8b630; font-weight: 700; }
 
 /* ── flow lines for the loop diagram ─────────────────────────────── */
 @keyframes dashflow {
@@ -388,46 +387,46 @@
   animation: dashflow 1.2s linear infinite;
 }
 
-/* ── range slider (timeline scrubber) — ink on paper ─────────────── */
+/* ── range slider (timeline scrubber) ────────────────────────────── */
 input[type="range"].wyrm-range {
   -webkit-appearance: none;
   appearance: none;
-  height: 5px;
+  height: 6px;
   border-radius: 999px;
-  background: #ddd3ba;
+  background: #2f251c;
   outline: none;
-  border: 1px solid #cfc5aa;
+  border: 1px solid #54432f;
 }
 input[type="range"].wyrm-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
-  background: #faf6ea;
-  border: 2px solid #2c2318;
-  box-shadow: 0 1px 3px rgba(58, 50, 38, 0.35);
+  background: #ffcf33;
+  border: 2.5px solid #2b221a;
+  box-shadow: 0 0 0 1.5px #b88914, 0 2px 4px rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
 input[type="range"].wyrm-range::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
-  background: #faf6ea;
-  border: 2px solid #2c2318;
+  background: #ffcf33;
+  border: 2.5px solid #2b221a;
   cursor: pointer;
 }
 
 /* ── FORGE editor cells ──────────────────────────────────────────── */
 .forge-cell {
   position: relative;
-  border-radius: 3px;
+  border-radius: 6px;
   transition: transform 0.12s ease, filter 0.12s ease;
   cursor: crosshair;
 }
 .forge-cell:hover {
   transform: scale(1.08);
-  filter: brightness(1.12);
+  filter: brightness(1.18);
   z-index: 2;
 }
 .forge-palette-item {
@@ -437,8 +436,8 @@ input[type="range"].wyrm-range::-moz-range-thumb {
   transform: translateY(-2px);
 }
 .forge-palette-item[data-active="true"] {
-  border-color: #a33327 !important;
-  box-shadow: 0 0 0 1px rgba(163, 51, 39, 0.5), 0 6px 16px -6px rgba(58, 50, 38, 0.4);
+  border-color: #ea6a65 !important;
+  box-shadow: 0 0 0 1.5px rgba(234, 106, 101, 0.55), 0 8px 18px -8px rgba(0, 0, 0, 0.6);
 }
 
 /* ── streaming caret for live thinking ───────────────────────────── */
@@ -449,11 +448,11 @@ input[type="range"].wyrm-range::-moz-range-thumb {
 .stream-caret::after {
   content: "▊";
   margin-left: 2px;
-  color: #a33327;
+  color: #ffcf33;
   animation: caretblink 0.9s steps(1) infinite;
 }
 
-/* ── custom scrollbars (ink) ─────────────────────────────────────── */
+/* ── custom scrollbars (soil) ────────────────────────────────────── */
 .wyrm-scroll::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -462,13 +461,13 @@ input[type="range"].wyrm-range::-moz-range-thumb {
   background: transparent;
 }
 .wyrm-scroll::-webkit-scrollbar-thumb {
-  background: #cfc5aa;
+  background: #54432f;
   border-radius: 8px;
 }
 .wyrm-scroll::-webkit-scrollbar-thumb:hover {
-  background: #b5a988;
+  background: #6b5545;
 }
 .wyrm-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #cfc5aa transparent;
+  scrollbar-color: #54432f transparent;
 }

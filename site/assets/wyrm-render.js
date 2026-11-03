@@ -1,12 +1,15 @@
 /* ═══════════════════════════════════════════════════════════════════
    WRYM · wyrm-render.js — the WOIM-faithful board renderer (vanilla)
    Visual DNA extracted from the real game (Steam app 4272020, dogspawn):
-   layered soil strata with fossil glyphs, carved dark tunnels, ONE pink
-   worm with a coral saddle, a single googly eye and a tail length badge,
-   and the true element set — apples, walnuts, yellow floor buttons,
-   golden bar gates, the heart goal, dirt, spikes, valves, ice, bridges,
-   locks & keys. Every colour below was lifted from reference material.
+   layered soil strata with fossil glyphs, carved dark tunnels, the
+   salmon-pink worm (#f09c9c) with a CORAL head segment + saddle, a
+   dark tube outline, one googly eye and a tail length badge, and the
+   true element set — apples, walnuts, yellow floor buttons, golden
+   bar gates, the heart goal, dirt, spikes, valves, ice, bridges,
+   locks & keys. Every colour below was lifted from reference material
+   (13 official 1920×1080 captures + the owner's build, Nov 2026).
    Exposes: WyrmRender.draw(canvas, st, opts)
+            WyrmRender.spriteIcon(canvas, ch, size, opts)
             WyrmRender.THEMES · WyrmRender.themeFor(st)
    ═══════════════════════════════════════════════════════════════════ */
 (function () {
@@ -36,12 +39,12 @@
     return THEMES[THEME_KEYS[h % THEME_KEYS.length]];
   }
 
-  /* ── the worm — pink, googly, beloved ───────────────────────────── */
+  /* ── the worm — salmon body, coral head + saddle, dark rim ─────── */
   var W = {
-    body: "#fca5b8",       // soft pastel pink
-    saddle: "#ea6a65",     // coral clitellum band
-    saddleEdge: "#c95167",
-    edge: "rgba(120,40,50,0.35)",
+    body: "#f09c9c",       // salmon-pink (pixel-clustered across captures)
+    head: "#ea6a65",       // coral — the head segment IS coral
+    saddle: "#ea6a65",     // coral clitellum band on segments 1–3
+    outline: "#2b1f1e",    // dark tube outline, like the real game
     eyeWhite: "#ffffff",
     eyeRim: "#2b1c1d",
     pupil: "#0a0a0a",
@@ -584,9 +587,10 @@
     var r = cell * 0.34;
     g.fillStyle = "rgba(0,0,0,0.25)";
     g.beginPath(); g.ellipse(cx, cy + r * 0.8, r * 0.9, r * 0.25, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(cx, cy, r + Math.max(1.2, r * 0.1), 0, Math.PI * 2);
+    g.fillStyle = W.outline; g.fill();
     g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
-    g.fillStyle = "#fca5b8"; g.fill();
-    g.strokeStyle = "rgba(120,40,50,0.35)"; g.lineWidth = 1.5; g.stroke();
+    g.fillStyle = W.body; g.fill();
     // closed sleeping eye
     g.strokeStyle = "#5c2a34"; g.lineWidth = Math.max(1.8, cell * 0.05); g.lineCap = "round";
     g.beginPath(); g.arc(cx - r * 0.25, cy - r * 0.15, r * 0.22, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
@@ -595,13 +599,14 @@
     g.beginPath(); g.arc(cx + r * 0.55, cy - r * 0.55, r * 0.14, 0, Math.PI * 2); g.fill();
   }
 
-  /* ── THE WORM — pink, saddle-banded, one big googly eye ─────────── */
+  /* ── THE WORM — salmon tube, coral head + saddle, dark outline ──── */
   function drawWorm(g, cells, cell, pad, t) {
     if (!cells.length) return;
     var pts = cells.map(function (p) {
       return { x: pad + (p.x + 0.5) * cell, y: pad + (p.y + 0.5) * cell };
     });
-    var wdt = cell * 0.74;
+    var wdt = cell * 0.72;
+    var ol = Math.max(1.6, cell * 0.045); // dark outline width
 
     // ground shadow
     g.save();
@@ -610,32 +615,44 @@
     g.lineCap = "round"; g.lineJoin = "round";
     g.beginPath();
     g.moveTo(pts[0].x, pts[0].y + cell * 0.14);
-    for (var i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y + cell * 0.14);
+    for (var i0 = 1; i0 < pts.length; i0++) g.lineTo(pts[i0].x, pts[i0].y + cell * 0.14);
     if (pts.length === 1) g.lineTo(pts[0].x + 0.1, pts[0].y + cell * 0.14);
     g.stroke();
     g.restore();
 
     g.lineCap = "round"; g.lineJoin = "round";
 
-    // body tube — segments 1..3 wear the coral saddle
+    // pass 1 — the dark outline under the whole tube (the game has one)
+    g.strokeStyle = W.outline;
+    g.lineWidth = wdt + ol * 2;
+    g.beginPath();
+    g.moveTo(pts[0].x, pts[0].y);
+    for (var i1 = 1; i1 < pts.length; i1++) g.lineTo(pts[i1].x, pts[i1].y);
+    if (pts.length === 1) g.lineTo(pts[0].x + 0.1, pts[0].y);
+    g.stroke();
+
+    // pass 2 — colored tube: head is coral; saddle on 1–3; body salmon
+    var segColor = function (i) { return i <= 3 ? W.saddle : W.body; };
     for (var j = pts.length - 1; j > 0; j--) {
-      var saddle = j >= 1 && j <= 3;
-      g.strokeStyle = saddle ? W.saddle : W.body;
-      g.lineWidth = saddle ? wdt * 1.02 : wdt;
+      g.strokeStyle = segColor(j - 1);
+      g.lineWidth = wdt;
       g.beginPath();
       g.moveTo(pts[j].x, pts[j].y);
       g.lineTo(pts[j - 1].x, pts[j - 1].y);
       g.stroke();
     }
-    // knuckle joints — the segmented read
+
+    // pass 3 — knuckle joints, each with its dark ring
     for (var k = pts.length - 1; k >= 0; k--) {
-      var saddle2 = k >= 1 && k <= 3;
-      g.beginPath(); g.arc(pts[k].x, pts[k].y, (saddle2 ? wdt * 1.02 : wdt) / 2, 0, Math.PI * 2);
-      g.fillStyle = saddle2 ? W.saddle : W.body;
-      g.fill();
+      var r = wdt / 2;
+      g.beginPath(); g.arc(pts[k].x, pts[k].y, r + ol, 0, Math.PI * 2);
+      g.fillStyle = W.outline; g.fill();
+      g.beginPath(); g.arc(pts[k].x, pts[k].y, r, 0, Math.PI * 2);
+      g.fillStyle = segColor(k); g.fill();
     }
-    // soft top light
-    g.strokeStyle = "rgba(255,235,240,0.35)";
+
+    // pass 4 — soft top light
+    g.strokeStyle = "rgba(255,235,240,0.32)";
     g.lineWidth = wdt * 0.16;
     g.beginPath();
     g.moveTo(pts[0].x, pts[0].y - wdt * 0.22);
@@ -731,5 +748,134 @@
     g.closePath();
   }
 
-  window.WyrmRender = { draw: draw, THEMES: THEMES, themeFor: themeFor };
+  /* ── spriteIcon — one element as a real mini game tile ──────────── */
+  function spriteIcon(canvas, ch, size, opts) {
+    opts = opts || {};
+    var dpr = Math.min(2, (typeof window !== "undefined" && window.devicePixelRatio) || 1);
+    if (canvas.width !== Math.round(size * dpr)) {
+      canvas.width = Math.round(size * dpr);
+      canvas.height = Math.round(size * dpr);
+      canvas.style.width = size + "px";
+      canvas.style.height = size + "px";
+    }
+    var g = canvas.getContext("2d");
+    if (!g) return;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, size, size);
+    var th = opts.theme || THEMES.moss;
+    var cx = size / 2, cy = size / 2;
+    if (ch === "#") { drawSoilTileIcon(g, size, th, opts.seed || 0); return; }
+    drawTunnelTileIcon(g, size, th);
+    switch (ch) {
+      case "+": drawDirt(g, 0, 0, size, opts.seed || 0, 1); break;
+      case "%": drawButton(g, cx, cy, size, !!opts.pressed); break;
+      case "D": drawGate(g, 0, 0, size, !!opts.open); break;
+      case "X": drawHeartGoal(g, cx, cy, size, opts.t || 0, opts.seed || 0); break;
+      case "~": drawSpikes(g, 0, 0, size, opts.seed || 0, 1); break;
+      case "_": drawIce(g, 0, 0, size, opts.seed || 0, 1); break;
+      case "=": drawBridge(g, 0, 0, size); break;
+      case "L": drawLock(g, cx, cy, size); break;
+      case ">": case "<": case "^": case "v": drawValve(g, cx, cy, size, ch); break;
+      case "*": drawApple(g, cx, cy, size * 0.42, opts.t || 0, opts.seed || 0); break;
+      case "$": drawWalnut(g, cx, cy, size * 0.40, opts.seed || 0, 1); break;
+      case "k": drawKey(g, cx, cy, size, opts.t || 0, opts.seed || 0); break;
+      case "@": drawWormHeadIcon(g, cx, cy, size); break;
+      case "o": drawWormBodyIcon(g, cx, cy, size); break;
+      default: break;
+    }
+  }
+
+  function drawSoilTileIcon(g, size, th, seed) {
+    g.fillStyle = th.base;
+    g.fillRect(0, 0, size, size);
+    var rnd = cellRand(seed, 3, 77);
+    var y0 = size * (0.22 + rnd() * 0.4);
+    var amp = size * 0.10, ph = rnd() * Math.PI * 2;
+    g.beginPath();
+    g.moveTo(0, y0);
+    for (var x = 0; x <= size; x += size / 8) g.lineTo(x, y0 + Math.sin((x / size) * Math.PI * 2 + ph) * amp);
+    g.lineTo(size, y0 + size * 0.26);
+    for (var x2 = size; x2 >= 0; x2 -= size / 8) g.lineTo(x2, y0 + size * 0.26 + Math.sin((x2 / size) * Math.PI * 2 + ph) * amp);
+    g.closePath();
+    g.fillStyle = rnd() > 0.5 ? th.wave1 : th.wave2;
+    g.fill();
+    g.save();
+    g.translate(size * (0.3 + rnd() * 0.4), size * (0.62 + rnd() * 0.2));
+    g.strokeStyle = th.glyph;
+    g.lineWidth = Math.max(1.2, size * 0.045);
+    g.lineCap = "round";
+    g.beginPath();
+    var turns = 1.9, rr = size * 0.16;
+    for (var a = 0; a < turns * Math.PI * 2; a += 0.3) {
+      var rad = rr * (a / (turns * Math.PI * 2));
+      var px = Math.cos(a) * rad, py = Math.sin(a) * rad;
+      a === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+    }
+    g.stroke();
+    g.restore();
+  }
+
+  function drawTunnelTileIcon(g, size, th) {
+    g.fillStyle = th.tunnel;
+    g.fillRect(0, 0, size, size);
+    g.fillStyle = th.ridge;
+    g.fillRect(0, size * 0.36, size, size * 0.27);
+    g.strokeStyle = "rgba(12,9,6,0.85)";
+    g.lineWidth = Math.max(2.5, size * 0.10);
+    g.lineCap = "round";
+    g.beginPath(); g.moveTo(1, 1); g.lineTo(size - 1, 1); g.stroke();
+    g.beginPath(); g.moveTo(1, 1); g.lineTo(1, size - 1); g.stroke();
+    g.beginPath(); g.moveTo(size - 1, size - 1); g.lineTo(1, size - 1); g.stroke();
+    g.beginPath(); g.moveTo(size - 1, size - 1); g.lineTo(size - 1, 1); g.stroke();
+  }
+
+  function drawWormDiscIcon(g, cx, cy, r, color) {
+    g.beginPath(); g.arc(cx, cy, r + Math.max(1.4, r * 0.10), 0, Math.PI * 2);
+    g.fillStyle = W.outline; g.fill();
+    g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2);
+    g.fillStyle = color; g.fill();
+    g.beginPath(); g.ellipse(cx, cy - r * 0.42, r * 0.55, r * 0.22, 0, 0, Math.PI * 2);
+    g.fillStyle = "rgba(255,235,240,0.30)"; g.fill();
+  }
+
+  function drawWormHeadIcon(g, cx, cy, size) {
+    var r = size * 0.37;
+    var neck = { x: cx - size * 0.52, y: cy };
+    g.lineCap = "round";
+    g.strokeStyle = W.outline;
+    g.lineWidth = r * 2 + Math.max(2.4, r * 0.2);
+    g.beginPath(); g.moveTo(neck.x, neck.y); g.lineTo(cx, cy); g.stroke();
+    g.strokeStyle = W.head;
+    g.lineWidth = r * 2;
+    g.beginPath(); g.moveTo(neck.x, neck.y); g.lineTo(cx, cy); g.stroke();
+    drawWormDiscIcon(g, neck.x, neck.y, r * 0.94, W.saddle);
+    drawWormDiscIcon(g, cx, cy, r, W.head);
+    var er = size * 0.24;
+    g.beginPath(); g.arc(cx, cy, er, 0, Math.PI * 2);
+    g.fillStyle = W.eyeWhite; g.fill();
+    g.strokeStyle = W.eyeRim; g.lineWidth = Math.max(1.6, size * 0.045); g.stroke();
+    g.beginPath(); g.arc(cx + er * 0.35, cy, er * 0.52, 0, Math.PI * 2);
+    g.fillStyle = W.pupil; g.fill();
+    g.beginPath(); g.arc(cx + er * 0.35 - er * 0.16, cy - er * 0.16, er * 0.17, 0, Math.PI * 2);
+    g.fillStyle = W.gleam; g.fill();
+  }
+
+  function drawWormBodyIcon(g, cx, cy, size) {
+    var r = size * 0.33;
+    var ax = cx - size * 0.34, bx = cx + size * 0.34;
+    g.lineCap = "round";
+    g.strokeStyle = W.outline;
+    g.lineWidth = r * 2 + Math.max(2.4, r * 0.2);
+    g.beginPath(); g.moveTo(ax, cy); g.lineTo(bx, cy); g.stroke();
+    g.strokeStyle = W.saddle;
+    g.lineWidth = r * 2;
+    g.beginPath(); g.moveTo(ax, cy); g.lineTo((ax + bx) / 2, cy); g.stroke();
+    g.strokeStyle = W.body;
+    g.lineWidth = r * 2;
+    g.beginPath(); g.moveTo((ax + bx) / 2, cy); g.lineTo(bx, cy); g.stroke();
+    drawWormDiscIcon(g, ax, cy, r, W.saddle);
+    drawWormDiscIcon(g, bx, cy, r, W.body);
+  }
+
+  window.WyrmRender = { draw: draw, THEMES: THEMES, themeFor: themeFor, spriteIcon: spriteIcon };
 })();

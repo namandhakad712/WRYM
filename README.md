@@ -59,7 +59,8 @@ Three properties make it a *benchmark* and not a demo:
 | **Unstoppable** | A production reliability engine — retries, `Retry-After`-aware backoff, quota circuit breakers, rate limiters, context-window fitting, fallback chains — wraps every model call. |
 
 Everything is real. The engine is pure functions. The worm is the worm —
-pink, saddle-banded, googly-eyed, drawn like the game it comes from. The
+salmon-bodied, coral-headed, dark-rimmed, googly-eyed, drawn like the game
+it comes from (colors pixel-verified against all 13 official captures). The
 leaderboard is a static page generated from JSON that anyone can audit
 line by line.
 
@@ -253,9 +254,10 @@ WOIM: layered soil strata in six palettes (moss, grass, clay, sand, rust,
 slate) with fossil glyphs, dark tunnels carved with organic edges, a glossy
 red apple, a walnut boulder, a yellow floor button that visibly depresses, a
 golden gate that becomes a glowing portal when satisfied, and the pink heart
-goal, sparkling. The worm is **the worm**: pastel-pink tube, coral saddle on
-segments 1–3, one big googly eye that tracks its heading (and blinks), and a
-white tail badge counting its length. Dropped halves sleep where they fell.
+goal, sparkling. The worm is **the worm**: a salmon tube (`#f09c9c`), a
+**coral head segment** + saddle on segments 1–3, a thin dark outline like
+the real game, one big googly eye that tracks its heading (and blinks), and
+a white tail badge counting its length. Dropped halves sleep where they fell.
 
 **Right — the mind (AI view).** An underground terminal: the model's recorded
 thought for the current step, its raw reply verbatim, the action chip (green

@@ -12,21 +12,26 @@
 
 ## 1 · The worm
 
-The single most important asset. Extracted constants:
+The single most important asset. Extracted constants — re-verified
+Nov 2026 against **all 13 official 1920×1080 screenshots** plus the
+owner's reference build (pixel-cluster sampling + 3×-zoom vision
+analysis):
 
 | Trait | Value | Notes |
 | --- | --- | --- |
-| Body | `#fca5b8` pastel pink | constant across every screenshot |
+| Body | `#f09c9c` salmon-pink | dominant pixel cluster in every capture (the earlier `#fca5b8` read too magenta) |
+| Head segment | `#ea6a65` **coral** | the head segment IS coral in the real game — confirmed at 3× zoom across six captures |
 | Saddle (clitellum) | `#ea6a65` coral | worn on **segments 1–3** behind the head |
-| Body width | ≈ 74–80 % of a grid cell | continuous rounded tube, knuckle joint per segment |
-| Outline | none — flat fill | the game is flat-color, not inked |
-| Eye | **ONE big googly eye** | white sclera `#ffffff`, dark rim `#2b1c1d`, pupil `#0a0a0a` (~52 % of sclera) offset toward heading, white gleam, occasional blink |
-| Tail | white circle badge `#ffffff` + `#111` digit | displays current length (≥ 4 segments) |
+| Outline | **thin dark tube rim** `#2b1f1e` | around the whole body and each knuckle — the game outlines its worm |
+| Body width | ≈ 72 % of a grid cell | continuous rounded tube, knuckle joint per segment |
+| Eye | **ONE big googly eye** | re-confirmed at 3× zoom (low-zoom passes misread 2); white sclera `#ffffff`, dark rim `#2b1c1d`, pupil `#0a0a0a` (~50 % of sclera) offset toward heading, small white gleam, occasional blink |
+| Tail | white circle badge `#ffffff` + `#111` digit | displays current length (≥ 4 segments) — seen in captures |
 | Idle worms | closed-eye arc `⌒` | severed halves sleep; breathing bubble |
 | Shadow | soft dark ellipse under body | `rgba(0,0,0,0.30)` |
 
-**Rule:** never two eyes, never a snake wedge head, never scales. It is a
-googly-eyed pink worm and it is beloved.
+**Rule:** never two eyes, never a snake wedge head, never scales, never
+a flat un-outlined tube. It is a coral-headed, dark-rimmed, salmon,
+googly-eyed worm and it is beloved.
 
 ## 2 · Soil strata — six palettes
 
@@ -79,10 +84,18 @@ engine → rendered exactly so:**
 **Researched but not yet in the engine** (the real game's remaining set —
 the roadmap in §5): **eggs** 🥚 (white `#ffffff`, shepherded/cracked),
 **hats** 👒 (cosmetic worm wear, e.g. white dome beanie), **jigsaw pieces**
-🧩 (rest-stop mini-puzzles), **macarons** (pink `#eaaecb`, peach `#f4a261`,
-blue `#90caf9`, mint `#a5d6a7`, purple `#c77dff` — each opens the
-**matching-color gate**), **water & pipes** (`#48cae4`/`#00e5ff`, red valves
-`#d32f2f`), **pads/coins**, **secret rooms**.
+🧩 (rest-stop mini-puzzles), **macarons** (spotted in capture ss-07: a
+purple macaron ~`#765693`; pink `#eaaecb`, peach `#f4a261`, blue `#90caf9`,
+mint `#a5d6a7`, purple `#c77dff` — each opens the **matching-color gate**),
+**water & pipes** (`#48cae4`/`#00e5ff` with white bubble particles, red
+valves `#d32f2f`), **pads/coins**, **secret rooms**.
+
+Additional world strata observed in the official captures but not yet
+themed: **purple deep-earth** (`#765693` base), **lava/volcanic**
+(`#dd4e06`/`#f06f2a` with molten glow), **sewer brick** (slate world with
+man-made brick pattern `#252533`), **sand dunes** (rolling `#b08d57`),
+**tree roots** dangling from ceilings (`#6b4423`), and **daisies** growing
+on grass-world surfaces (white petals, gold core).
 
 ## 4 · UI language
 
@@ -137,5 +150,20 @@ Colors above are vision-model estimates from official 1920×1080 captures
 (±5 %); where the owner's reference build disagreed, the owner's values won
 (they color-picked the actual game). The renderer keeps every constant in
 one palette object per surface (`site/assets/wyrm-render.js`,
-`src/components/wyrm/StageCanvas.tsx`) so future corrections are one-line
-changes — no pixel is ever re-guessed.
+`src/components/wyrm/StageCanvas.tsx`, `src/lib/wyrm/sprites.ts`) so future
+corrections are one-line changes — no pixel is ever re-guessed.
+
+## 7 · The sprite system (Nov 2026)
+
+Every element also exists as a **standalone mini-tile** for icon surfaces:
+
+- `src/lib/wyrm/sprites.ts` — the canonical TypeScript sprite painter
+  (`drawSpriteCell` / `paintSprite`), used by the dashboard
+- `src/components/wyrm/WyrmSprite.tsx` — React canvas icon
+- `WyrmRender.spriteIcon(canvas, ch, size, opts)` — the vanilla twin for
+  the static site (legend on `levels.html`)
+
+The Feature Builder palette, the forge editor grid and the site legend all
+render **the real tiles** through these — soil strata walls, carved tunnel
+floors, the actual worm head/body — never flat colour swatches or abstract
+_glyphs_. The tile you pick is the tile the AI must survive.

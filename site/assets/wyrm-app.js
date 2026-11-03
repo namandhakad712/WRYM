@@ -175,6 +175,46 @@
     });
   };
 
+  // ═══ LEGEND — the pieces, as real sprite icons ═══════════════════
+  window.WyrmLegend = function () {
+    const host = $("#element-legend");
+    if (!host || !window.WyrmRender || !WyrmRender.spriteIcon) return;
+    const pieces = [
+      ["#", "Soil Wall", "impassable earth, layered strata"],
+      [".", "Tunnel", "carved dark chamber — the worm walks here"],
+      ["+", "Dirt", "dug through at the cost of a turn"],
+      ["@", "Worm", "coral head, googly eye, grows per apple"],
+      ["*", "Apple", "mandatory food — one segment each"],
+      ["$", "Walnut", "pushable boulder, weighs buttons"],
+      ["%", "Button", "depresses under any weight"],
+      ["D", "Gate", "bars until every button is held"],
+      ["X", "Heart", "the goal — opens after all apples"],
+      ["~", "Spikes", "instant death, even mid-slide"],
+      [">", "Valve", "one-way with the arrow"],
+      ["_", "Ice", "slide until something stops you"],
+      ["=", "Bridge", "crumbles when the last weight leaves"],
+      ["k", "Key", "pickup — each padlock eats one"],
+      ["L", "Padlock", "opens forever with a key"],
+    ];
+    const themes = WyrmRender.THEMES;
+    const keys = Object.keys(themes);
+    host.innerHTML = pieces.map(function (p, i) {
+      return (
+        '<div class="legend-item">' +
+        '<canvas data-ch="' + esc(p[0]) + '" data-seed="' + (i * 7 + 3) + '"></canvas>' +
+        '<div><b>' + esc(p[1]) + '</b><span>' + esc(p[2]) + "</span></div>" +
+        '<code class="legend-char">' + (p[0] === "." ? "·" : esc(p[0])) + "</code>" +
+        "</div>"
+      );
+    }).join("");
+    $$("#element-legend canvas").forEach(function (cv) {
+      const th = themes[keys[(Number(cv.dataset.seed) * 13 + 5) % keys.length]];
+      WyrmRender.spriteIcon(cv, cv.dataset.ch, 44, { theme: th, seed: Number(cv.dataset.seed) });
+      cv.style.borderRadius = "22%";
+      cv.style.boxShadow = "0 3px 0 rgba(0,0,0,0.28)";
+    });
+  };
+
   function initialState(grid, turnLimit) {
     const h = grid.length, w = grid[0].length;
     const t = grid.map(function (r) { return r.split(""); });

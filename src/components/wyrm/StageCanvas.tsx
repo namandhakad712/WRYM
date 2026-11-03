@@ -9,9 +9,11 @@
 //    daisies) carved by a deterministic hash, same on every machine
 //  · tunnels are dark chambers with a soft inner ridge and an organic
 //    carved edge against the soil — never a sterile grid
-//  · the worm is THE worm: a pastel-pink tube, a coral saddle on
-//    segments 1–3, ONE big googly eye that tracks the move direction,
-//    an occasional blink, and a white tail badge counting its length
+//  · the worm is THE worm: a salmon-pink tube (#f09c9c, pixel-verified),
+//    a CORAL head segment + saddle on segments 1–3, a thin dark outline
+//    like the real game, ONE big googly eye that tracks the move
+//    direction, an occasional blink, and a white tail badge counting
+//    its length
 //  · elements are the real ones: glossy red apples, walnut boulders,
 //    yellow floor buttons (they depress), golden bar gates that become
 //    glowing portals, the pink heart goal with sparkles, diggable dirt,
@@ -55,9 +57,14 @@ const THEMES: Record<string, SoilTheme> = {
 const THEME_KEYS = ["moss", "grass", "clay", "sand", "rust", "slate"];
 
 // ── the worm ────────────────────────────────────────────────────────
+// Verified against every official capture (Nov 2026): salmon body
+// #f09c9c, CORAL head segment + saddle 1–3, thin dark outline, one
+// big googly eye with gleam + blink, white tail badge.
 const WORM = {
-  body: "#fca5b8",
+  body: "#f09c9c",
+  head: "#ea6a65",
   saddle: "#ea6a65",
+  outline: "#2b1f1e",
   eyeRim: "#2b1c1d",
   pupil: "#0a0a0a",
   shadow: "rgba(0,0,0,0.30)",
@@ -202,8 +209,8 @@ export function StageCanvas({
     const defs: Record<string, { n: number; colors: string[]; speed: number; gravity: number; kind: Particle["kind"]; size: number }> = {
       apple: { n: 16, colors: ["#e82f3a", "#ff878f", "#9c1c24", "#5fb833"], speed: 2.2, gravity: 0.09, kind: "crumb", size: 0.07 },
       dig: { n: 14, colors: ["#8a6a42", "#5f4426", "#9a7648"], speed: 1.8, gravity: 0.11, kind: "crumb", size: 0.08 },
-      split: { n: 14, colors: ["#fca5b8", "#ea6a65", "#c95167"], speed: 2.0, gravity: 0.10, kind: "crumb", size: 0.07 },
-      win: { n: 40, colors: ["#ff3377", "#ff8fb3", "#ffcf33", "#fca5b8", "#ffffff"], speed: 3.0, gravity: 0.06, kind: "heart", size: 0.11 },
+      split: { n: 14, colors: ["#f09c9c", "#ea6a65", "#c95167"], speed: 2.0, gravity: 0.10, kind: "crumb", size: 0.07 },
+      win: { n: 40, colors: ["#ff3377", "#ff8fb3", "#ffcf33", "#f09c9c", "#ffffff"], speed: 3.0, gravity: 0.06, kind: "heart", size: 0.11 },
       death: { n: 16, colors: ["rgba(20,14,10,0.5)", "rgba(20,14,10,0.4)", "rgba(20,14,10,0.3)"], speed: 1.2, gravity: -0.01, kind: "wash", size: 0.18 },
       push: { n: 6, colors: ["rgba(196,137,87,0.45)", "rgba(122,79,40,0.3)"], speed: 0.9, gravity: 0.02, kind: "wash", size: 0.10 },
       crumble: { n: 16, colors: ["#8d6a3d", "#6b4c28", "#a07a48"], speed: 1.9, gravity: 0.12, kind: "crumb", size: 0.09 },
@@ -753,9 +760,10 @@ export function StageCanvas({
       g.fillStyle = "rgba(0,0,0,0.25)";
       g.beginPath(); g.ellipse(ccx, ccy + r * 0.8, r * 0.9, r * 0.25, 0, 0, Math.PI * 2); g.fill();
       const breathe = 1 + Math.sin(performance.now() * 0.002) * 0.04;
+      g.beginPath(); g.arc(ccx, ccy, r * breathe + Math.max(1.2, r * 0.1), 0, Math.PI * 2);
+      g.fillStyle = WORM.outline; g.fill();
       g.beginPath(); g.arc(ccx, ccy, r * breathe, 0, Math.PI * 2);
-      g.fillStyle = "#fca5b8"; g.fill();
-      g.strokeStyle = "rgba(120,40,50,0.35)"; g.lineWidth = 1.5; g.stroke();
+      g.fillStyle = "#f09c9c"; g.fill();
       g.strokeStyle = "#5c2a34"; g.lineWidth = Math.max(1.8, cell * 0.05); g.lineCap = "round";
       g.beginPath(); g.arc(ccx - r * 0.25, ccy - r * 0.15, r * 0.22, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
       g.fillStyle = "rgba(255,255,255,0.75)";
@@ -763,12 +771,14 @@ export function StageCanvas({
       g.globalAlpha = 1;
     };
 
-    /** THE WORM — pink tube, coral saddle, one googly eye, tail badge */
+    /** THE WORM — salmon tube, coral head + saddle, dark outline,
+     *  one googly eye, tail badge. Drawn like the real game. */
     const drawWorm = (g: CanvasRenderingContext2D, cells: { x: number; y: number }[], cell: number, t: number, sliding: boolean) => {
       if (cells.length === 0) return;
       const { pad } = sizeRef.current;
       const pts = cells.map((p) => ({ x: pad + (p.x + 0.5) * cell, y: pad + (p.y + 0.5) * cell }));
-      const wdt = cell * 0.74;
+      const wdt = cell * 0.72;
+      const ol = Math.max(1.6, cell * 0.045); // dark outline width
 
       // ground shadow
       g.save();
@@ -784,26 +794,37 @@ export function StageCanvas({
 
       g.lineCap = "round"; g.lineJoin = "round";
 
-      // body tube — segments 1..3 wear the coral saddle
+      // pass 1 — the dark outline under the whole tube (the game has one)
+      g.strokeStyle = WORM.outline;
+      g.lineWidth = wdt + ol * 2;
+      g.beginPath();
+      g.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
+      if (pts.length === 1) g.lineTo(pts[0].x + 0.1, pts[0].y);
+      g.stroke();
+
+      // pass 2 — colored tube: head is coral; saddle on 1–3; body salmon
+      const segColor = (i: number) => (i <= 3 ? WORM.saddle : WORM.body);
       for (let i = pts.length - 1; i > 0; i--) {
-        const saddle = i >= 1 && i <= 3;
-        g.strokeStyle = saddle ? WORM.saddle : WORM.body;
-        g.lineWidth = saddle ? wdt * 1.02 : wdt;
+        g.strokeStyle = segColor(i - 1);
+        g.lineWidth = wdt;
         g.beginPath();
         g.moveTo(pts[i].x, pts[i].y);
         g.lineTo(pts[i - 1].x, pts[i - 1].y);
         g.stroke();
       }
-      // knuckle joints — the segmented read
+
+      // pass 3 — knuckle joints, each with its dark ring
       for (let i = pts.length - 1; i >= 0; i--) {
-        const saddle = i >= 1 && i <= 3;
-        g.beginPath();
-        g.arc(pts[i].x, pts[i].y, (saddle ? wdt * 1.02 : wdt) / 2, 0, Math.PI * 2);
-        g.fillStyle = saddle ? WORM.saddle : WORM.body;
-        g.fill();
+        const r = wdt / 2;
+        g.beginPath(); g.arc(pts[i].x, pts[i].y, r + ol, 0, Math.PI * 2);
+        g.fillStyle = WORM.outline; g.fill();
+        g.beginPath(); g.arc(pts[i].x, pts[i].y, r, 0, Math.PI * 2);
+        g.fillStyle = segColor(i); g.fill();
       }
-      // soft top light
-      g.strokeStyle = "rgba(255,235,240,0.35)";
+
+      // pass 4 — soft top light
+      g.strokeStyle = "rgba(255,235,240,0.32)";
       g.lineWidth = wdt * 0.16;
       g.beginPath();
       g.moveTo(pts[0].x, pts[0].y - wdt * 0.22);

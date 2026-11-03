@@ -7,33 +7,44 @@
 
 import { motion } from "framer-motion";
 
-/** The WYRM mark: the real worm — pink tube, coral saddle, ONE googly
- *  eye, white tail badge — reaching for an apple in a soil panel. */
+/** The WYRM mark: the real worm — salmon tube (#f09c9c), CORAL head
+ *  + saddle, dark outline, one googly eye, white tail badge —
+ *  reaching for an apple in a soil panel. */
 export function WormLogo({ size = 34, className }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 36 36" className={className} aria-hidden>
       {/* soil panel */}
       <rect x="0.5" y="0.5" width="35" height="35" rx="8" fill="#3a2e24" stroke="#6b5545" strokeWidth="1.4" />
-      {/* the worm — pink body */}
+      {/* dark outline pass — the game's tube rim */}
+      <path
+        d="M 6.5 27.5
+           C 7.5 21, 10 18.5, 14 17.5
+           C 18.5 16.4, 23 15.2, 25.5 12.2"
+        fill="none"
+        stroke="#2b1f1e"
+        strokeWidth="8.4"
+        strokeLinecap="round"
+      />
+      {/* the worm — salmon body */}
       <motion.path
         d="M 6.5 27.5
            C 7.5 21, 10 18.5, 14 17.5
            C 18.5 16.4, 23 15.2, 25.5 12.2"
         fill="none"
-        stroke="#fca5b8"
+        stroke="#f09c9c"
         strokeWidth="7"
         strokeLinecap="round"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 0.9, ease: "easeOut" }}
       />
-      {/* coral saddle — the clitellum band on the rear segments */}
+      {/* coral head + saddle — the clitellum band */}
       <motion.path
         d="M 8.6 24.2
            C 9.3 20.4, 11 18.6, 14 17.7"
         fill="none"
         stroke="#ea6a65"
-        strokeWidth="7.4"
+        strokeWidth="7.2"
         strokeLinecap="round"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
@@ -43,12 +54,12 @@ export function WormLogo({ size = 34, className }: { size?: number; className?: 
       <path
         d="M 7 25.6 C 8 20.4, 10.4 18.1, 14.2 17.1"
         fill="none"
-        stroke="#ffd9e0"
+        stroke="#ffe4e2"
         strokeWidth="1.6"
         strokeLinecap="round"
         opacity="0.6"
       />
-      {/* the ONE googly eye on the head */}
+      {/* the ONE googly eye on the coral head */}
       <circle cx="25.5" cy="12.2" r="4.6" fill="#ffffff" stroke="#2b1c1d" strokeWidth="1.1" />
       <motion.circle
         cx="26.4"

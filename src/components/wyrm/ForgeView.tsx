@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { StageCanvas } from "@/components/wyrm/StageCanvas";
+import { WyrmSprite } from "@/components/wyrm/WyrmSprite";
 import type { GameState, LevelDef } from "@/lib/wyrm/types";
 import type { ValidatorReport } from "@/lib/wyrm/types";
 
@@ -50,30 +51,31 @@ interface ToolDef {
   label: string;
   desc: string;
   group: "Terrain" | "Advanced" | "Objects" | "The Worm" | "Tools";
-  swatch: string;
+  /** gentle idle animation for living elements (heart, apple, key) */
+  live?: boolean;
 }
 
 const TOOLS: ToolDef[] = [
-  { id: "wall", char: "#", label: "Soil Wall", desc: "Impassable earth. Encloses the level. Drawn as layered strata with fossil glyphs.", group: "Terrain", swatch: "bg-[#586248]" },
-  { id: "floor", char: ".", label: "Tunnel", desc: "Carved dark tunnel. The worm walks here.", group: "Terrain", swatch: "bg-[#1c1b18]" },
-  { id: "dirt", char: "+", label: "Dirt (dig)", desc: "Soft earth. The worm digs through it — it crumbles away permanently and reshapes the maze.", group: "Terrain", swatch: "bg-[#7d5c34]" },
-  { id: "plate", char: "%", label: "Floor Button", desc: "Weighed down by walnuts, remains or worm segments — it visibly depresses.", group: "Terrain", swatch: "bg-[#ffcf33]" },
-  { id: "door", char: "D", label: "Golden Gate", desc: "Barred while ANY button is unweighted; becomes a glowing portal when all are held.", group: "Terrain", swatch: "bg-[#d99f18]" },
-  { id: "exit", char: "X", label: "Heart Goal", desc: "Exactly one. The pink heart opens after every apple is eaten. WOIM IN LOVE!", group: "Terrain", swatch: "bg-[#ff3377]" },
-  { id: "spike", char: "~", label: "Spikes", desc: "Instant death. Cartoon steel teeth on a dark base.", group: "Terrain", swatch: "bg-[#6d7681]" },
-  { id: "valveRight", char: ">", label: "Valve →", desc: "One-way: may only be ENTERED moving right. Forces loop planning.", group: "Advanced", swatch: "bg-[#6b4c38]" },
-  { id: "valveLeft", char: "<", label: "Valve ←", desc: "One-way: may only be ENTERED moving left.", group: "Advanced", swatch: "bg-[#6b4c38]" },
-  { id: "valveUp", char: "^", label: "Valve ↑", desc: "One-way: may only be ENTERED moving up.", group: "Advanced", swatch: "bg-[#6b4c38]" },
-  { id: "valveDown", char: "v", label: "Valve ↓", desc: "One-way: may only be ENTERED moving down.", group: "Advanced", swatch: "bg-[#6b4c38]" },
-  { id: "bridge", char: "=", label: "Crumble Bridge", desc: "Holds while occupied; collapses to rubble (#) the moment the last weight leaves. Crossing is final.", group: "Advanced", swatch: "bg-[#a07a48]" },
-  { id: "ice", char: "_", label: "Ice", desc: "Frictionless: entering starts a SLIDE — many cells, ONE turn. Landing cell is what matters.", group: "Advanced", swatch: "bg-[#c7e9f8]" },
-  { id: "lock", char: "L", label: "Padlock", desc: "Impassable until a key is carried; entering consumes one key and opens it forever.", group: "Advanced", swatch: "bg-[#e8b630]" },
-  { id: "apple", char: "*", label: "Apple", desc: "Mandatory food. Each apple grows the worm by one segment.", group: "Objects", swatch: "bg-[#e82f3a]" },
-  { id: "crate", char: "$", label: "Walnut", desc: "Pushable sokoban-style boulder. Weighs down buttons. Cannot enter dirt or ice.", group: "Objects", swatch: "bg-[#c48957]" },
-  { id: "key", char: "k", label: "Key", desc: "Walk over it to pick it up. Each padlock eats exactly one.", group: "Objects", swatch: "bg-[#ffcf33]" },
-  { id: "head", char: "@", label: "Worm Head", desc: "Exactly one. Place it — the body stretches to its left. One googly eye.", group: "The Worm", swatch: "bg-[#fca5b8]" },
-  { id: "body", char: "o", label: "Worm Body", desc: "Extends the starting worm. Must form a contiguous line ending at the head. Segments 1–3 wear the coral saddle.", group: "The Worm", swatch: "bg-[#ea6a65]" },
-  { id: "eraser", char: ".", label: "Eraser", desc: "Right-click always erases, whatever is selected.", group: "Tools", swatch: "bg-[#443627]" },
+  { id: "wall", char: "#", label: "Soil Wall", desc: "Impassable earth. Encloses the level. Drawn as layered strata with fossil glyphs.", group: "Terrain" },
+  { id: "floor", char: ".", label: "Tunnel", desc: "Carved dark tunnel. The worm walks here.", group: "Terrain" },
+  { id: "dirt", char: "+", label: "Dirt (dig)", desc: "Soft earth. The worm digs through it — it crumbles away permanently and reshapes the maze.", group: "Terrain" },
+  { id: "plate", char: "%", label: "Floor Button", desc: "Weighed down by walnuts, remains or worm segments — it visibly depresses.", group: "Terrain" },
+  { id: "door", char: "D", label: "Golden Gate", desc: "Barred while ANY button is unweighted; becomes a glowing portal when all are held.", group: "Terrain" },
+  { id: "exit", char: "X", label: "Heart Goal", desc: "Exactly one. The pink heart opens after every apple is eaten. WOIM IN LOVE!", group: "Terrain", live: true },
+  { id: "spike", char: "~", label: "Spikes", desc: "Instant death. Cartoon steel teeth on a dark base.", group: "Terrain" },
+  { id: "valveRight", char: ">", label: "Valve →", desc: "One-way: may only be ENTERED moving right. Forces loop planning.", group: "Advanced" },
+  { id: "valveLeft", char: "<", label: "Valve ←", desc: "One-way: may only be ENTERED moving left.", group: "Advanced" },
+  { id: "valveUp", char: "^", label: "Valve ↑", desc: "One-way: may only be ENTERED moving up.", group: "Advanced" },
+  { id: "valveDown", char: "v", label: "Valve ↓", desc: "One-way: may only be ENTERED moving down.", group: "Advanced" },
+  { id: "bridge", char: "=", label: "Crumble Bridge", desc: "Holds while occupied; collapses to rubble (#) the moment the last weight leaves. Crossing is final.", group: "Advanced" },
+  { id: "ice", char: "_", label: "Ice", desc: "Frictionless: entering starts a SLIDE — many cells, ONE turn. Landing cell is what matters.", group: "Advanced" },
+  { id: "lock", char: "L", label: "Padlock", desc: "Impassable until a key is carried; entering consumes one key and opens it forever.", group: "Advanced" },
+  { id: "apple", char: "*", label: "Apple", desc: "Mandatory food. Each apple grows the worm by one segment.", group: "Objects", live: true },
+  { id: "crate", char: "$", label: "Walnut", desc: "Pushable sokoban-style boulder. Weighs down buttons. Cannot enter dirt or ice.", group: "Objects" },
+  { id: "key", char: "k", label: "Key", desc: "Walk over it to pick it up. Each padlock eats exactly one.", group: "Objects", live: true },
+  { id: "head", char: "@", label: "Worm Head", desc: "Exactly one. Place it — the body stretches to its left. Coral head, one googly eye.", group: "The Worm" },
+  { id: "body", char: "o", label: "Worm Body", desc: "Extends the starting worm. Must form a contiguous line ending at the head. Segments 1–3 wear the coral saddle.", group: "The Worm" },
+  { id: "eraser", char: ".", label: "Eraser", desc: "Right-click always erases, whatever is selected.", group: "Tools" },
 ];
 
 const GROUPS = ["Terrain", "Advanced", "Objects", "The Worm"] as const;
@@ -338,7 +340,7 @@ export function ForgeView({
                 onPointerLeave={() => setPainting(false)}
               >
                 <div
-                  className="grid w-max rounded-lg bg-[#ece4cf] p-2"
+                  className="grid w-max gap-[3px] rounded-xl bg-[#221a13] p-2 ring-1 ring-[#6b5545]/60"
                   style={{ gridTemplateColumns: `repeat(${grid[0]?.length ?? 0}, 44px)` }}
                   onContextMenu={(e) => e.preventDefault()}
                 >
@@ -418,11 +420,13 @@ export function ForgeView({
                         data-active={tool === t.id}
                         onClick={() => setTool(t.id)}
                         className={cn(
-                          "forge-palette-item flex items-start gap-2.5 rounded-lg border border-border/70 bg-secondary/40 p-2 text-left",
+                          "forge-palette-item flex items-center gap-3 rounded-lg border border-border/70 bg-secondary/40 p-2 text-left",
                           tool === t.id && "bg-primary/10",
                         )}
                       >
-                        <span className={cn("mt-0.5 h-6 w-6 shrink-0 rounded-md border border-black/30 shadow-inner", t.swatch)} />
+                        <span className="shrink-0 rounded-md ring-1 ring-black/30 shadow-[0_3px_0_rgba(0,0,0,0.28)]">
+                          <WyrmSprite ch={t.char === "." && t.id === "floor" ? "." : t.char} size={40} seed={7} animate={t.live} />
+                        </span>
                         <span className="min-w-0">
                           <span className="flex items-baseline gap-1.5">
                             <span className="font-display text-[12.5px] font-semibold text-foreground">{t.label}</span>
@@ -439,12 +443,12 @@ export function ForgeView({
                 data-active={tool === "eraser"}
                 onClick={() => setTool("eraser")}
                 className={cn(
-                  "forge-palette-item flex items-center gap-2.5 rounded-lg border border-border/70 bg-secondary/40 p-2 text-left",
+                  "forge-palette-item flex items-center gap-3 rounded-lg border border-border/70 bg-secondary/40 p-2 text-left",
                   tool === "eraser" && "bg-primary/10",
                 )}
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-black/30 bg-[#f7f2e4]">
-                  <Eraser className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-black/30 bg-[#f7f2e4] shadow-[0_3px_0_rgba(0,0,0,0.28)]">
+                  <Eraser className="h-4 w-4 text-muted-foreground" />
                 </span>
                 <span>
                   <span className="font-display text-[12.5px] font-semibold text-foreground">Eraser</span>
@@ -553,11 +557,11 @@ export function ForgeView({
   );
 }
 
-// ── one editable cell ────────────────────────────────────────────────
+// ── one editable cell — a real game sprite, not a glyph ─────────────
 function ForgeCell({ ch, onPaint, painting }: { ch: string; onPaint: (erase: boolean) => void; painting: boolean }) {
   return (
     <div
-      className="forge-cell flex h-11 w-11 items-center justify-center"
+      className="forge-cell"
       onPointerDown={(e) => onPaint(e.button === 2)}
       onPointerEnter={() => painting && onPaint(false)}
       onContextMenu={(e) => {
@@ -565,149 +569,12 @@ function ForgeCell({ ch, onPaint, painting }: { ch: string; onPaint: (erase: boo
         onPaint(true);
       }}
     >
-      <CellGlyph ch={ch} />
+      <WyrmSprite ch={ch} size={44} seed={3} />
     </div>
   );
 }
 
+/** Back-compat alias: the glyph IS the sprite now. */
 export function CellGlyph({ ch, size = 34 }: { ch: string; size?: number }) {
-  const s = { width: size, height: size };
-  const paper = "flex items-center justify-center rounded-[3px] bg-[#f4eedd] ring-1 ring-[#ddd3ba]";
-  switch (ch) {
-    case "#":
-      return (
-        <div
-          style={s}
-          className="rounded-[3px] bg-[#2c2318] ring-1 ring-[#221c14]"
-          // cross-hatch texture via repeating-linear-gradient
-        />
-      );
-    case "+":
-      return (
-        <div style={{ ...s, background: "#e2d3b2", backgroundImage: "radial-gradient(#8a6a42 1px, transparent 1.2px)", backgroundSize: "7px 7px" }} className="rounded-[35%] ring-1 ring-[#6b4f2e]" />
-      );
-    case "%":
-      return (
-        <div style={s} className={paper}>
-          <div className="h-5 w-5 rounded-full border-[2.5px] border-[#2c2318]/70 bg-[#e8dcc0]" />
-        </div>
-      );
-    case "D":
-      return (
-        <div style={s} className={paper}>
-          <div className="flex h-6 w-4 flex-col justify-between">
-            <span className="h-1.5 w-full rounded-sm bg-[#2c2318]" />
-            <span className="h-1.5 w-full rounded-sm bg-[#2c2318]" />
-            <span className="h-1.5 w-full rounded-sm bg-[#2c2318]" />
-          </div>
-        </div>
-      );
-    case "X":
-      return (
-        <div style={s} className={paper}>
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#a33327] ring-1 ring-[#7c221a]">
-            <span className="text-[10px] font-bold leading-none text-[#f7f2e4]">X</span>
-          </div>
-        </div>
-      );
-    case "~":
-      return (
-        <div style={s} className={paper}>
-          <svg width={size - 10} height={size - 10} viewBox="0 0 24 24">
-            <polygon points="4,20 8,6 12,20" fill="none" stroke="#2c2318" strokeWidth="1.6" />
-            <polygon points="12,20 16,6 20,20" fill="none" stroke="#2c2318" strokeWidth="1.6" />
-            <line x1="3" y1="20" x2="21" y2="20" stroke="#2c2318" strokeWidth="1.4" />
-          </svg>
-        </div>
-      );
-    case "*":
-      return (
-        <div style={s} className={paper}>
-          <div className="relative h-5 w-5 rounded-full bg-[#b03a2a] ring-1 ring-[#2c2318]">
-            <span className="absolute -top-1 left-2 h-1.5 w-[2px] rotate-12 rounded bg-[#2c2318]" />
-          </div>
-        </div>
-      );
-    case "$":
-      return (
-        <div style={s} className={paper}>
-          <div className="relative h-[70%] w-[70%] rounded-[2px] bg-[#c9a56a] ring-1 ring-[#2c2318]">
-            <div className="absolute inset-[18%] rotate-45 border-b-2 border-r-2 border-[#77572f]/80" />
-          </div>
-        </div>
-      );
-    case "@":
-      return (
-        <div style={s} className={paper}>
-          <div className="h-6 w-6 rounded-full bg-[#221c14] ring-1 ring-black">
-            <div className="mt-1.5 flex justify-around px-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f7f2e4]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f7f2e4]" />
-            </div>
-          </div>
-        </div>
-      );
-    case "o":
-      return (
-        <div style={s} className={paper}>
-          <div className="h-5 w-5 rounded-full bg-[#3a3226] ring-1 ring-[#221c14]" />
-        </div>
-      );
-    case ">":
-    case "<":
-    case "^":
-    case "v": {
-      const rot = { ">": 0, "^": -90, "<": 180, v: 90 }[ch] ?? 0;
-      return (
-        <div style={s} className={paper}>
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#a33327]/10 ring-1 ring-[#a33327]/70" style={{ transform: `rotate(${rot}deg)` }}>
-            <svg width="12" height="12" viewBox="0 0 12 12">
-              <path d="M2 6 H8" stroke="#a33327" strokeWidth="1.8" strokeLinecap="round" />
-              <path d="M6 3 L9.5 6 L6 9 Z" fill="#a33327" />
-            </svg>
-          </div>
-        </div>
-      );
-    }
-    case "=":
-      return (
-        <div style={s} className="flex items-center justify-center rounded-[3px] bg-[#2c2318]/10 ring-1 ring-[#ddd3ba]">
-          <div className="flex h-[70%] w-[80%] items-stretch justify-between">
-            <span className="w-[30%] rounded-[1px] bg-[#a07a48] ring-1 ring-[#77572f]" />
-            <span className="w-[30%] rounded-[1px] bg-[#a07a48] ring-1 ring-[#77572f]" />
-            <span className="w-[30%] rounded-[1px] bg-[#a07a48] ring-1 ring-[#77572f]" />
-          </div>
-        </div>
-      );
-    case "_":
-      return (
-        <div style={s} className="flex items-center justify-center rounded-[3px] bg-[#dfe9ec] ring-1 ring-[#9fb6bd]">
-          <svg width={size - 14} height={size - 14} viewBox="0 0 20 20">
-            <path d="M3 13 L8 7 L11 11 L16 5" stroke="rgba(120,150,160,0.75)" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-            <path d="M4 17 L10 12 L15 16" stroke="rgba(120,150,160,0.5)" strokeWidth="1" fill="none" strokeLinecap="round" />
-          </svg>
-        </div>
-      );
-    case "L":
-      return (
-        <div style={s} className={paper}>
-          <div className="relative h-[62%] w-[62%] rounded-[2px] bg-[#d9cdaf] ring-[1.5px] ring-[#2c2318]">
-            <span className="absolute left-1/2 top-[26%] h-[22%] w-[22%] -translate-x-1/2 rounded-full bg-[#2c2318]" />
-            <span className="absolute left-1/2 top-[48%] h-[30%] w-[12%] -translate-x-1/2 rounded-[1px] bg-[#2c2318]" />
-          </div>
-        </div>
-      );
-    case "k":
-      return (
-        <div style={s} className={paper}>
-          <svg width={size - 12} height={size - 12} viewBox="0 0 22 22" style={{ transform: "rotate(-35deg)" }}>
-            <circle cx="6" cy="11" r="3.4" fill="none" stroke="#a33327" strokeWidth="2" />
-            <path d="M9.5 11 H19" stroke="#a33327" strokeWidth="2" strokeLinecap="round" />
-            <path d="M15 11 V15 M18.5 11 V14" stroke="#a33327" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </div>
-      );
-    default:
-      return <div style={s} className="rounded-[3px] bg-[#f4eedd] opacity-80 ring-1 ring-[#e6dcc4]" />;
-  }
+  return <WyrmSprite ch={ch} size={size} seed={3} />;
 }

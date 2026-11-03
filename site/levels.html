@@ -41,8 +41,9 @@
     <h2>The pieces, drawn like the game</h2>
     <div class="print-box" style="margin-top:14px">
       <div class="pb-title">Reading the board</div>
-      <p style="margin:0">
-      The <b>worm</b> — pastel pink, coral saddle, one googly eye — grows by one segment per apple and may <b>split</b>, leaving a sleeping half behind that still carries weight.
+      <div class="element-legend" id="element-legend"></div>
+      <p style="margin:14px 0 0">
+      The <b>worm</b> — salmon body, coral head + saddle, one googly eye — grows by one segment per apple and may <b>split</b>, leaving a sleeping half behind that still carries weight.
       <b>Dirt</b> is dug through at the cost of a turn. <b>Walnuts</b> push sokoban-style and park on <b>yellow floor buttons</b>; a <b>golden gate</b> stays barred while any button stands unweighted, then becomes a glowing portal.
       <b>One-way valves</b> only forgive travel with the arrow. <b>Ice</b> slides the worm until something stops it — one action, many cells. <b>Bridges</b> crumble the instant the last weight leaves them.
       <b>Keys</b> open <b>padlocks</b> permanently. <b>Spikes</b> kill on contact, even mid-slide. The <b>heart</b> — the pink goal, sparkling — opens only when every apple is eaten.</p>
@@ -57,6 +58,6 @@
 
 <script src="./assets/wyrm-render.js"></script>
 <script src="./assets/wyrm-app.js"></script>
-<script>window.addEventListener("DOMContentLoaded", WyrmLevels);</script>
+<script>window.addEventListener("DOMContentLoaded", function () { WyrmLevels(); WyrmLegend(); });</script>
 </body>
 </html>

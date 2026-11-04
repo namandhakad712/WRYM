@@ -28,7 +28,7 @@
 
 1. [What is WRYM?](#what-is-wrym)
 2. [The game](#the-game)
-3. [The ladder — 20 certified levels](#the-ladder--20-certified-levels)
+3. [The ladder — 26 certified levels](#the-ladder--26-certified-levels-honestly-measured)
 4. [The GitHub flow: local runs → committed results → Pages](#the-github-flow-local-runs--committed-results--pages)
 5. [The dashboard (local control room)](#the-dashboard-local-control-room)
 6. [The agentic pipeline](#the-agentic-pipeline)
@@ -89,36 +89,59 @@ its head* — which is precisely the skill being measured.
 
 ---
 
-## The ladder — 20 certified levels
+## The ladder — 26 certified levels, honestly measured
 
 Every level is certified by exhaustive breadth-first search **before** it may
-enter the ladder: solvability, the optimal move count (*par*), the size of the
-search space, and a structural difficulty 1–10.
+enter the ladder: solvability, the optimal move count (*par*), and the **v3
+difficulty index** — seven dimensions measured by replaying the optimal line
+through the real engine:
 
-| Tier | Levels | Families | The idea |
-| --- | --- | --- | --- |
-| I · Foundations | 01–06 | movement, crates, plates, split, spikes | learn the physics |
-| II · Mechanics | 07–12 | keys, ice, valves, bridges, machinery | one-way geometry, forced simulation, bookkeeping |
-| III · **The Gauntlet** | 13–20 | everything, interlocked, under budget | **designed so models fail** |
+| dimension | what it measures |
+| --- | --- |
+| **depth** | how far the winning plan stretches (par) |
+| **search** | combinatorial width (BFS states, log scale) |
+| **irreversibility** | permanent acts on the winning line: digs, burns, valve lock-ins, unlocks, splits |
+| **simulation** | forced multi-cell ice glides the winner must trace |
+| **threat** | fraction of your own legal moves that would end the run |
+| **choreography** | sub-goal ordering load: pushes, plates, keys, splits |
+| **budget** | turn-limit pressure (par vs limit) |
+
+The composite blends the weighted mean with the strongest dimension (75/25 —
+a specialist hell is still hell) into one score with a tier label:
+**TUTORIAL → CORE → ADVANCED → GAUNTLET → ABYSS → NIGHTMARE**.
+No decoration counts: a spike-free corridor puzzle can never score ABYSS.
+
+| Tier | Levels | The idea |
+| --- | --- | --- |
+| I · Foundations | 01–06 | movement, crates, plates, split, spikes — learn the physics |
+| II · Mechanics | 07–12 | keys, ice, valves, bridges — one-way geometry, forced simulation |
+| III · The Gauntlet | 13–20 | everything, interlocked, under budget |
+| IV · **The Abyss** | 21–26 | honestly measured 5.9–8.1; two-spare-turn budgets; every greedy first move is fatal or terminal |
 
 <div align="center">
 <img src="site/assets/img/levels.png" alt="Level gallery with rendered boards" width="86%">
 </div>
 
-The Gauntlet's traps are structural, not decorative:
+Tier IV specialists:
 
-- **The Siphon (16)** — the exit door needs *two* plates weighted but there is
-  one crate. The worm must shed its own mass onto the far plate — **twice** —
-  then slither through as a single segment.
-- **Ratchet & Frost (14)** — the crate must ride *down over a one-way valve*
-  onto its plate; every approach is an ice slide; eating an apple on a slide
-  lane means overshooting into the next room.
-- **The Gaol (19)** — the far plate is reachable only by a body segment parked
-  there with head *past* it; the geometry forbids spanning plate and door, so
-  the split is forced, not optional.
-- **WYRM Crown (20)** — lock descent, ice lanes, a plate-door, a one-way
-  bridge span whose first landing is spiked, and a valve mouth into the
-  burrow. Difficulty 9/10, par 46, budget 100.
+- **Serpent's Choir (21, 7.5 GAUNTLET)** — THREAT: spike-hemmed lanes where
+  half your legal moves are fatal; every gap is a one-way valve; descending
+  before eating the row-1 apple strands you forever.
+- **Glass Foundry (22, 8.1 ABYSS)** — SIMULATION: a frictionless foundry
+  floor, island apples, spike stop-cells, and a one-way valve dive that
+  commits you to the exit run. Par 18, budget 20. Two spare turns. Total.
+- **The Incinerator (23, 5.9)** — IRREVERSIBILITY: dig the bulkhead, burn
+  the bridge, slide the vent, valve down, dig again, burn the last bridge —
+  five permanent acts on a 23-move line.
+- **Cathedral of Lead (24, 7.7 GAUNTLET)** — CHOREOGRAPHY: key, lock, crate
+  ferry onto one plate, your own tail (or a severed half) on the other,
+  ice-slot descent, door run — 3 spare turns out of 65.
+- **Ouroboros Rex (25, 7.0 GAUNTLET)** — SPLIT ECONOMICS: grow to six, then
+  sever yourself onto BOTH plates; the far door opens only for a worm that
+  has paid in flesh. Spike fangs under the first apple.
+- **WYRM Genocide (26, 7.3 GAUNTLET)** — THE END: key, lock, ice hall, valve
+  commit, crate ferry over burning bridges, dig, spiked final approach —
+  every family at once, one long committed descent.
 
 > **Failure is the instrument.** Partial credit (apples eaten, moves survived,
 > deaths avoided) keeps every failure informative — a model that dies on the
@@ -336,7 +359,7 @@ reliability engine (`0`/absent = engine default):
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `zai` (built-in), `openai`, `anthropic`, `google`, `openrouter`, `groq`, `deepseek`, `mistral`, `xai`, `together`, `ollama`, `lmstudio`, `custom` — any OpenAI-compatible endpoint |
+| `kind` | `zai` (built-in), `openai`, `anthropic`, `google`, `openrouter`, `groq`, `deepseek`, `mistral`, `xai`, `together`, `ollama`, `lmstudio`, `mcp` (**any Model Context Protocol server**), `custom` — any OpenAI-compatible endpoint |
 | `apiKeyEnv` | **name** of the environment variable holding the key (keys are never committed) |
 | `modelId`, `baseUrl` | vendor identifiers; sensible defaults per kind |
 | `contextWindow` | custom context size in tokens; `0` = auto by kind (8k local → 1M Gemini) |
@@ -349,6 +372,36 @@ reliability engine (`0`/absent = engine default):
 
 The same schema drives the dashboard's Admin console — what you probe is what
 the arena runs.
+
+---
+
+## Any model via MCP (Model Context Protocol)
+
+WRYM is also an **MCP client**: any server that exposes a chat tool becomes a
+first-class benchmark entrant — local Ollama, a vLLM cluster, llama.cpp,
+LiteLLM, a friend's GPU box, a hosted MCP endpoint — with the full reliability
+pipeline (rate limiter, circuit breaker, classified retries, failover chains,
+token telemetry) wrapped around it.
+
+```bash
+# 1. bridge any OpenAI-compatible endpoint into MCP (zero deps)
+LLM_BASE_URL=http://localhost:11434/v1 LLM_MODEL=qwen2.5:14b node mcp/llm-bridge.mjs
+
+# 2. add a provider in the Admin console (or bench/models.json):
+#    kind     = MCP server (any model)
+#    baseUrl  = stdio:node mcp/llm-bridge.mjs     (or https://host/mcp)
+#    apiKey   = LLM_BASE_URL=http://localhost:11434/v1;LLM_MODEL=qwen2.5:14b
+#    modelId  = qwen2.5:14b
+
+# 3. prove the whole chain without any real model
+bun scripts/test-mcp.ts    # 16 checks: client → bridge → mock upstream
+```
+
+Transports: **stdio** (`baseUrl = stdio:<command + args>`, env pairs via
+`apiKey = K=V;K2=V2`) and **streamable HTTP** (`baseUrl = https://…/mcp`,
+bearer via `apiKey`). Pin a tool with `#tool=NAME`, else the client
+auto-discovers the chat tool. Full contract, examples and troubleshooting:
+**[docs/MCP_SUPPORT.md](docs/MCP_SUPPORT.md)**.
 
 ---
 
@@ -410,7 +463,8 @@ Dockerfile, docker-compose.yml, DOCKER.md
 ## Verification & tests
 
 ```bash
-bun scripts/validate-tier3.ts     # BFS re-certification of all 20 levels (CI runs this)
+bun scripts/validate-tier3.ts     # BFS re-certification of all 26 levels (CI runs this)
+bun scripts/test-mcp.ts           # MCP chain: client → bridge → mock upstream (16 checks)
 bun scripts/test-mechanics.ts     # engine v2 mechanics
 bun scripts/test-levels.ts        # ladder validation
 bun scripts/test-reliability.ts   # reliability pipeline smoke test

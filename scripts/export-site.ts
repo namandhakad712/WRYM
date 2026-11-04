@@ -153,6 +153,8 @@ const levelDocs = levels.map((l) => ({
   slug: l.slug,
   name: l.name,
   difficulty: l.difficulty,
+  tier: l.tier ?? null,
+  dims: l.dims ?? null,
   minMoves: l.minMoves,
   turnLimit: l.turnLimit,
   mechanics: l.mechanics,

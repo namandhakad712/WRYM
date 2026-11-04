@@ -116,6 +116,18 @@
       "concurrency": 1,
       "note": "Fully local, no key. Demonstrates the small-context path: the context fitter truncates history with a visible marker.",
       "enabled": false
+    },
+    {
+      "key": "any-model-via-mcp",
+      "name": "Any Model (MCP bridge)",
+      "kind": "mcp",
+      "modelId": "",
+      "baseUrl": "stdio:node mcp/llm-bridge.mjs",
+      "apiKeyEnv": "WRYM_MCP_ENV",
+      "contextWindow": 32768,
+      "concurrency": 1,
+      "note": "ANY model reachable over MCP. apiKeyEnv must export WRYM_MCP_ENV='LLM_BASE_URL=http://localhost:11434/v1;LLM_MODEL=qwen2.5:14b' (or any OpenAI-compatible endpoint). Full guide: docs/MCP_SUPPORT.md. Test the chain with `bun scripts/test-mcp.ts`.",
+      "enabled": false
     }
   ]
 }

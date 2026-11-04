@@ -1,4 +1,4 @@
-// Validate the full ladder (with the new Tier III gauntlet levels).
+// Validate the FULL ladder (Tiers I–IV) under the v3 difficulty index.
 // Usage: bun scripts/validate-tier3.ts [slug ...]
 import { HANDCRAFTED_LEVELS } from "../src/lib/wyrm/levels";
 import { validateLevel } from "../src/lib/wyrm/validator";
@@ -6,6 +6,7 @@ import { createGame } from "../src/lib/wyrm/engine";
 
 const filter = process.argv.slice(2);
 let failed = 0;
+let totalScore = 0;
 
 for (const lv of HANDCRAFTED_LEVELS) {
   if (filter.length && !filter.some((f) => lv.slug.includes(f))) continue;
@@ -23,13 +24,22 @@ for (const lv of HANDCRAFTED_LEVELS) {
   const ms = ((Date.now() - t0) / 1000).toFixed(1);
   const ok = report.solvable;
   if (!ok) failed++;
+  if (ok) totalScore += report.difficulty;
+  const d = report.dims;
+  const dims = d
+    ? ` d${d.depth.toFixed(0)} s${d.search.toFixed(0)} i${d.irreversibility.toFixed(0)} m${d.simulation.toFixed(0)} t${d.threat.toFixed(0)} c${d.choreography.toFixed(0)} b${d.budget.toFixed(0)}`
+    : "";
   console.log(
-    `${ok ? "✓" : "✗"} ${lv.slug.padEnd(20)} diff=${String(report.difficulty).padStart(2)}` +
-      ` moves=${String(report.minMoves).padStart(3)} states=${String(report.statesExplored).padStart(7)}` +
-      ` split=${report.splitsRequired ? "Y" : "n"} ${ms}s` +
-      ` [apples=${report.apples} crates=${report.crates} plates=${report.plates} keys=${report.keys}` +
-      ` valves=${report.valves} bridges=${report.bridges} ice=${report.ice} dirt=${report.dirt}]`,
+    `${ok ? "✓" : "✗"} ${lv.slug.padEnd(20)} ${report.difficulty.toFixed(1).padStart(4)}/10 ${String(report.tier ?? "-").padEnd(9)}` +
+      ` par=${String(report.minMoves).padStart(3)}/${lv.turnLimit ?? 120} states=${String(report.statesExplored).padStart(7)}` +
+      ` split=${report.splitsRequired ? "Y" : "n"} ${dims} ${ms}s` +
+      (report.reason ? ` — ${report.reason}` : ""),
   );
 }
-console.log(failed === 0 ? "\nALL LEVELS CERTIFIED" : `\n${failed} LEVEL(S) FAILED`);
+const n = filter.length ? HANDCRAFTED_LEVELS.filter((l) => filter.some((f) => l.slug.includes(f))).length : HANDCRAFTED_LEVELS.length;
+console.log(
+  failed === 0
+    ? `\nALL ${n} LEVELS CERTIFIED — mean difficulty ${(totalScore / n).toFixed(1)}/10`
+    : `\n${failed} LEVEL(S) FAILED`,
+);
 process.exit(failed === 0 ? 0 : 1);

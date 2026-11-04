@@ -14,9 +14,7 @@
 //   11     ice + machinery   — compound planning
 //   12     everything        — the model-killer trial
 //
-// TIER III — THE GAUNTLET (designed so frontier models fail
-// informatively; every level interleaves ≥ 3 mechanic families under a
-// tight turn budget, and most punish the greedy first move):
+// TIER III — THE GAUNTLET (validator-certified):
 //   13     iron vault        — key order + crate parking + sealed exit
 //   14     ratchet & frost   — ice slides into valve one-way law
 //   15     cathedral of rust — crumbling geometry, one-way forever
@@ -25,6 +23,19 @@
 //   18     clockwork heart   — valves + excavation + machinery timing
 //   19     the gaol          — key inventory under spike discipline
 //   20     wyrm crown        — everything at once, no second chances
+//
+// TIER IV — THE ABYSS (difficulty index v3, evidence-based):
+//   21     serpent's choir   — THREAT: spike lanes, one-way gaps (7.5)
+//   22     glass foundry     — SIMULATION: ice field, valve dive (8.1 ABYSS)
+//   23     the incinerator   — IRREVERSIBILITY: dig/burn/valve chain (5.9)
+//   24     cathedral of lead — CHOREOGRAPHY: crate ferry + plate run (7.7)
+//   25     ouroboros rex     — SPLIT ECONOMICS: flesh for plates (7.0)
+//   26     wyrm genocide     — THE END: every family at once (7.3)
+//
+// NOTE (engine v3): the worm parser once silently dropped one body
+// segment on `oo@` layouts; that bug is fixed. Levels 01–20 keep their
+// original 2-segment starts (`.o@`) so every archived run still
+// replays byte-identically; Tier IV uses full 3-segment starts.
 
 import { LevelDef } from "./types";
 
@@ -37,7 +48,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
       "#..*..#",
       "#.....#",
       "#..X..#",
-      "#..oo@#",
+      "#...o@#",
       "#.....#",
       "#######",
     ],
@@ -48,7 +59,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "########",
       "#..*...#",
-      "#..oo@.#",
+      "#...o@.#",
       "#......#",
       "#..$...#",
       "#..%.D.#",
@@ -61,7 +72,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "03-thorn-run",
     grid: [
       "########",
-      "#oo@...#",
+      "#.o@...#",
       "#~..~..#",
       "#.*..*.#",
       "#~..~..#",
@@ -75,7 +86,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "04-self-service",
     grid: [
       "############",
-      "#...ooo@...#",
+      "#.....o@...#",
       "#..........#",
       "#####.######",
       "#####%######",
@@ -105,7 +116,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "06-gauntlet",
     grid: [
       "############",
-      "#...oo@....#",
+      "#....o@....#",
       "#.*......~.#",
       "####.####..#",
       "#..$#%%%#..#",
@@ -124,7 +135,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "##############",
       "#............#",
-      "#..oo@.......#",
+      "#...o@.......#",
       "#............#",
       "#...........k#",
       "#............#",
@@ -143,7 +154,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "###########",
       "#.........#",
-      "#..oo@....#",
+      "#...o@....#",
       "#.........#",
       "#.______.*#",
       "#.........#",
@@ -159,7 +170,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "############",
       "#..*.......#",
-      "#..oo@..*..#",
+      "#...o@..*..#",
       "#..........#",
       "####v###v###",
       "#..........#",
@@ -179,7 +190,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "###########",
       "#..*...*..#",
-      "#..oo@....#",
+      "#...o@....#",
       "#.........#",
       "#..==..==.#",
       "#.........#",
@@ -196,7 +207,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "###########",
       "#.........#",
-      "#..oo@....#",
+      "#...o@....#",
       "#.........#",
       "#.__%%_...#",
       "#.........#",
@@ -214,7 +225,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "#############",
       "#..*.....*..#",
-      "#..oo@......#",
+      "#...o@......#",
       "#...........#",
       "####v##v#####",
       "#...........#",
@@ -239,7 +250,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "13-iron-vault",
     grid: [
       "###############",
-      "#..oo@......k.#",
+      "#...o@......k.#",
       "#.............#",
       "#######L#######",
       "#.....+....~..#",
@@ -260,7 +271,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     grid: [
       "#############",
       "#..*....*...#",
-      "#.oo@_______#",
+      "#..o@_______#",
       "#...........#",
       "####v###v####",
       "#.___...___*#",
@@ -282,7 +293,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "15-cathedral-rust",
     grid: [
       "###########",
-      "#...oo@...#",
+      "#....o@...#",
       "#..*....*.#",
       "####==#####",
       "#.........#",
@@ -305,7 +316,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "16-the-siphon",
     grid: [
       "##############",
-      "#...oo@......#",
+      "#....o@......#",
       "#....*.......#",
       "#..$.....*...#",
       "#....__......#",
@@ -326,7 +337,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "17-uroboros",
     grid: [
       "############",
-      "#..oo@.....#",
+      "#...o@.....#",
       "#..*...*...#",
       "#..........#",
       "#...*..*...#",
@@ -347,7 +358,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "18-clockwork-heart",
     grid: [
       "##############",
-      "#..oo@......k#",
+      "#...o@......k#",
       "#.....L......#",
       "######v#######",
       "#...$....%*..#",
@@ -368,7 +379,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "19-the-gaol",
     grid: [
       "#############",
-      "#...oo@..k..#",
+      "#....o@..k..#",
       "#...........#",
       "######L######",
       "#..*.....~..#",
@@ -389,7 +400,7 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     slug: "20-wyrm-crown",
     grid: [
       "##############",
-      "#...oo@....k.#",
+      "#....o@....k.#",
       "#............#",
       "#####L########",
       "#...____...*.#",
@@ -405,6 +416,131 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
       "##############",
     ],
     turnLimit: 100,
+  },
+
+  // ── Tier IV · THE ABYSS — honestly measured (difficulty index v3:
+  // seven evidence-based dimensions; see lib/wyrm/difficulty.ts).
+  // The old ladder tops out at 5.6 honest; these run 5.9 → 8.1 and
+  // every one punishes the greedy first move.
+  {
+    // THREAT specialist: spike-hemmed lanes, one-way valve gaps, a
+    // bridge that burns behind you. Descending before eating the
+    // row-1 apple strands you — the choir only sings downward.
+    name: "Serpent's Choir",
+    slug: "21-serpents-choir",
+    grid: [
+      "#########",
+      "#oo@..*.#",
+      "#~~v~v~~#",
+      "#.*.....#",
+      "#~=~~v~~#",
+      "#...*...#",
+      "#~~v~~~~#",
+      "#......X#",
+      "#########",
+    ],
+    turnLimit: 24,
+  },
+  {
+    // SIMULATION specialist (ABYSS): a frictionless foundry floor,
+    // island apples, spike stop-cells, and a one-way valve dive that
+    // commits you to the exit run. Two spare turns. Total.
+    name: "Glass Foundry",
+    slug: "22-glass-foundry",
+    grid: [
+      "##############",
+      "#...o@..*....#",
+      "#__~~__~____v#",
+      "#....*.......#",
+      "#~___~___~___#",
+      "#_~_*____~___#",
+      "#___~____~__v#",
+      "############X#",
+      "##############",
+    ],
+    turnLimit: 20,
+  },
+  {
+    // IRREVERSIBILITY specialist: dig the bulkhead, burn the bridge,
+    // slide the cooling vent, valve down, dig again, burn the last
+    // bridge. Five permanent acts on a 23-move line — 3 spare turns.
+    name: "The Incinerator",
+    slug: "23-the-incinerator",
+    grid: [
+      "#############",
+      "#..oo@...*..#",
+      "#########+###",
+      "#.*.........#",
+      "#~==~####~.~#",
+      "#__*__.___~_#",
+      "######v######",
+      "#....~.~....#",
+      "#.....*~~.~~#",
+      "######+=X####",
+      "#############",
+    ],
+    turnLimit: 26,
+  },
+  {
+    // CHOREOGRAPHY specialist: key, lock, a crate ferry onto one plate,
+    // your own tail (or a severed half) on the other, an ice-slot
+    // descent, and a door run with three spare turns out of 65.
+    name: "Cathedral of Lead",
+    slug: "24-cathedral-of-lead",
+    grid: [
+      "#############",
+      "#..oo@...k..#",
+      "#..*........#",
+      "#####L#######",
+      "#..*.$...~*.#",
+      "#...........#",
+      "#~~%~~.~~~_~#",
+      "#.........%.#",
+      "#####D#######",
+      "#.~.~.....X.#",
+      "#############",
+    ],
+    turnLimit: 65,
+  },
+  {
+    // SPLIT ECONOMICS: grow to six on the top row, then sever yourself
+    // onto BOTH plates — the door at the far left opens only for a worm
+    // that has paid in flesh. Spike fangs under the first apple.
+    name: "Ouroboros Rex",
+    slug: "25-ouroboros-rex",
+    grid: [
+      "#############",
+      "#..oo@.*.*..#",
+      "#######~###*#",
+      "###########.#",
+      "###########.#",
+      "#D...%...%..#",
+      "#X###~###~###",
+      "#############",
+    ],
+    turnLimit: 27,
+  },
+  {
+    // THE END. Key, lock, an ice hall with a spike under the key-drop,
+    // a valve commit, a crate ferry across burning bridges onto the
+    // plate-door, a dig, and a spiked final approach. Every family
+    // fires at once — one long committed descent.
+    name: "WYRM Genocide",
+    slug: "26-wyrm-genocide",
+    grid: [
+      "###############",
+      "#..oo@....k...#",
+      "#~.....~...~..#",
+      "###L###########",
+      "#..*______*...#",
+      "#.........~..v#",
+      "#%.==....$....#",
+      "#D#############",
+      "#*+.........*~#",
+      "#......~.....X#",
+      "###############",
+    ],
+    turnLimit: 54,
   },
 ];
 

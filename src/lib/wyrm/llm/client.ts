@@ -24,6 +24,7 @@ import { ENGINE_DEFAULTS, PROVIDER_KINDS } from "./types";
 import { classifyThrown, LLMApiError, backoffDelay, parseRetryAfter } from "./resilience";
 import { acquire, circuitAllows, circuitRecordFailure, circuitRecordSuccess, release, sleepAbortable } from "./ratelimiter";
 import { estimateMessagesTokens, estimateTokens, fitToContext, resolveContextWindow } from "./tokens";
+import { mcpChat } from "./mcp";
 
 export interface ChatOpts {
   signal?: AbortSignal;
@@ -264,6 +265,10 @@ async function executeOnce(
         return await anthropicChat(target, messages, opts, t0, ctl.signal);
       case "google":
         return await googleChat(target, messages, opts, t0, ctl.signal);
+      case "mcp":
+        // MCP manages its own per-request deadline inside the transport;
+        // the outer signal still aborts in-flight calls mid-generation.
+        return await mcpChat(target, messages, opts, t0, timeoutMs);
       default:
         throw new LLMApiError(`unsupported protocol ${meta.protocol}`, 0, "");
     }

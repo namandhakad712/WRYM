@@ -22,9 +22,10 @@ export type ProviderKind =
   | "together"
   | "ollama" // local
   | "lmstudio" // local
+  | "mcp" // any Model Context Protocol server — see lib/wyrm/llm/mcp.ts
   | "custom"; // any OpenAI-compatible endpoint
 
-export type Protocol = "zai" | "openai-compat" | "anthropic" | "google";
+export type Protocol = "zai" | "openai-compat" | "anthropic" | "google" | "mcp";
 
 export interface ProviderKindMeta {
   label: string;
@@ -162,6 +163,20 @@ export const PROVIDER_KINDS: Record<ProviderKind, ProviderKindMeta> = {
     modelHint: "your model id",
     note: "Any OpenAI-compatible server: vLLM, LiteLLM, llama.cpp server, an internal gateway…",
     contextHint: 8_192,
+  },
+  mcp: {
+    label: "MCP server (any model)",
+    protocol: "mcp",
+    defaultBaseUrl: "",
+    needsKey: false,
+    modelHint: "model id forwarded to the server (optional)",
+    note:
+      "Model Context Protocol — plug in ANY model exposed as an MCP tool. " +
+      "baseUrl: 'stdio:<command + args>' to launch a local server, or an https://…/mcp URL for a remote one; " +
+      "append '#tool=name' to pin the tool (else auto-discovered). " +
+      "apiKey: 'KEY=value;KEY2=value' env for stdio, or a bearer token for HTTP. " +
+      "See docs/MCP_SUPPORT.md — the zero-dep bridge mcp/llm-bridge.mjs wraps any OpenAI-compatible endpoint.",
+    contextHint: 128_000,
   },
 };
 

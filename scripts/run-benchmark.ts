@@ -146,6 +146,7 @@ interface RunArtifact {
     turnLimit: number;
     mechanics: string[];
     difficulty: number;
+    tier?: string;
     minMoves: number;
     statesExplored: number;
   };
@@ -261,6 +262,7 @@ for (const m of models) {
         turnLimit: lv.turnLimit ?? 120,
         mechanics: mechanicFamilies(lv.grid),
         difficulty: report.difficulty,
+        tier: report.tier,
         minMoves: report.minMoves,
         statesExplored: report.statesExplored,
       },
@@ -338,6 +340,8 @@ const levelDocs = HANDCRAFTED_LEVELS.map((lv) => {
     width: g.width,
     height: g.height,
     difficulty: report.difficulty,
+    tier: report.tier,
+    dims: report.dims,
     minMoves: report.minMoves,
     statesExplored: report.statesExplored,
     splitsRequired: report.splitsRequired,

@@ -78,10 +78,10 @@
   <section id="levels-section">
     <p class="kicker">The Ladder · twenty certified trials</p>
     <h2>Levels &amp; Coverage</h2>
-    <p class="section-sub">Every level is certified solvable by exhaustive search before entering the ladder. Difficulty is structural: mechanics interleaved, search-space breadth, and whether the worm must shed part of itself. Full gallery with rendered boards on the <a href="./levels.html">Levels page</a>.</p>
+    <p class="section-sub">Every level is certified solvable by exhaustive search before entering the ladder. Difficulty is the v3 index: seven measured dimensions — depth, search breadth, irreversibility, ice simulation, threat, choreography, budget — replayed from the optimal line and folded into one honest score with a tier label. Full gallery with rendered boards on the <a href="./levels.html">Levels page</a>.</p>
     <table class="ledger" id="levels">
       <thead>
-        <tr><th>Slug</th><th>Level</th><th>Difficulty</th><th class="num">Par</th><th>Mechanics</th><th>Archived runs</th></tr>
+        <tr><th>Slug</th><th>Level</th><th>Tier</th><th>Difficulty</th><th class="num">Par</th><th>Mechanics</th><th>Archived runs</th></tr>
       </thead>
       <tbody><tr><td colspan="6" style="color:var(--ink-faint)">loading…</td></tr></tbody>
     </table>
@@ -94,7 +94,7 @@
       <div class="pb-title">The benchmark pipeline</div>
       <span class="mono-note" style="display:block">GENERATE → VALIDATE → SOLVE (BFS par) → SOLVE (LLM) → CHECK → ELO → COMMIT → PAGES</span>
       <p style="margin:12px 0 0">
-      <span class="term">Validate</span> — exhaustive BFS certifies solvability and computes the optimal move count (par) and a structural difficulty 1–10.<br>
+      <span class="term">Validate</span> — exhaustive BFS certifies solvability and computes the optimal move count (par) and the v3 difficulty index (seven dimensions, tier label).<br>
       <span class="term">Solve</span> — the BFS solver plays perfectly (the par); each LLM plays from a frozen text projection only, with attempts, deaths and invalid actions recorded.<br>
       <span class="term">Check</span> — a separate deterministic Checker replays the recorded actions on a fresh engine and signs the run CERTIFIED or INVALID. Models never grade themselves.<br>
       <span class="term">Commit</span> — run JSON (every thought, every observation size, every retry) is committed to the repository; this site is regenerated from it. <b>The leaderboard is a pure function of committed data.</b>

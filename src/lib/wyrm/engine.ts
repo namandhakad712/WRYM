@@ -103,7 +103,8 @@ export function createGame(level: LevelDef): GameState {
         keys.push({ x, y });
       } else if (ch === CHARS.head) {
         row.push(".");
-        worm[0] = { x, y };
+        worm.unshift({ x, y }); // head ALWAYS takes index 0 — a late-scan
+        // head must never overwrite an already-parsed body segment
       } else if (ch === CHARS.body) {
         row.push(".");
         worm.push({ x, y });

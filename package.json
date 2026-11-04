@@ -13,6 +13,7 @@
     "db:reset": "prisma migrate reset",
     "bench": "bun scripts/run-benchmark.ts",
     "bench:solver": "bun scripts/run-benchmark.ts --models wyrm-bfs",
+    "test:mcp": "bun scripts/test-mcp.ts",
     "site:export": "bun scripts/export-site.ts",
     "levels:validate": "bun scripts/validate-tier3.ts"
   },

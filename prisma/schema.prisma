@@ -20,7 +20,11 @@ datasource db {
 model Provider {
   id          String   @id @default(cuid())
   name        String   @unique // display name, e.g. "GPT-4o via OpenAI"
-  kind        String   // zai | openai | anthropic | google | openrouter | groq | deepseek | mistral | xai | together | ollama | lmstudio | custom
+  kind        String   // zai | openai | anthropic | google | openrouter | groq | deepseek | mistral | xai | together | ollama | lmstudio | mcp | custom
+  // kind=mcp → baseUrl is a transport spec: "stdio:<command+args>" (child
+  // process, JSON-RPC over stdio) or "https://…/mcp" (streamable HTTP);
+  // optional "#tool=NAME" pins the chat tool. apiKey = "K=V;K2=V2" env
+  // pairs for stdio, or a bearer token for HTTP. See docs/MCP_SUPPORT.md.
   baseUrl     String   // endpoint root, e.g. https://api.openai.com/v1
   apiKey      String   @default("") // stored server-side only
   modelId     String   // e.g. "gpt-4o", "claude-sonnet-4-5", "gemini-2.5-pro"

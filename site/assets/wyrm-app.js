@@ -119,7 +119,8 @@
           "<tr>" +
           '<td><span class="mono-note" style="border:0;padding:0;background:none">' + esc(l.slug) + "</span></td>" +
           "<td>" + esc(l.name) + "</td>" +
-          '<td><span class="diff">' + meter + '<span class="val">' + l.difficulty + "/10</span></span></td>" +
+          '<td><span class="tierchip tier-' + esc(String(l.tier || "").toLowerCase()) + '">' + esc(l.tier || "\u2014") + "</span></td>" +
+          '<td><span class="diff">' + meter + '<span class="val">' + (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "/10</span></span></td>" +
           '<td class="num">' + l.minMoves + "</td>" +
           "<td>" + l.mechanics.map(function (m) { return '<span class="chip">' + esc(m) + "</span>"; }).join(" ") + "</td>" +
           "<td>" + runsCell + "</td>" +
@@ -136,6 +137,19 @@
   };
 
   // ═══ LEVELS — gallery ══════════════════════════════════════════════
+  var DIM_LABELS = {
+    depth: "depth", search: "search", irreversibility: "irreversible",
+    simulation: "simulation", threat: "threat", choreography: "choreography",
+    budget: "budget",
+  };
+  function dimsHtml(l) {
+    if (!l.dims) return "";
+    return '<div class="dims">' + Object.keys(DIM_LABELS).map(function (k) {
+      var v = Math.round(l.dims[k] || 0);
+      return '<span class="dim" title="' + esc(DIM_LABELS[k]) + " " + v + '/100">' +
+        "<i style=\"width:" + v + '%"></i><b>' + esc(DIM_LABELS[k].slice(0, 4)) + "</b></span>";
+    }).join("") + "</div>";
+  }
   window.WyrmLevels = function () {
     fetchJSON("./data/index.json").then(function (data) {
       const grid = $("#level-grid");
@@ -149,12 +163,14 @@
         return (
           '<div class="level-card">' +
           '<canvas data-level="' + i + '"></canvas>' +
-          "<h3>" + esc(l.name) + "</h3>" +
-          '<div class="slug">' + esc(l.slug) + " · budget " + l.turnLimit + " turns · par " + l.minMoves + "</div>" +
-          '<div class="meta"><span class="diff">' +
+          "<h3>" + esc(l.name) +
+          ' <span class="tierchip tier-' + esc(String(l.tier || "").toLowerCase()) + '">' + esc(l.tier || "\u2014") + "</span></h3>" +
+          '<div class="slug">' + esc(l.slug) + " · budget " + l.turnLimit + " turns · par " + l.minMoves + " · score " +
+          (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "</div>" +          '<div class="meta"><span class="diff">' +
           Array.from({ length: 10 }, function (_, k) { return '<i class="' + (k < l.difficulty ? "on" : "") + '"></i>'; }).join("") +
-          '<span class="val">' + l.difficulty + "/10</span></span>" +
+          '<span class="val">' + (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "/10</span></span>" +
           '<span class="chips">' + l.mechanics.map(function (m) { return '<span class="chip">' + esc(m) + "</span>"; }).join("") + "</span></div>" +
+          dimsHtml(l) +
           '<div class="runs" style="margin-top:8px;font-size:12.5px">' + runs + "</div>" +
           "</div>"
         );

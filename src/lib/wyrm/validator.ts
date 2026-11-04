@@ -15,6 +15,7 @@ import {
   ValidatorReport,
 } from "./types";
 import { createGame, step, platePositions } from "./engine";
+import { computeDifficulty } from "./difficulty";
 
 const MAX_STATES = 400_000;
 
@@ -111,12 +112,17 @@ function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): Validator
         solution.unshift(n.action);
         n = n.parent;
       }
+      // v3 difficulty: replay the optimal line, measure seven dimensions
+      const diff = computeDifficulty(level, solution.length, explored, solution, base);
       return {
         solvable: true,
         minMoves: solution.length,
         solution,
         statesExplored: explored,
-        difficulty: scoreDifficulty(solution.length, explored, solution, base),
+        difficulty: diff.score,
+        tier: diff.tier,
+        dims: diff.dimensions,
+        evidence: diff.evidence as unknown as Record<string, number>,
         splitsRequired: solution.includes("split"),
         ...base,
       };
@@ -144,28 +150,6 @@ function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): Validator
     reason: explored >= MAX_STATES ? "search limit exceeded" : "no solution exists",
     ...base,
   };
-}
-
-function scoreDifficulty(
-  minMoves: number,
-  explored: number,
-  solution: Action[],
-  base: { plates: number; apples: number; crates: number; dirt: number; keys: number; valves: number; bridges: number; ice: number },
-): number {
-  let d = 0;
-  d += Math.min(3, Math.floor(minMoves / 10)); // solution length up to 3
-  d += Math.min(2, Math.floor(Math.log10(Math.max(10, explored)) - 1)); // search-space breadth
-  if (solution.includes("split")) d += 2; // self-amputation is hard
-  if (base.crates > 0) d += 1;
-  if (base.plates > 1) d += 1;
-  if (base.dirt >= 3) d += 1; // excavation adds pathing decisions
-  if (base.ice >= 3) d += 1; // forced multi-cell simulation
-  if (base.ice >= 6) d += 1;
-  if (base.valves >= 3) d += 1; // route irreversibility
-  if (base.keys > 0) d += 1; // inventory bookkeeping
-  if (base.bridges >= 3) d += 1; // consumable geometry
-  d = Math.max(1, Math.min(10, d));
-  return d;
 }
 
 /** Quick solve used by the baseline solver agent (wyrm-bfs). */

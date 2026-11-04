@@ -427,3 +427,48 @@ a:hover { color: var(--pink); }
 a.plain { color: inherit; }
 
 ::selection { background: var(--coral); color: #fff; }
+
+/* ── v3 difficulty index: tier chips + dimension bars ─────────────── */
+.tierchip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 2px 8px 1px;
+  border-radius: 6px;
+  border: 1.5px solid;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.tier-tutorial   { color: #8fae6c; border-color: #8fae6c; background: rgba(143, 174, 108, 0.10); }
+.tier-core       { color: #b07f52; border-color: #b07f52; background: rgba(176, 127, 82, 0.10); }
+.tier-advanced   { color: #e8b84f; border-color: #e8b84f; background: rgba(232, 184, 79, 0.10); }
+.tier-gauntlet   { color: #ea6a65; border-color: #ea6a65; background: rgba(234, 106, 101, 0.10); }
+.tier-abyss      { color: #c07ce8; border-color: #c07ce8; background: rgba(192, 124, 232, 0.12); }
+.tier-nightmare  { color: #ff5d5d; border-color: #ff5d5d; background: rgba(255, 93, 93, 0.14); text-shadow: 0 0 8px rgba(255, 93, 93, 0.5); }
+
+.dims {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 9px;
+}
+.dims .dim {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--cream-soft);
+}
+.dims .dim i {
+  display: inline-block;
+  height: 5px;
+  min-width: 34px;
+  max-width: 68px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--coral), var(--pink));
+  background-color: var(--coral);
+}
+.dims .dim b { font-weight: 600; opacity: 0.8; }

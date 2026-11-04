@@ -138,7 +138,18 @@ export interface ValidatorReport {
   minMoves: number;
   solution: Action[];
   statesExplored: number;
-  difficulty: number; // 1..10
+  difficulty: number; // 0..10 — v3 evidence-based index (one decimal)
+  tier?: string; // TUTORIAL | CORE | ADVANCED | GAUNTLET | ABYSS | NIGHTMARE
+  dims?: {
+    depth: number;
+    search: number;
+    irreversibility: number;
+    simulation: number;
+    threat: number;
+    choreography: number;
+    budget: number;
+  }; // each 0..100 — see lib/wyrm/difficulty.ts
+  evidence?: Record<string, number>;
   plates: number;
   apples: number;
   crates: number;

@@ -379,7 +379,7 @@ export function StageCanvas({
             for (let a = 0; a < turns * Math.PI * 2; a += 0.25) {
               const rad = rr * (a / (turns * Math.PI * 2));
               const px = Math.cos(a) * rad, py = Math.sin(a) * rad;
-              a === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+              if (a === 0) g.moveTo(px, py); else g.lineTo(px, py);
             }
             g.stroke();
           } else if (kind === 1) {
@@ -620,8 +620,8 @@ export function StageCanvas({
         for (let k = 0; k < 6; k++) {
           const an = (k / 6) * Math.PI * 2;
           const rr = k % 2 === 0 ? gr * 1.7 : gr * 0.6;
-          k === 0 ? g.moveTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr)
-                  : g.lineTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
+          if (k === 0) g.moveTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
+          else g.lineTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
         }
         g.closePath(); g.fill();
       }
@@ -971,7 +971,8 @@ export function StageCanvas({
           for (let k2 = 0; k2 < 4; k2++) {
             const ang = (k2 / 4) * Math.PI * 2;
             const rr = k2 % 2 === 0 ? p.size * 1.6 : p.size * 0.5;
-            k2 === 0 ? ctx.moveTo(Math.cos(ang) * rr, Math.sin(ang) * rr) : ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
+            if (k2 === 0) ctx.moveTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
+            else ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
           }
           ctx.closePath();
           ctx.fill();
@@ -988,7 +989,6 @@ export function StageCanvas({
       cancelAnimationFrame(raf);
       ro.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quality, maxCellPx, transitionMs, sound, theme]);
 
   return (

@@ -1,6 +1,6 @@
 # The LLM Benchmarking Landscape — and where WYRM.LAB sits in it
 
-**Status:** research analysis · November 2026
+**Status:** research analysis · v6 deep-research sprint · November 2026
 **Scope:** how production LLM evaluation systems are actually built — the famous
 benchmarks, their harness architectures, what is open source, and which patterns
 WYRM.LAB adopts (and why).
@@ -23,9 +23,13 @@ The short version:
 | HELM | Evaluate **holistically** — many metrics per run, not one accuracy |
 | OpenAI Evals | Registry + **Completion Function Protocol** for chains/tools |
 | SWE-bench | **Docker per task instance** = reproducible agentic grading |
-| Chatbot Arena | **Pairwise battles + Elo** beat absolute scores |
+| Chatbot Arena | **Pairwise battles + pooled BT-MLE + bootstrap CI** beat absolute scores |
 | Kaggle Game Arena | **Games** resist saturation; competition makes it evergreen |
-| BALROG | Games measure **long-horizon agentic** ability, not QA recall |
+| BALROG | Fine-grained **progress** metrics; text beats pixels; long-horizon is the frontier |
+| SmartPlay | Decompose results into **named capabilities**, not one scalar |
+| LMGame-Bench | Measure the **harness delta**; harden against **contamination** |
+| VideoGameBench | The **modality axis** is a first-class ablation |
+| Terminal-Bench | Publish **±CI, cost, tokens** and a **failure taxonomy** |
 | LiteLLM / OpenRouter | **Retries, fallbacks, cooldowns, budgets** are the real API layer |
 
 ---
@@ -116,18 +120,23 @@ The short version:
   `Ea = 1/(1+10^((Rb−Ra)/400))`, rating updated by actual vs expected score.
   Pairwise comparison is robust because judges never need an absolute rubric.
   (Later refinements moved to Bradley-Terry MLE over all battles at once.)
-- **What WYRM.LAB adopted:** pairwise Elo on **shared levels** — every model
-  that runs the same level is compared against every other, win credit
-  weighted by efficiency and the BFS par. The arena view makes those battles
-  first-class.
+- **What WYRM.LAB adopted:** the exact estimator — BT-MLE over all shared-level
+  battles (order-free), 400-round deterministic bootstrap for 95% CIs, draws as
+  half-wins, anchor shrinkage for thin matrices (`src/lib/wyrm/elo.ts` v2) —
+  plus the head-to-head matrix and the "battles, not scores, are the evidence"
+  presentation. Supersedes our v1 online Elo (K=32), which was order-dependent
+  and uncertainty-free.
 
 ### 2.6 Kaggle Game Arena (Google DeepMind × Kaggle) — games as evergreen eval
 
 - **What it is:** an open, ever-expanding platform evaluating LLMs through
   **competitive games** (chess and beyond), launched to address the
-  saturation and overfitting of static benchmarks. Paper: *Game Arena:
-  Strategic LLM Evaluation in Competitive Environments*
-  (<https://www.researchgate.net/publication/414867635_Game_Arena_Strategic_LLM_Evaluation_in_Competitive_Environments>).
+  saturation and overfitting of static benchmarks. Launch post: *Introducing
+  Kaggle Game Arena* (<https://www.kaggle.com/blog/introducing-game-arena>,
+  Aug 2025); the Feb 2026 update added Werewolf and poker for social
+  dynamics and calculated risk
+  (<https://blog.google/innovation-and-ai/models-and-research/google-deepmind/kaggle-game-arena-updates>).
+  Ranking is pooled **Bradley-Terry Elo** across games and models.
 - **How it works:** models enter matches as players; the platform mediates
   moves, enforces legality, records everything, and ranks by results. Because
   games are generative and adversarial, there is no answer key to leak into
@@ -141,19 +150,101 @@ The short version:
 ### 2.7 BALROG — long-horizon agentic game eval
 
 - **What it is:** an academic benchmark of agentic LLM/VLM reasoning across
-  six game environments (BabyAI, Crafter, BabaIsAI, MiniHack, NetHack and
-  friends). <https://www.alphaxiv.org/replicate/2411.13543>
+  six game environments (BabyAI, Crafter, TextWorld, BabaIsAI, MiniHack,
+  NetHack). ICLR 2025, arXiv:2411.13543 —
+  <https://arxiv.org/abs/2411.13543>, leaderboard at <https://balrogai.com>.
 - **How it works:** agents act in text (and optionally pixel) game loops;
-  scoring recognizes **partial progress** (game-score deltas, not just
-  win/loss); results showed frontier models degrade sharply on long-horizon
-  planning vs their static-benchmark scores — exactly the gap game arenas
-  exist to expose.
-- **What WYRM.LAB adopted:** partial-credit scoring (apples eaten, moves vs
-  optimum, per-attempt records), and the design stance that **turn budgets +
-  mechanic interactions** (valves → bridges → ice → keys) are how you make
-  long-horizon failure visible.
+  scoring recognizes **partial progress** (fine-grained game-score deltas,
+  not just win/loss); environments are procedurally generated so the same
+  instance is never seen twice; results are decomposed by capability
+  (spatial reasoning, systematic exploration, long-term planning,
+  discovering environment dynamics). Findings: frontier models degrade
+  sharply on long-horizon planning; VLMs often do **worse with pixels than
+  text**; a knowing-doing gap — models verbalize correct knowledge and
+  still fail to act on it.
+- **What WYRM.LAB adopted (v6):** the progress score — every archived run
+  now carries a 0-100 partial-credit value (60% apples eaten, 25% goal,
+  15% distance closure; `src/lib/wyrm/progress.ts`) — and the text-first
+  doctrine, which is their empirical finding turned into a design rule.
+  Our failure-seeking difficulty ladder is "the information is in the
+  failure" taken literally.
 
-### 2.8 LiteLLM & OpenRouter — the reliability layer nobody benchmarks but everyone needs
+### 2.8 SmartPlay — capability decomposition
+
+- **What it is:** a benchmark AND methodology evaluating LLMs as agents
+  across six games (Rock-Paper-Scissors, Tower of Hanoi, Minecraft, Crafter,
+  Messenger…), each stressing a known subset of **nine named capabilities**
+  (reasoning with object dependencies, planning ahead, spatial reasoning,
+  learning from history, understanding randomness…). arXiv:2310.01557 —
+  <https://arxiv.org/abs/2310.01557>.
+- **How it works:** because each game tests a distinct capability subset,
+  per-model results decompose into a capability profile; the benchmark
+  doubles as a roadmap for identifying capability gaps.
+- **What WYRM.LAB adopted (v6):** the full pattern — a seven-capability
+  taxonomy (spatial, planning, dependencies, state-tracking, long-horizon,
+  risk, precision) derived **deterministically from each level's geometry**
+  (`src/lib/wyrm/capabilities.ts`) — no hand labels — with intensity
+  weights, surfaced as per-level tags and per-model capability profiles on
+  the leaderboard.
+
+### 2.9 LMGame-Bench — the harness delta and contamination hardening
+
+- **What it is:** the first agentic benchmark evaluating LLMs on real games
+  (Wordle, 2048, Sudoku, Sokoban…) **with and without a gaming harness** —
+  scaffolding that parses state and validates moves. ICLR 2026,
+  arXiv:2505.15146 — <https://arxiv.org/abs/2505.15146>.
+- **How it works:** real games turned into controlled, contamination-robust
+  benchmarks; the same model is measured raw vs scaffolded, exposing how
+  much of "game skill" is actually the harness.
+- **What WYRM.LAB adopted (v6):** the contamination answer — every ladder
+  level now has a **certified mirror twin** (vertical flip, valves remapped
+  ^↔v, identical par; `scripts/make-variants.ts` → `results/variants.json`,
+  31/31 certified with full par parity). A model that memorized the
+  original but cannot reason will fail its twin. Our rejected-action
+  feedback (machine-readable reasons on invalid moves) operationalizes
+  their harness finding.
+
+### 2.10 VideoGameBench — the modality axis
+
+- **What it is:** ten famous 1990s video games played by VLMs from raw
+  pixels in real time; frontier VLMs often cannot reach the first
+  checkpoint of games humans learn in minutes. arXiv:2505.18134 —
+  <https://arxiv.org/abs/2505.18134>.
+- **What WYRM.LAB adopted (v6):** the modality axis as a recorded run-schema
+  dimension. We deliberately invert the channel: models get the
+  deterministic **text projection**, humans get the pixel canvas of the same
+  state; a vision channel (canvas → PNG → VLM) can be benchmarked later
+  without schema surgery. BALROG's text>pixels result is why text is
+  primary.
+
+### 2.11 Terminal-Bench — uncertainty, cost and failure taxonomy
+
+- **What it is:** hard, realistic terminal tasks (89 tasks in v2; 66 in
+  v4.0), each with its own environment, human-written solution and test
+  suite; pass@1 averaged over repeats, reported per **model × agent
+  harness**. arXiv:2601.11868 — <https://arxiv.org/abs/2601.11868>,
+  <https://www.tbench.ai>.
+- **How it works:** the public leaderboard shows resolution rate **± CI**
+  with **token and cost columns**, plus structured error analysis — and the
+  model × harness matrix isolates scaffold contribution.
+- **What WYRM.LAB adopted (v6):** the failure taxonomy — spike deaths,
+  turn-budget exhaustion, hard deaths, API aborts, invalid-action rate —
+  computed from per-step event logs by the exporter; tokens/latency/cost
+  columns on every leaderboard row; ratings always rendered with CIs.
+
+### 2.12 AgentBench — environment as protocol
+
+- **What it is:** the systematic LLM-as-Agent benchmark: eight environments
+  (OS, DB, knowledge graphs, digital card game, lateral-thinking puzzles,
+  ALFWorld, WebShop…) unified behind one harness protocol.
+  arXiv:2308.03688 — <https://arxiv.org/abs/2308.03688>,
+  <https://github.com/THUDM/AgentBench>.
+- **What WYRM.LAB adopted:** the doctrine that the game is a **pluggable
+  environment** behind a fixed step protocol — our engine, checker, sandbox
+  and rating layers never know which level (or variant) they run; new
+  environments enter as `LevelDef` rows or community PRs.
+
+### 2.13 LiteLLM & OpenRouter — the reliability layer nobody benchmarks but everyone needs
 
 - **What they are:** production LLM gateways. LiteLLM (open source):
   <https://docs.litellm.ai/docs/completion/reliable_completions>,
@@ -212,12 +303,18 @@ that loses runs to a 429 is producing scientific noise.
 | Pattern | Source system | WYRM.LAB implementation |
 | --- | --- | --- |
 | Task-as-data registry | lm-eval-harness | `Level` table; Forge editor; Feature Builder palettes; LLM + procedural generators |
-| Uniform multi-vendor adapter | lm-eval-harness, pi, LiteLLM | `Provider` rows → 4 protocol families (OpenAI-compat, Anthropic, Google, built-in SDK) |
+| Uniform multi-vendor adapter | lm-eval-harness, pi, LiteLLM | `Provider` rows → 4 protocol families (OpenAI-compat, Anthropic, Google, built-in SDK) + MCP bridge |
 | Retry / rate-limit / fallback | LiteLLM, OpenRouter | `src/lib/wyrm/llm/{resilience,ratelimiter,client}.ts` — per-provider budgets, breakers, cycle-safe chains |
 | Context management | agent-harness practice | char/CJK token estimate → budget fit → oldest-pair truncation with visible marker |
 | Isolation boundary | SWE-bench Docker | Sandbox layers L1–L5 (observation firewall, output quarantine, resource limits, secret isolation, deterministic replay) + Docker deployment |
 | Multi-metric runs | HELM | score vs BFS par, deaths, invalid rate, latency, tokens, cost, Reviewer ratings |
-| Pairwise Elo | Chatbot Arena | per-level all-pairs Elo with efficiency weighting |
+| **Pooled BT-MLE + bootstrap CI** | **Chatbot Arena, Kaggle Game Arena** | `src/lib/wyrm/elo.ts` v2 — MM fit over all battles, 400-round seeded bootstrap, anchor shrinkage; Elo ±CI on the board |
+| **Head-to-head records** | **Kaggle Game Arena** | `headToHead()` → matrix on the leaderboard |
+| **Fine-grained progress** | **BALROG** | `src/lib/wyrm/progress.ts` — 60% apples / 25% goal / 15% distance closure per run |
+| **Capability decomposition** | **SmartPlay** | `src/lib/wyrm/capabilities.ts` — 7 geometry-derived capabilities; per-model intensity-weighted profiles |
+| **Contamination-resistant variants** | **LMGame-Bench, BALROG** | `scripts/make-variants.ts` → 31/31 certified mirror twins, full par parity |
+| **Failure taxonomy + cost columns** | **Terminal-Bench** | exporter decomposes spike deaths / exhausted / dead / aborted / invalid%; tokens & cost on every row |
+| **Modality axis (text-first)** | **VideoGameBench, BALROG** | frozen text projection for models, pixel canvas for humans; modality recorded in run schema |
 | Generated, adversarial tasks | Kaggle Game Arena, BALROG | New Level Thinker + procedural generator, difficulty ladder 1→10 designed so frontier models fail informatively |
 | Per-sample logging | lm-eval-harness `--log_samples` | every step: obs, raw output, thought, board, state JSON, sandbox audit, attempt trail |
 | LLM-as-judge as versioned role | OpenAI Evals | Reviewer/Checker roles run through the same provider + reliability machinery |
@@ -245,8 +342,16 @@ that loses runs to a 429 is producing scientific noise.
 - Stanford CRFM, *HELM* — <https://crfm.stanford.edu/helm/classic/v0.2.2>
 - OpenAI, *Evals* — <https://github.com/openai/evals>, guide at <https://developers.openai.com/api/docs/guides/evals>
 - SWE-bench — <https://www.swebench.com> (Docker-based harness; Verified subset)
-- LMSYS, *Chatbot Arena: Benchmarking LLMs in the Wild with Elo Ratings* — <https://lmsys.org/blog/2023-05-03-arena>
-- *Game Arena: Strategic LLM Evaluation in Competitive Environments* (Kaggle/DeepMind) — <https://www.researchgate.net/publication/414867635_Game_Arena_Strategic_LLM_Evaluation_in_Competitive_Environments>
-- *BALROG: Benchmarking Agentic LLM and VLM Reasoning On Games* — <https://www.alphaxiv.org/replicate/2411.13543>
+- LMSYS, *Chatbot Arena: Benchmarking LLMs in the Wild with Elo Ratings* — <https://lmsys.org/blog/2023-05-03-arena>;
+  *New models & Elo system update (Bradley-Terry MLE + bootstrap CI)* — <https://lmsys.org/blog/2023-12-07-leaderboard>;
+  Chiang et al., *Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference*, arXiv:2403.04132 — <https://arxiv.org/abs/2403.04132>
+- Kaggle / Google DeepMind (2025), *Introducing Kaggle Game Arena* — <https://www.kaggle.com/blog/introducing-game-arena>;
+  Google (2026), *Advancing AI benchmarking with Game Arena* (Werewolf, poker) — <https://blog.google/innovation-and-ai/models-and-research/google-deepmind/kaggle-game-arena-updates>
+- Paglieri et al. (2024), *BALROG: Benchmarking Agentic LLM and VLM Reasoning On Games*, ICLR 2025, arXiv:2411.13543 — <https://arxiv.org/abs/2411.13543>
+- Wu, Tang, Mitchell & Li (2023), *SmartPlay: A Benchmark for LLMs as Intelligent Agents*, arXiv:2310.01557 — <https://arxiv.org/abs/2310.01557>
+- Hu et al. (2025), *LMGame-Bench: How Good are LLMs at Playing Games?*, ICLR 2026, arXiv:2505.15146 — <https://arxiv.org/abs/2505.15146>
+- Zhang et al. (2025), *VideoGameBench: Can Vision-Language Models complete famous video games?*, arXiv:2505.18134 — <https://arxiv.org/abs/2505.18134>
+- Liu et al. (2023), *AgentBench: Evaluating LLMs as Agents*, arXiv:2308.03688 — <https://arxiv.org/abs/2308.03688>
+- Merrill, Shaw, Carlini et al. (2026), *Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces*, arXiv:2601.11868 — <https://arxiv.org/abs/2601.11868>
 - LiteLLM, *Reliability — Retries, Fallbacks* — <https://docs.litellm.ai/docs/completion/reliable_completions>;
   *Fallbacks (Provider Failover)* — <https://docs.litellm.ai/docs/proxy/reliability>

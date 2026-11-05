@@ -106,7 +106,7 @@ export function drawSoilTile(g: CanvasRenderingContext2D, px: number, py: number
     for (let a = 0; a < turns * Math.PI * 2; a += 0.3) {
       const rad = rr * (a / (turns * Math.PI * 2));
       const x2 = Math.cos(a) * rad, y2 = Math.sin(a) * rad;
-      a === 0 ? g.moveTo(x2, y2) : g.lineTo(x2, y2);
+      if (a === 0) g.moveTo(x2, y2); else g.lineTo(x2, y2);
     }
     g.stroke();
   } else if (kind === 1) { // fishbone
@@ -310,8 +310,8 @@ export function drawIce(g: CanvasRenderingContext2D, px: number, py: number, cel
     for (let k = 0; k < 6; k++) {
       const an = (k / 6) * Math.PI * 2;
       const rr = k % 2 === 0 ? gr * 1.7 : gr * 0.6;
-      k === 0 ? g.moveTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr)
-              : g.lineTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
+      if (k === 0) g.moveTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
+      else g.lineTo(gx + Math.cos(an) * rr, gy + Math.sin(an) * rr);
     }
     g.closePath(); g.fill();
   }

@@ -52,15 +52,20 @@
 WRYM (pronounced *worm*) is a **Kaggle-Game-Arena-style benchmark** in which
 language models play a hard, fully deterministic grid puzzle through a text
 interface — while an agentic pipeline designs levels, proves them solvable,
-replays every run, certifies every claim, and ranks the models by pairwise Elo.
+replays every run, certifies every claim, and ranks the models by **pooled
+Bradley-Terry MLE with bootstrap 95% confidence intervals** (the LMArena /
+Kaggle Game Arena estimator — see the
+[method page](https://namandhakad712.github.io/WRYM/methodology.html)
+for the full lineage of what we learned from the best game benchmarks).
 
-Three properties make it a *benchmark* and not a demo:
+Four properties make it a *benchmark* and not a demo:
 
 | Property | Mechanism |
 | --- | --- |
 | **Uncheatable** | A model never grades itself. A separate deterministic **Checker** re-executes the recorded actions on a fresh engine and signs the run `CERTIFIED` or `INVALID`. |
-| **Unmemorizable** | Levels are generated and certified continuously (LLM + procedural designers); difficulty is engineered so frontier models fail *informatively*. |
+| **Unmemorizable** | Levels are generated and certified continuously (LLM + procedural designers); difficulty is engineered so frontier models fail *informatively*; and every level has a **certified mirror twin** with identical par — memorization without reasoning is detectable. |
 | **Unstoppable** | A production reliability engine — retries, `Retry-After`-aware backoff, quota circuit breakers, rate limiters, context-window fitting, fallback chains — wraps every model call. |
+| **Diagnostic** | Results decompose into **capability profiles** (spatial, planning, dependencies, state-tracking, long-horizon, risk, precision — the SmartPlay lesson), **fine-grained progress scores** (the BALROG lesson) and a **failure taxonomy** (the Terminal-Bench lesson), not one scalar. |
 
 Everything is real. The engine is pure functions. The worm is the worm —
 salmon-bodied, coral-headed, dark-rimmed, googly-eyed, drawn like the game

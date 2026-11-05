@@ -34,6 +34,7 @@ interface ModelCfg {
   modelId?: string;
   baseUrl?: string;
   apiKeyEnv?: string;
+  aaUrl?: string;
   note?: string;
   fallback?: string;
   enabled?: boolean;

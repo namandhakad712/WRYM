@@ -26,8 +26,8 @@ for (const f of files) {
           ],
         },
       ],
+      model: "glm-4.6v",
       thinking: { type: "disabled" },
-      max_tokens: 500,
     });
     const text = res?.choices?.[0]?.message?.content ?? "(no reply)";
     console.log(`\n═══ ${f.split("/").pop()} ═══`);

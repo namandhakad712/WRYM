@@ -8,6 +8,7 @@ async function main() {
       { type: "text", text: 'Final QA screenshot of WYRM.LAB dashboard homepage. JSON only: {"renders": bool, "score": 1-10, "verdict": "one sentence"}' },
       { type: "image_url", image_url: { url: `data:image/png;base64,${b64}` } },
     ]}],
+    model: "glm-4.6v",
     thinking: { type: "disabled" },
   });
   console.log(res?.choices?.[0]?.message?.content);

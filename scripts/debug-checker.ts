@@ -23,7 +23,7 @@ async function main() {
   const steps = run.steps;
   for (let i = 0; i < steps.length; i++) {
     const rec = steps[i];
-    const r = step(state, rec.action);
+    const r = step(state, rec.action as import("../src/lib/wyrm/types").Action);
     if (!r.valid) {
       console.log(`step ${i + 1}: INVALID ${rec.action}: ${r.reason}`);
       continue;

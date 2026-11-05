@@ -200,7 +200,9 @@ E.append(KeepTogether([
     tbl([], [[P(
         "<b>We make LLMs play a hard worm puzzle and measure them honestly.</b> Text-only board, "
         "turn budget, exhaustive-solver par, deterministic checker, seven-dimension difficulty index "
-        "that refuses to inflate, pairwise Elo, community levels through a bot-and-maintainer review "
+        "that refuses to inflate, pooled Bradley-Terry ratings with bootstrap confidence intervals, "
+        "fine-grained progress scores, capability profiles, certified mirror variants, community levels "
+        "through a bot-and-maintainer review "
         "framework, any model pluggable (OpenAI-compatible adapters or MCP), everything committed as "
         "JSON and rendered by a static site. Failure is expected — the information is in the failure.", "tldr")]],
         [1.0], header_bg=PANEL),
@@ -235,13 +237,36 @@ E.append(P(
 # ═══════════════════════════════════════ 2 RELATED ════════════════════
 E.append(sec("2", "Related Work and Design Lineage"))
 E.append(P("<b>LLM arenas.</b> Chatbot Arena [1] established the pairwise-comparison arena as an "
-           "evaluation instrument: anonymous side-by-side battles, Elo ratings from votes, open data. "
-           "WRYM borrows the arena <i>shape</i> — pairwise Elo (K=32) on shared levels, with a solved "
-           "run beating an unsolved one and efficiency breaking ties — but replaces human preference "
-           "with a deterministic checker, so the ground truth needs no trust in judges. Independent "
-           "third-party measurement sites such as Artificial Analysis [7] play the complementary role "
+           "evaluation instrument: anonymous side-by-side battles, ratings from votes, open data. Its "
+           "statistical machinery converged on pooled Bradley-Terry maximum-likelihood estimation with "
+           "bootstrapped confidence intervals. WRYM borrows the arena <i>shape</i> and the "
+           "estimator — all-pairs battles on shared levels fitted at once, with a solved run beating "
+           "an unsolved one and efficiency breaking ties — but replaces human preference with a "
+           "deterministic checker, so the ground truth needs no trust in judges. Kaggle Game Arena "
+           "[11] applies the same doctrine to competitive games; we adopt its head-to-head matrix "
+           "and its evergreen answer — a new map <i>is</i> a new test. Independent third-party "
+           "measurement sites such as Artificial Analysis [7] play the complementary role "
            "of context: our leaderboard links every ranked model to its Artificial Analysis page so "
            "arena results can be read against independent intelligence, speed and price measurements."))
+E.append(P("<b>Game benchmarks for LLMs.</b> Five systems directly shaped the v2 measurement stack. "
+           "BALROG [12] aggregates six long-horizon game environments and showed both that fine-grained "
+           "<i>progress</i> metrics beat binary win/loss and that frontier models often perform worse "
+           "with pixels than with text — we adopted the progress score (apples, goal, distance "
+           "closure on every archived run) and the text-first doctrine. SmartPlay [13] decomposes "
+           "agent skill into nine named capabilities and maps each game to the subset it stresses; "
+           "our seven-capability taxonomy (spatial, planning, dependencies, state-tracking, "
+           "long-horizon, risk, precision) is derived deterministically from each level's geometry "
+           "and every model carries an intensity-weighted capability profile. LMGame-Bench [14] "
+           "evaluates LLMs on real games with and without a gaming harness and hardens them against "
+           "contamination; our answer to contamination is the certified mirror-variant registry — "
+           "every ladder level has a validator-certified vertical-mirror twin with identical par, so "
+           "memorization without reasoning is detectable. VideoGameBench [15] demonstrated the "
+           "modality axis (raw-pixels VLM play); we record modality as an explicit run-schema axis "
+           "while shipping the deterministic text projection as primary. Terminal-Bench [17] "
+           "publishes resolution rates with confidence intervals, cost and token columns and "
+           "structured error analysis; our leaderboard adopted all three, plus its failure taxonomy. "
+           "AgentBench [16] established the environment-as-pluggable-protocol doctrine our engine, "
+           "checker and rating layers follow."))
 E.append(P("<b>Complexity theory.</b> The game family WRYM belongs to is provably hard. Sokoban is "
            "PSPACE-complete [2]; the Hearn-Demaine nondeterministic constraint logic framework [3] "
            "unified sliding-block and pushing puzzles under one PSPACE-complete umbrella; and "
@@ -305,8 +330,11 @@ E.append(P(
     "rejected with a machine reason — free information, as in the real game — and every thought, "
     "latency and retry is recorded. <b>Check:</b> an independent deterministic checker re-executes "
     "the recorded action stream on a fresh engine and signs the run CERTIFIED or INVALID; models "
-    "never grade themselves, and a mismatch voids the artifact. <b>Elo:</b> pairwise ratings on "
-    "shared levels. <b>Commit &amp; Pages:</b> run JSON is committed to the repository and a static "
+    "never grade themselves, and a mismatch voids the artifact. <b>Rate:</b> pooled Bradley-Terry "
+    "MLE over all shared-level battles at once (the Chatbot Arena / Kaggle Game Arena estimator), "
+    "with 400-round deterministic bootstrap 95% confidence intervals and anchor shrinkage so "
+    "thin battle matrices stay finite; a solved run beats an unsolved one, efficiency breaks ties, "
+    "failures draw for half a win each. <b>Commit &amp; Pages:</b> run JSON is committed to the repository and a static "
     "site re-renders from it, so the leaderboard is a pure function of versioned data."))
 
 # ═══════════════════════════════════════ 5 DIFFICULTY ═════════════════
@@ -459,9 +487,10 @@ E.append(P(
     "which caps how large a single trial can be, though not how deep its plan must be. The text "
     "projection is lossy by design — that is the point — but vision models could optionally "
     "receive rendered boards, and the vocabulary could grow (eggs, teleports, time manipulation "
-    "all exist in the source games). Pairwise Elo over a thin run matrix is noisy with few "
-    "models; Bradley-Terry with confidence intervals is the natural upgrade as the matrix "
-    "densifies. The community framework currently trusts one maintainer list; a CODEOWNERS-based "
+    "all exist in the source games). The v2 rating stack — pooled Bradley-Terry with bootstrap "
+    "confidence intervals, anchor shrinkage, capability profiles, progress scores and the mirror-"
+    "variant registry — was built for the thin-matrix regime, but with very few models the "
+    "intervals remain wide; battle density is the honest fix. The community framework currently trusts one maintainer list; a CODEOWNERS-based "
     "review quorum is a configuration change away. Finally, the ladder measures planning under "
     "certainty — the games we drew from have no hidden information, and neither do we; imperfect-"
     "information variants remain future work."))
@@ -469,7 +498,7 @@ E.append(P(
 # ═══════════════════════════════════════ REFERENCES ═══════════════════
 E.append(sec("", "References"))
 refs = [
-    "[1] Chiang, W.-L., Zheng, L., Sheng, Y., Angelopoulos, A. N., Li, T., Li, D., Zhang, H., Zhu, B., Jordan, M., Gonzalez, J. E., &amp; Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. arXiv:2403.04132. https://arxiv.org/abs/2403.04132",
+    "[1] Chiang, W.-L., Zheng, L., Sheng, Y., Angelopoulos, A. N., Li, T., Li, D., Zhang, H., Zhu, B., Jordan, M., Gonzalez, J. E., &amp; Stoica, I. (2024). Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference. arXiv:2403.04132. https://arxiv.org/abs/2403.04132 — Bradley-Terry MLE + bootstrap CI methodology: https://lmsys.org/blog/2023-12-07-leaderboard",
     "[2] Culberson, J. C. (1997). Sokoban is PSPACE-complete. Technical Report TR97-02, Department of Computing Science, University of Alberta. https://ualberta.scholaris.ca/items/12921687-eb68-4032-9a46-1af150d60008",
     "[3] Hearn, R. A., &amp; Demaine, E. D. (2002). PSPACE-Completeness of Sliding-Block Puzzles and Other Problems through the Nondeterministic Constraint Logic Model of Computation. arXiv:cs/0205005. https://arxiv.org/abs/cs/0205005",
     "[4] De Biasi, M., &amp; Ophelders, T. (2016). The Complexity of Snake. In 8th International Conference on Fun with Algorithms (FUN 2016), LIPIcs 49, 11:1-11:13. https://doi.org/10.4230/LIPIcs.FUN.2016.11",
@@ -479,12 +508,19 @@ refs = [
     "[8] Dogspawn (2026). WOIM. Steam. https://store.steampowered.com/app/4272020/WOIM",
     "[9] Noumenon Games (2015). Snakebird. Steam. https://store.steampowered.com/app/357300/Snakebird",
     "[10] Lavelle, S. (2016). Stephen's Sausage Roll. Steam. https://store.steampowered.com/app/353540/Stephens_Sausage_Roll",
+    "[11] Kaggle / Google DeepMind (2025). Introducing Kaggle Game Arena. https://www.kaggle.com/blog/introducing-game-arena — Werewolf and poker expansion (2026): https://blog.google/innovation-and-ai/models-and-research/google-deepmind/kaggle-game-arena-updates",
+    "[12] Paglieri, D., Cupial, B., Coward, S., Piterbarg, U., et al. (2024). BALROG: Benchmarking Agentic LLM and VLM Reasoning On Games. ICLR 2025. arXiv:2411.13543. https://arxiv.org/abs/2411.13543",
+    "[13] Wu, Y., Tang, X., Mitchell, T. M., &amp; Li, Y. (2023). SmartPlay: A Benchmark for LLMs as Intelligent Agents. arXiv:2310.01557. https://arxiv.org/abs/2310.01557",
+    "[14] Hu, L., et al. (2025). LMGame-Bench: How Good are LLMs at Playing Games? ICLR 2026. arXiv:2505.15146. https://arxiv.org/abs/2505.15146",
+    "[15] Zhang, A. L., et al. (2025). VideoGameBench: Can Vision-Language Models complete famous video games? arXiv:2505.18134. https://arxiv.org/abs/2505.18134",
+    "[16] Liu, X., et al. (2023). AgentBench: Evaluating LLMs as Agents. arXiv:2308.03688. https://arxiv.org/abs/2308.03688",
+    "[17] Merrill, M. A., Shaw, A. G., Carlini, N., et al. (2026). Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces. arXiv:2601.11868. https://arxiv.org/abs/2601.11868",
 ]
 for r in refs:
     E.append(P(r, "ref"))
 E.append(Spacer(1, 8))
 E.append(HRFlowable(width="100%", thickness=0.6, color=LINE))
-E.append(P("<i>Every reference above was opened and verified on 5 November 2026. This paper is a "
+E.append(P("<i>Every reference above was opened and verified on 6 November 2026. This paper is a "
            "living artifact: rebuild it with <font face='Courier'>python3 scripts/build-paper.py</font>. "
            "Arena, levels, replays, community board and provider research: "
            "https://namandhakad712.github.io/WRYM/</i>", "caption"))

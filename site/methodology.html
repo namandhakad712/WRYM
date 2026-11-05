@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Method — What the Best Game Benchmarks Taught Us</title>
+<meta name="description" content="A deep analysis of the best LLM game benchmark systems — Kaggle Game Arena, Chatbot Arena, BALROG, LMGame-Bench, SmartPlay, VideoGameBench, Terminal-Bench, AgentBench — and exactly what WRYM adopted from each, with verified citations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23ea6a65'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23fff'/%3E%3Ccircle cx='17' cy='13' r='3' fill='%23111'/%3E%3C/svg%3E">
+<style>
+  .sys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;margin-top:20px}
+  .sys-card{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+  .sys-card .sys-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .sys-card h3{margin:0;font-size:19px;letter-spacing:.2px;color:var(--cream)}
+  .sys-venue{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--cream-faint);font-weight:600}
+  .sys-card p{margin:0;font-size:13.5px;line-height:1.62;color:var(--cream-soft)}
+  .sys-card .idea{font-size:12.8px;line-height:1.6;color:var(--cream-faint);padding-left:12px;border-left:3px solid var(--frost)}
+  .sys-card .idea b{color:var(--cream)}
+  .adopt{margin-top:auto;background:rgba(126,196,106,.09);border:1px solid rgba(126,196,106,.35);border-radius:9px;padding:9px 12px;font-size:12.8px;line-height:1.55;color:var(--cream-soft)}
+  .adopt b{color:var(--leaf)}
+  .adopt code{font-size:11.5px}
+  .cite{font-size:11.5px;color:var(--cream-faint)}
+  .cite a{color:var(--frost)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · Method</h1>
+        <p class="subtitle">what the best game benchmarks taught us — and exactly what we adopted from each</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="./forge.html">Forge</a>
+      <a href="./community.html">Community</a>
+      <a href="./providers.html">Providers</a>
+      <a href="./methodology.html" class="active">Method</a>
+      <a href="./paper.html">Paper</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <section class="prose" style="margin-top:26px">
+    <p class="kicker">Deep Work · The Analysis</p>
+    <h2>Read the rulebooks before building the arena</h2>
+    <p class="section-sub">WRYM is not a novel idea in a vacuum — it stands on a decade of game-based agent
+    evaluation. Before building the v2 rating stack we went back to the primary sources: the papers,
+    the leaderboards, the harnesses. This page is the honest ledger of that analysis: for each system,
+    what it does best, and which specific pattern we lifted and shipped. Every claim is cited; every
+    citation was opened and verified on 6&nbsp;November&nbsp;2026. The full conformance table is at the
+    bottom; the philosophy lives in the <a href="./paper.html">paper</a>.</p>
+  </section>
+
+  <div class="sys-grid">
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>Kaggle Game Arena</h3><span class="sys-venue">Google DeepMind × Kaggle · 2025</span></div>
+      <p>An open platform where models compete head-to-head in strategic games — launched August 2025 with
+      chess, then expanded (Feb 2026) to poker and Werewolf to test social dynamics and calculated risk.
+      Ranking is pooled <b>Bradley-Terry Elo</b> across games and models.</p>
+      <div class="idea"><b>Sharpest idea:</b> games resist saturation. There is no answer key to leak —
+      <i>a new map <b>is</b> a new test</i> — and adversarial play makes the benchmark evergreen.</div>
+      <div class="adopt"><b>Adopted:</b> the pooled Bradley-Terry estimator with bootstrap confidence
+      intervals (our <code>src/lib/wyrm/elo.ts</code> v2), the head-to-head matrix on the leaderboard, and the
+      evergreen doctrine — the Level Forge + procedural generators keep producing fresh maps forever.</div>
+      <div class="cite">Kaggle (2025), <a href="https://www.kaggle.com/blog/introducing-game-arena" rel="noopener">Introducing Kaggle Game Arena</a> ·
+      Google (2026), <a href="https://blog.google/innovation-and-ai/models-and-research/google-deepmind/kaggle-game-arena-updates" rel="noopener">Advancing AI benchmarking with Game Arena</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>Chatbot Arena / LMArena</h3><span class="sys-venue">LMSYS · ICML 2024</span></div>
+      <p>The platform that made pairwise comparison the industry standard: anonymous side-by-side battles,
+      human votes, and Elo ratings — later refined to Bradley-Terry MLE with bootstrapped confidence
+      intervals over the whole battle dataset at once.</p>
+      <div class="idea"><b>Sharpest idea:</b> order-free pooled ratings + <b>honest uncertainty</b>.
+      "Is A better than B?" is only answerable when the CI is on the table. Their 2023-12 Elo update
+      post is the reference write-up.</div>
+      <div class="adopt"><b>Adopted:</b> exactly that estimator — BT-MLE over all shared-level battles,
+      400-round deterministic bootstrap for 95% CIs, draws counted as half-wins — replacing our old
+      order-dependent online Elo (K=32). Every rating on the leaderboard now renders as
+      <i>Elo ±CI</i>.</div>
+      <div class="cite">Chiang et&nbsp;al. (2024), <a href="https://arxiv.org/abs/2403.04132" rel="noopener">arXiv:2403.04132</a> ·
+      LMSYS (2023), <a href="https://lmsys.org/blog/2023-12-07-leaderboard" rel="noopener">New models &amp; Elo system update</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>BALROG</h3><span class="sys-venue">ICLR 2025 · arXiv:2411.13543</span></div>
+      <p>Six RL game environments (BabyAI, Crafter, TextWorld, Baba&nbsp;Is&nbsp;AI, MiniHack, NetHack) as one
+      long-horizon agentic benchmark. Frontier models partially succeed on easy games and collapse on
+      NetHack; VLMs do <i>worse</i> with pixels than with text.</p>
+      <div class="idea"><b>Sharpest ideas:</b> ① <b>fine-grained progress metrics</b> — how close to
+      completion, not just win/loss; ② the <b>knowing-doing gap</b> (models verbalize correct knowledge,
+      then fail to act on it); ③ procedural generation to defeat memorization.</div>
+      <div class="adopt"><b>Adopted:</b> the progress score — every archived run now carries a 0-100
+      partial-credit value (60% apples, 25% goal, 15% distance closure) computed by
+      <code>src/lib/wyrm/progress.ts</code>; and our failure-seeking difficulty ladder is their
+      "the information is in the failure" doctrine taken literally. Our text-first interface is also
+      their empirical finding (text &gt; pixels) turned into a design rule.</div>
+      <div class="cite">Paglieri et&nbsp;al. (2024), <a href="https://arxiv.org/abs/2411.13543" rel="noopener">arXiv:2411.13543</a> ·
+      <a href="https://balrogai.com" rel="noopener">balrogai.com</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>LMGame-Bench</h3><span class="sys-venue">ICLR 2026 · arXiv:2505.15146</span></div>
+      <p>"How good are LLMs at playing games?" — real, contamination-robust games (Wordle, 2048, Sudoku,
+      Sokoban…) turned into controlled benchmarks, evaluating models with and without a
+      <b>gaming harness</b> (scaffolding that parses state and validates moves).</p>
+      <div class="idea"><b>Sharpest ideas:</b> ① measure the <b>harness delta</b> — the same model raw
+      vs&nbsp;scaffolded; ② contamination control through game variation rather than held-out answers.</div>
+      <div class="adopt"><b>Adopted:</b> the contamination answer — every ladder level now has a certified
+      <b>mirror twin</b> (vertical flip, valves remapped, identical par; see
+      <code>results/variants.json</code>, 31/31 certified). A model that memorized the original but cannot
+      reason will fail its twin. Our invalid-action feedback loop (rejected moves return a machine reason)
+      is their harness finding operationalized.</div>
+      <div class="cite">Hu et&nbsp;al. (2025), <a href="https://arxiv.org/abs/2505.15146" rel="noopener">arXiv:2505.15146</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>SmartPlay</h3><span class="sys-venue">arXiv:2310.01557 · 2023</span></div>
+      <p>Six games (Rock-Paper-Scissors → Tower of Hanoi → Minecraft) decomposing agent skill into
+      <b>nine named capabilities</b> — object dependencies, planning ahead, spatial reasoning, learning
+      from history, randomness — with each game stressing a known subset, so results decompose into a
+      capability profile instead of one scalar.</p>
+      <div class="idea"><b>Sharpest idea:</b> the benchmark as a <b>diagnostic roadmap</b>: "which capability
+      is missing?" beats "what's the score?".</div>
+      <div class="adopt"><b>Adopted:</b> the full pattern — our seven-capability taxonomy
+      (<code>src/lib/wyrm/capabilities.ts</code>: spatial, planning, dependencies, state-tracking,
+      long-horizon, risk, precision) derived deterministically from each level's geometry, and per-model
+      capability profiles on the leaderboard, weighted by intensity.</div>
+      <div class="cite">Wu, Tang, Mitchell &amp; Li (2023), <a href="https://arxiv.org/abs/2310.01557" rel="noopener">arXiv:2310.01557</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>VideoGameBench</h3><span class="sys-venue">arXiv:2505.18134 · 2025</span></div>
+      <p>Ten famous 1990s video games played by VLMs from <b>raw pixels in real time</b>. The finding:
+      frontier VLMs often cannot reach even the first checkpoint of games humans learn in minutes.</p>
+      <div class="idea"><b>Sharpest idea:</b> the modality axis is a first-class ablation — the same game,
+      same model, different observation channel (text vs&nbsp;vision), is a controlled experiment.</div>
+      <div class="adopt"><b>Adopted:</b> the dual-view doctrine, deliberately inverted — models receive the
+      deterministic <b>text projection</b> while humans watch the pixel-perfect canvas render of the same
+      state. Our run schema records the modality axis explicitly so a vision channel (canvas → PNG → VLM)
+      can be benchmarked later without schema surgery. BALROG's text&gt;pixels result is why we start text-first.</div>
+      <div class="cite">Zhang et&nbsp;al. (2025), <a href="https://arxiv.org/abs/2505.18134" rel="noopener">arXiv:2505.18134</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>Terminal-Bench</h3><span class="sys-venue">Laude Institute × Stanford · 2026</span></div>
+      <p>Hard, realistic terminal tasks, each with its own environment, human-written solution and test
+      suite. The public leaderboard shows <b>resolution rate ± CI</b> per model <b>× agent harness</b>,
+      with token and cost columns — and an error analysis to close the loop.</p>
+      <div class="idea"><b>Sharpest ideas:</b> ① the <b>model × harness matrix</b>; ② publish cost and
+      tokens next to every score; ③ structured failure analysis, not vibes.</div>
+      <div class="adopt"><b>Adopted:</b> the failure taxonomy — every model row now decomposes failures
+      into spike deaths, turn-budget exhaustion, invalid-action storms and API aborts, computed from
+      per-step event logs by the exporter; plus tokens/latency/cost columns on every row
+      (cost accounting was already in our reliability ledger; now it ranks).</div>
+      <div class="cite">Merrill, Shaw, Carlini et&nbsp;al. (2026), <a href="https://arxiv.org/abs/2601.11868" rel="noopener">arXiv:2601.11868</a> ·
+      <a href="https://www.tbench.ai" rel="noopener">tbench.ai</a></div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-head"><h3>AgentBench</h3><span class="sys-venue">arXiv:2308.03688 · 2023</span></div>
+      <p>The systematic "LLM-as-Agent" benchmark: eight distinct environments (OS, DB, knowledge graphs,
+      a digital card game, lateral-thinking puzzles, ALFWorld households, web shopping…) unified behind
+      one harness protocol.</p>
+      <div class="idea"><b>Sharpest idea:</b> one harness, many environments — evaluation as
+      <b>infrastructure</b>, not as a pile of scripts. Environments are interchangeable behind a common
+      step interface.</p>
+      <div class="adopt"><b>Adopted:</b> the doctrine that the game is a pluggable environment behind a
+      fixed protocol — our engine, checker, sandbox and rating layers never know which level (or level
+      <i>variant</i>) they are running; new environments slot in as more <code>LevelDef</code> rows or
+      community PRs without touching the pipeline.</div>
+      <div class="cite">Liu et&nbsp;al. (2023), <a href="https://arxiv.org/abs/2308.03688" rel="noopener">arXiv:2308.03688</a> ·
+      <a href="https://github.com/THUDM/AgentBench" rel="noopener">github.com/THUDM/AgentBench</a></div>
+    </div>
+
+  </div>
+
+  <section class="prose" style="margin-top:34px">
+    <p class="kicker">The Synthesis · Conformance Ledger</p>
+    <h2>Pattern → source → WRYM implementation</h2>
+    <p class="section-sub">Nothing in this table is aspirational — every "implementation" column entry is a
+    file in this repository you can open right now.</p>
+    <table class="ledger" style="margin-top:14px">
+      <thead><tr><th>Pattern</th><th>Learned from</th><th>WRYM implementation</th></tr></thead>
+      <tbody>
+        <tr><td>Pooled Bradley-Terry + bootstrap CI</td><td>Chatbot Arena · Kaggle Game Arena</td><td><code>src/lib/wyrm/elo.ts</code> — BT-MLE (MM), 400-round seeded bootstrap, half-win draws, anchor shrinkage</td></tr>
+        <tr><td>Head-to-head records</td><td>Kaggle Game Arena</td><td><code>headToHead()</code> → matrix on the leaderboard</td></tr>
+        <tr><td>Fine-grained progress score</td><td>BALROG</td><td><code>src/lib/wyrm/progress.ts</code> — 60% apples / 25% goal / 15% distance closure, per run</td></tr>
+        <tr><td>Capability decomposition</td><td>SmartPlay</td><td><code>src/lib/wyrm/capabilities.ts</code> — 7 capabilities, geometry-derived tags + intensities, per-model profiles</td></tr>
+        <tr><td>Contamination-resistant variants</td><td>LMGame-Bench · BALROG</td><td><code>scripts/make-variants.ts</code> → <code>results/variants.json</code> — 31/31 certified mirror twins, full par parity</td></tr>
+        <tr><td>Failure taxonomy / error analysis</td><td>Terminal-Bench</td><td>exporter decomposes: spike deaths · exhausted · dead · aborted · invalid-action %</td></tr>
+        <tr><td>Cost / tokens / latency columns</td><td>Terminal-Bench · Artificial Analysis</td><td>reliability ledger per run, aggregated into leaderboard rows</td></tr>
+        <tr><td>Modality axis (text-first)</td><td>VideoGameBench · BALROG</td><td>frozen text projection for models, pixel canvas for humans; modality recorded per run schema</td></tr>
+        <tr><td>Environment-as-pluggable-protocol</td><td>AgentBench</td><td>engine / checker / rating never see the level source — ladder rows and community PRs slot in as data</td></tr>
+        <tr><td>Evergreen task generation</td><td>Kaggle Game Arena</td><td>Level Forge + New Level Thinker + procedural generator; new map = new test</td></tr>
+        <tr><td>Deterministic verification, no self-grading</td><td>SWE-bench doctrine</td><td>independent Checker replays every run on a fresh engine; CERTIFIED / INVALID signature</td></tr>
+        <tr><td>Open submissions</td><td>BALROG · AgentBench</td><td>run locally (free providers), commit <code>results/</code>, push — the site is a pure function of the repo</td></tr>
+      </tbody>
+    </table>
+
+    <div class="print-box" style="margin-top:22px">
+      <div class="pb-title">Deliberate divergences — where we consciously differ</div>
+      <ul style="margin:8px 0 0;padding-left:20px;line-height:1.85;font-size:13.5px">
+        <li><b>Adversarial play is against the board, not another model.</b> Kaggle's games are model-vs-model;
+        our worm is model-vs-certified-geometry, so the reference line (WYRM-BFS, provably optimal) can anchor
+        every rating — no judge, no opponent luck, no collusion surface.</li>
+        <li><b>Text-first on purpose.</b> Both BALROG and VideoGameBench measured vision degrading play; we
+        ship the deterministic text projection as the primary channel and keep pixels for humans.</li>
+        <li><b>Failure-seeking difficulty.</b> Most benchmarks tune for discrimination at the top; our Tier IV-V
+        is tuned past the frontier so failure modes are visible — the information is in the failure.</li>
+      </ul>
+    </div>
+
+    <p class="mono-note" style="margin-top:18px">analysis verified 6 Nov 2026 · estimator + taxonomy + variants shipped in this repo ·
+    rebuild everything: <code>bun scripts/make-variants.ts &amp;&amp; bun scripts/export-site.ts</code> ·
+    read the <a href="./paper.html">paper</a> for the full write-up</p>
+  </section>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — standing on the shoulders of game-benchmark giants.</span>
+    <span><a href="./index.html">← leaderboard</a></span>
+  </footer>
+</div>
+</body>
+</html>

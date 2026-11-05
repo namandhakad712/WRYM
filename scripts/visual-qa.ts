@@ -26,6 +26,7 @@ async function main() {
           ],
         },
       ],
+      model: "glm-4.6v",
       thinking: { type: "disabled" },
     });
     console.log(`\n═══ ${s.path} ═══`);

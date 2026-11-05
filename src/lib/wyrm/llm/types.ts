@@ -20,6 +20,12 @@ export type ProviderKind =
   | "mistral"
   | "xai"
   | "together"
+  | "zhipu" // Z.ai / Zhipu BigModel — GLM family (free Flash tier)
+  | "piapi" // PiAPI — one-key aggregator bundle (GPT/Claude/DeepSeek/Gemini)
+  | "nvidia" // NVIDIA NIM — build.nvidia.com evaluation endpoint
+  | "cloudflare" // Cloudflare Workers AI (neuron-priced, edge)
+  | "cohere" // Cohere compatibility endpoint (trial keys)
+  | "siliconflow" // SiliconFlow — open-weight models, CN
   | "ollama" // local
   | "lmstudio" // local
   | "mcp" // any Model Context Protocol server — see lib/wyrm/llm/mcp.ts
@@ -135,6 +141,72 @@ export const PROVIDER_KINDS: Record<ProviderKind, ProviderKindMeta> = {
     needsKey: true,
     modelHint: "meta-llama/…",
     note: "Open-source model hub, OpenAI-compatible.",
+    contextHint: 32_768,
+  },
+  zhipu: {
+    label: "Z.ai / Zhipu (GLM)",
+    protocol: "openai-compat",
+    // international portal (email signup): https://api.z.ai/api/paas/v4
+    // CN portal open.bigmodel.cn (Chinese phone): same path, different host
+    defaultBaseUrl: "https://api.z.ai/api/paas/v4",
+    needsKey: true,
+    keyPattern: "<id>.<secret>",
+    modelHint: "glm-4.7-flash / glm-4.5-flash (FREE) / glm-5.3…",
+    note:
+      "Zhipu's GLM family. The Flash line (glm-4.7-flash, glm-4.5-flash) is a PERMANENT FREE tier — " +
+      "no card, email-only signup on z.ai. OpenAI-compatible. Concurrency is low on free keys — set rpm ≤ 10.",
+    contextHint: 200_000,
+  },
+  piapi: {
+    label: "PiAPI (bundle)",
+    protocol: "openai-compat",
+    defaultBaseUrl: "https://api.piapi.ai/v1",
+    needsKey: true,
+    modelHint: "gpt-5.2 / claude-sonnet-4-6 / deepseek-…",
+    note:
+      "One-key aggregator: GPT-5.x, Claude 4.6, DeepSeek, Gemini and more behind one OpenAI-compatible " +
+      "endpoint at 10–75% of list price. The cheapest way to bench frontier models side by side.",
+    contextHint: 128_000,
+  },
+  nvidia: {
+    label: "NVIDIA NIM",
+    protocol: "openai-compat",
+    defaultBaseUrl: "https://integrate.api.nvidia.com/v1",
+    needsKey: true,
+    keyPattern: "nvapi-…",
+    modelHint: "nvidia/nemotron-3-ultra-550b-a55b, openai/gpt-oss-120b, moonshotai/kimi-k3…",
+    note:
+      "build.nvidia.com evaluation endpoint — 80+ open models, phone verification, no card, up to 40 rpm. " +
+      "Meant for evaluation (like this benchmark), not production traffic.",
+    contextHint: 128_000,
+  },
+  cloudflare: {
+    label: "Cloudflare Workers AI",
+    protocol: "openai-compat",
+    defaultBaseUrl: "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/v1",
+    needsKey: true,
+    keyPattern: "Bearer API token",
+    modelHint: "@cf/meta/llama-3.3-70b-instruct-fp8-fast, @cf/openai/gpt-oss-120b…",
+    note:
+      "50+ open models at the edge, priced in neurons (10,000/day free). Replace <ACCOUNT_ID> in the base URL.",
+    contextHint: 32_768,
+  },
+  cohere: {
+    label: "Cohere",
+    protocol: "openai-compat",
+    defaultBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    needsKey: true,
+    modelHint: "command-r-plus-08-2024 / command-a-…",
+    note: "Trial keys: 20 rpm, 1,000 requests/month, non-commercial. OpenAI-compatible endpoint.",
+    contextHint: 128_000,
+  },
+  siliconflow: {
+    label: "SiliconFlow",
+    protocol: "openai-compat",
+    defaultBaseUrl: "https://api.siliconflow.cn/v1",
+    needsKey: true,
+    modelHint: "Qwen/Qwen2.5-7B-Instruct (¥0), deepseek-ai/…",
+    note: "CN-hosted open-weight models; a rotating set is priced at ¥0. Check the console for the current free lineup.",
     contextHint: 32_768,
   },
   ollama: {

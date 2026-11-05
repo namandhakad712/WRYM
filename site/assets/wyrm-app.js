@@ -23,45 +23,41 @@
     });
   }
 
-  // ── pairwise Elo (mirrors src/lib/wyrm/elo.ts) ─────────────────────
-  function eloUpdate(a, b) {
-    const K = 32;
-    const expectedA = 1 / (1 + Math.pow(10, (b.elo - a.elo) / 400));
-    let sA;
-    if (a.solved && !b.solved) sA = 1;
-    else if (!a.solved && b.solved) sA = 0;
-    else if (a.solved && b.solved) sA = a.score >= b.score ? 1 : 0;
-    else sA = 0.5;
-    return {
-      newA: Math.round(a.elo + K * (sA - expectedA)),
-      newB: Math.round(b.elo + K * ((1 - sA) - (1 - expectedA))),
-    };
+  // ── rating + capability presentation helpers ─────────────────────
+  // Ratings arrive PRE-COMPUTED from site/data/index.json (pooled
+  // Bradley-Terry MLE + bootstrap 95% CI — see scripts/export-site.ts
+  // and src/lib/wyrm/elo.ts). The site itself stays zero-computation.
+
+  var CAP_SHORT = {
+    spatial: ["SPA", "spatial reasoning — valves / ice"],
+    planning: ["PLA", "planning ahead — irreversibility × tight budgets"],
+    dependencies: ["DEP", "object dependencies — buttons / gates / keys"],
+    "state-tracking": ["STT", "state tracking — permanent world changes"],
+    "long-horizon": ["LNG", "long-horizon play — deep optimal lines"],
+    risk: ["RSK", "risk assessment — spike fields"],
+    precision: ["PRC", "choreography — crate & body routing precision"],
+  };
+
+  function capChips(tags) {
+    return (tags || []).map(function (t) {
+      var m = CAP_SHORT[t] || [String(t).slice(0, 3).toUpperCase(), t];
+      return '<span class="chip capchip" title="' + esc(m[1]) + " · " + esc(t) + '">' + esc(m[0]) + "</span>";
+    }).join(" ");
   }
 
-  function computeElo(runs) {
-    // runs: [{model, levelSlug, status, score}]
-    const elos = {};
-    const bump = function (m) { if (!elos[m]) elos[m] = 1200; return elos[m]; };
-    const byLevel = {};
-    runs.forEach(function (r) {
-      (byLevel[r.levelSlug] = byLevel[r.levelSlug] || []).push(r);
-    });
-    Object.keys(byLevel).forEach(function (lv) {
-      const rs = byLevel[lv];
-      for (let i = 0; i < rs.length; i++) {
-        for (let j = i + 1; j < rs.length; j++) {
-          const a = rs[i], b = rs[j];
-          if (a.model === b.model) continue;
-          const out = eloUpdate(
-            { elo: bump(a.model), score: a.score, solved: a.status === "won" },
-            { elo: bump(b.model), score: b.score, solved: b.status === "won" },
-          );
-          elos[a.model] = out.newA;
-          elos[b.model] = out.newB;
-        }
-      }
-    });
-    return elos;
+  function eloCell(row) {
+    if (row.kind === "solver") return '<span class="ref-chip" title="the provably-optimal reference line every model is measured against">reference</span>';
+    if (row.elo == null) return '—';
+    var ci = row.eloCi;
+    var half = ci ? Math.round((ci[1] - ci[0]) / 2) : null;
+    return '<b>' + fmt(row.elo) + "</b>" +
+      (half != null ? ' <span class="ci-chip" title="bootstrap 95% CI ' + ci[0] + "–" + ci[1] + '">±' + fmt(half) + "</span>" : "");
+  }
+
+  function progressCell(pct) {
+    if (pct == null) return '—';
+    return '<div class="pbar" title="BALROG-style partial credit: apples · goal · distance closure"><i style="width:' +
+      Math.max(2, pct) + '%"></i><span>' + pct + "%</span></div>";
   }
 
   // ── shared page chrome: active nav + footer year ──────────────────
@@ -101,16 +97,98 @@
           '<td><span class="model-name">' + esc(row.name) + "</span>" +
           (aa ? ' <a class="aa-chip" href="' + esc(aa) + '" target="_blank" rel="noopener" title="independent analysis on Artificial Analysis">AA ↗</a>' : "") +
           '<span class="model-kind">' + esc(row.kind) + "</span></td>" +
-          '<td class="num">' + fmt(row.elo) + "</td>" +
+          '<td class="num">' + eloCell(row) + "</td>" +
+          '<td class="num">' + fmt(row.battles) + "</td>" +
           '<td class="num">' + row.solved + "/" + row.covered + "</td>" +
+          '<td class="num">' + progressCell(row.avgProgress) + "</td>" +
           '<td class="num">' + eff + "</td>" +
           '<td class="num">' + fmt(row.deaths) + "</td>" +
-          '<td class="num">' + (row.avgLatency == null ? "—" : fmt(row.avgLatency) + " ms") + "</td>" +
+          '<td class="num">' + (row.failures ? row.failures.invalidPct + "%" : "—") + "</td>" +
           '<td class="num">' + fmt(row.tokens, 0) + "</td>" +
           "<td>" + row.checkerPct + "%</td>" +
           "</tr>"
         );
       }).join("");
+
+      // head-to-head matrix (needs ≥ 2 rated rows with battles)
+      const ratedRows = (data.leaderboard || []).filter(function (r) { return r.battles > 0; });
+      const h2hSec = $("#h2h-section");
+      if (h2hSec && (data.headToHead || []).length && ratedRows.length >= 2) {
+        h2hSec.style.display = "";
+        const nameOf = {};
+        data.leaderboard.concat(data.unranked || []).forEach(function (m) { nameOf[m.key] = m.name; });
+        const keys = [];
+        data.headToHead.forEach(function (h) {
+          if (keys.indexOf(h.a) < 0) keys.push(h.a);
+          if (keys.indexOf(h.b) < 0) keys.push(h.b);
+        });
+        const cell = function (a, b) {
+          if (a === b) return '<td class="h2h-diag"></td>';
+          const rec = data.headToHead.find(function (h) { return (h.a === a && h.b === b) || (h.a === b && h.b === a); });
+          if (!rec) return '<td class="h2h-none">·</td>';
+          const w = rec.a === a ? rec.w : rec.l;
+          const l = rec.a === a ? rec.l : rec.w;
+          return "<td><b>" + w + "</b>–" + rec.d + "–<b>" + l + "</b></td>";
+        };
+        $("#h2h-host").innerHTML =
+          '<table class="ledger h2h-table"><thead><tr><th></th>' +
+          keys.map(function (k) { return "<th>" + esc(nameOf[k] || k) + "</th>"; }).join("") +
+          "</tr></thead><tbody>" +
+          keys.map(function (a) {
+            return "<tr><th>" + esc(nameOf[a] || a) + "</th>" + keys.map(function (b) { return cell(a, b); }).join("") + "</tr>";
+          }).join("") +
+          "</tbody></table>" +
+          '<p class="mono-note">row vs column · wins–draws–losses over shared levels · estimator: ' +
+          esc(data.summary.ratingMethod || "pooled Bradley-Terry") + "</p>";
+      }
+
+      // capability profiles (needs a model with a non-empty profile)
+      const capsSec = $("#caps-section");
+      if (capsSec && data.leaderboard.some(function (r) { return (r.caps || []).length; })) {
+        capsSec.style.display = "";
+        $("#caps-host").innerHTML = data.leaderboard.map(function (row) {
+          const bars = (row.caps || []).map(function (c) {
+            return '<div class="caprow" title="' + esc(c.label) + ": " + c.pct +
+              "% success on capability-tagged levels, intensity-weighted\">" +
+              '<span class="caplab">' + esc(c.label) + "</span>" +
+              '<span class="captrack"><i style="width:' + Math.max(2, c.pct) + '%"></i></span>' +
+              "<b>" + c.pct + "%</b></div>";
+          }).join("");
+          return (
+            '<div class="cap-card">' +
+            '<div class="cap-head"><span class="model-name">' + esc(row.name) + "</span>" +
+            '<span class="model-kind">' + row.solved + "/" + row.covered + " solved</span></div>" +
+            (bars || '<p class="cap-empty">no capability-tagged levels played yet — run this model on more of the ladder to grow its profile</p>') +
+            "</div>"
+          );
+        }).join("");
+      }
+
+      // failure taxonomy (needs at least one recorded failure anywhere)
+      const failSec = $("#failure-section");
+      if (failSec && data.leaderboard.some(function (r) {
+        const f = r.failures;
+        return f && (f.spikeDeaths + f.exhausted + f.dead + f.aborted + f.invalidActions) > 0;
+      })) {
+        failSec.style.display = "";
+        $("#failure-host").innerHTML = data.leaderboard.map(function (row) {
+          const f = row.failures || { spikeDeaths: 0, exhausted: 0, dead: 0, aborted: 0, invalidActions: 0, invalidPct: 0 };
+          const anyFail = f.spikeDeaths + f.exhausted + f.dead + f.aborted + f.invalidActions > 0;
+          const chips = [
+            f.spikeDeaths ? '<span class="fail-chip bad">🗡 spike deaths ' + f.spikeDeaths + "</span>" : "",
+            f.exhausted ? '<span class="fail-chip bad">⏳ turn budget exhausted ' + f.exhausted + "</span>" : "",
+            f.dead ? '<span class="fail-chip bad">💀 hard deaths ' + f.dead + "</span>" : "",
+            f.aborted ? '<span class="fail-chip warn">⚠ api aborts ' + f.aborted + "</span>" : "",
+            f.invalidActions ? '<span class="fail-chip warn">✖ invalid actions ' + f.invalidActions + " (" + f.invalidPct + "% of steps)</span>" : "",
+          ].filter(Boolean).join(" ");
+          return (
+            '<div class="fail-row">' +
+            '<span class="model-name">' + esc(row.name) + "</span>" +
+            (anyFail ? chips : '<span class="fail-chip ok">clean sweep — no recorded failures</span>') +
+            "</div>"
+          );
+        }).join("");
+      }
 
       // level table
       const lv = $("#levels tbody");
@@ -122,9 +200,11 @@
         const runsCell = l.runs.length
           ? l.runs.map(function (r) {
               return '<a href="./run.html?m=' + encodeURIComponent(r.model) + "&l=" + encodeURIComponent(l.slug) + '">' +
-                '<span class="verdict ' + esc(r.status) + '">' + esc(r.modelShort) + " · " + esc(r.status) + "</span></a>";
+                '<span class="verdict ' + esc(r.status) + '">' + esc(r.modelShort) + " · " + esc(r.status) +
+                (typeof r.progress === "number" ? " · " + r.progress + "%" : "") + "</span></a>";
             }).join(" · ")
-          : '<span style="color:var(--ink-faint)">awaiting first run</span>';
+          : '<span style="color:var(--cream-faint)">awaiting first run</span>';
+        const caps = capChips((l.capabilities || {}).tags);
         return (
           "<tr>" +
           '<td><span class="mono-note" style="border:0;padding:0;background:none">' + esc(l.slug) + "</span></td>" +
@@ -132,11 +212,22 @@
           '<td><span class="tierchip tier-' + esc(String(l.tier || "").toLowerCase()) + '">' + esc(l.tier || "\u2014") + "</span></td>" +
           '<td><span class="diff">' + meter + '<span class="val">' + (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "/10</span></span></td>" +
           '<td class="num">' + l.minMoves + "</td>" +
-          "<td>" + l.mechanics.map(function (m) { return '<span class="chip">' + esc(m) + "</span>"; }).join(" ") + "</td>" +
+          "<td>" + (caps || '<span style="color:var(--cream-faint)">—</span>') + "</td>" +
           "<td>" + runsCell + "</td>" +
           "</tr>"
         );
       }).join("");
+
+      // mirror-variant registry (contamination check)
+      const vn = $("#variants-note");
+      if (vn && data.summary.variants && data.summary.variants.certified) {
+        const v = data.summary.variants;
+        vn.innerHTML = "🪞 <b>contamination check:</b> " + v.certified + "/" + v.total +
+          " certified mirror twins (" + esc(v.method) + ")" +
+          (v.fullParity ? " · <b>full par parity</b>" : "") +
+          " — a model that memorized the original but cannot reason will fail its twin. " +
+          'Method: <a href="./methodology.html">what the best game benchmarks taught us</a>.';
+      }
 
       // methodology footnote numbers
       if ($("#gen-time")) $("#gen-time").textContent = data.generatedAt;
@@ -152,7 +243,7 @@
       }
     }).catch(function (e) {
       const el = $("#leaderboard tbody");
-      if (el) el.innerHTML = '<tr><td colspan="9">archive data failed to load: ' + esc(e.message) + "</td></tr>";
+      if (el) el.innerHTML = '<tr><td colspan="11">archive data failed to load: ' + esc(e.message) + "</td></tr>";
     });
   };
 
@@ -179,7 +270,7 @@
               return '<a href="./run.html?m=' + encodeURIComponent(r.model) + "&l=" + encodeURIComponent(l.slug) + '">' +
                 '<span class="verdict ' + esc(r.status) + '">' + esc(r.modelShort) + " · " + esc(r.status) + "</span></a>";
             }).join("<br>")
-          : '<span style="color:var(--ink-faint);font-size:12px">awaiting first run</span>';
+          : '<span style="color:var(--cream-faint);font-size:12px">awaiting first run</span>';
         return (
           '<div class="level-card' + (l.community ? " community" : "") + '">' +
           '<canvas data-level="' + i + '"></canvas>' +
@@ -280,23 +371,66 @@
       $("#run-root").innerHTML = '<div class="notice"><span class="n-title">missing parameters</span>use <code>run.html?m=&lt;model-key&gt;&amp;l=&lt;level-slug&gt;</code> — every archive link carries them.</div>';
       return;
     }
-    fetchJSON("./data/runs/" + model + "__" + slug + ".json").then(function (run) {
-      renderRun(run);
+    Promise.all([
+      fetchJSON("./data/runs/" + model + "__" + slug + ".json"),
+      fetchJSON("./data/index.json").catch(function () { return null; }),
+    ]).then(function (res) {
+      renderRun(res[0], res[1]);
     }).catch(function () {
       $("#run-root").innerHTML = '<div class="notice"><span class="n-title">run not found</span>no archived run for <code>' +
         esc(model) + "</code> × <code>" + esc(slug) + "</code>. It may not have been played yet — see the index for coverage.</div>";
     });
   };
 
-  function renderRun(run) {
+  /** BALROG-style progress, mirroring src/lib/wyrm/progress.ts:
+   *  60% apples eaten + 25% goal reached + 15% distance closure. */
+  function runProgressOf(run) {
+    const grid = run.level.grid;
+    const applesTotal = (grid.join("").match(/\*/g) || []).length;
+    const appleFrac = applesTotal > 0 ? Math.min(1, run.result.applesEaten / applesTotal) : 1;
+    const won = run.result.status === "won" ? 1 : 0;
+    let closure = 0;
+    try {
+      let heart = null;
+      for (let y = 0; y < grid.length && !heart; y++) {
+        const x = grid[y].indexOf("X");
+        if (x >= 0) heart = { x: x, y: y };
+      }
+      const headOf = function (s) {
+        if (!s || !s.stateJson) return null;
+        const st = JSON.parse(s.stateJson);
+        return st.m && st.m[0] ? st.m[0] : null;
+      };
+      const first = headOf(run.steps[0]);
+      const last = headOf(run.steps[run.steps.length - 1]) || first;
+      if (heart && first && last) {
+        const d0 = Math.abs(first.x - heart.x) + Math.abs(first.y - heart.y);
+        const dF = Math.abs(last.x - heart.x) + Math.abs(last.y - heart.y);
+        closure = d0 > 0 ? Math.max(0, Math.min(1, 1 - dF / d0)) : 1;
+      }
+    } catch (e) { /* closure stays 0 */ }
+    return Math.round(60 * appleFrac + 25 * won + 15 * closure);
+  }
+
+  function renderRun(run, indexData) {
     $("#run-title").textContent = run.model.name + " × " + run.level.name;
     $("#run-crumbs").innerHTML =
       '<a href="./index.html">leaderboard</a> / <span>' + esc(run.model.key) + "</span> / <span>" + esc(run.level.slug) + "</span>";
+
+    // progress + capability strip (BALROG partial credit, SmartPlay tags)
+    const applesTotal = (run.level.grid.join("").match(/\*/g) || []).length;
+    const progress = runProgressOf(run);
+    const capsLevel = indexData && (indexData.levels || []).filter(function (l) { return l.slug === run.level.slug; })[0];
+    const capTags = capsLevel && capsLevel.capabilities ? capsLevel.capabilities.tags : [];
     $("#run-status").innerHTML =
       '<span class="verdict ' + esc(run.result.status) + '">' + esc(run.result.status).toUpperCase() + "</span>" +
-      ' <span style="color:var(--ink-faint)">· checker ' + esc(run.checker.verdict) +
+      ' <span style="color:var(--cream-faint)">· checker ' + esc(run.checker.verdict) +
       " · " + run.result.movesUsed + " moves (par " + run.level.minMoves + ", budget " + run.level.turnLimit + ")" +
-      " · deaths " + run.result.deaths + " · attempts " + run.result.attempts + "</span>";
+      " · deaths " + run.result.deaths + " · attempts " + run.result.attempts +
+      " · apples " + run.result.applesEaten + "/" + applesTotal + "</span>" +
+      (capTags.length ? ' <span class="run-caps">' + capChips(capTags) + "</span>" : "") +
+      '<div class="pbar big" title="progress — 60% apples · 25% goal · 15% distance closure"><i style="width:' +
+      Math.max(2, progress) + '%"></i><span>progress ' + progress + "%</span></div>";
 
     const steps = run.steps.filter(function (s, i) {
       // keep only steps that CHANGED the world or carried a real reply —

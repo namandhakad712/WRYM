@@ -40,6 +40,7 @@ const QUOTA_RE =
   /quota|billing|insufficient|exceeded your current|payment|credit|balance|subscription/i;
 const CONTEXT_RE =
   /context length|context window|maximum context|too many tokens|token limit|context_length_exceeded|prompt is too long|input tokens.*exceed|reduce the length/i;
+const EMPTY_RE = /empty completion|empty stream|no response body/i;
 
 /** Parse a Retry-After header: seconds or HTTP-date. */
 export function parseRetryAfter(v: string | null | undefined): number | undefined {
@@ -87,6 +88,11 @@ export function classifyHttp(status: number, body: string, retryAfterMs?: number
   }
   if (CONTEXT_RE.test(body)) {
     return { cls: "context", retryable: true, failover: true, message: msg };
+  }
+  // empty completions are transient upstream faults (doc contract),
+  // not bad requests — retry the same provider first
+  if (EMPTY_RE.test(body)) {
+    return { cls: "server", retryable: true, failover: false, message: msg };
   }
   return { cls: "unknown", retryable: true, failover: true, message: msg };
 }

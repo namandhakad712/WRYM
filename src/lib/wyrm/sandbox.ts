@@ -90,7 +90,6 @@ export function quarantineOutput(raw: string): Quarantine {
   const violations: string[] = [];
   const bytes = Buffer.byteLength(raw ?? "", "utf8");
   let text = (raw ?? "")
-    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
     .replace(/\u2028|\u2029/g, " ");
   if ((raw ?? "").length > SANDBOX_POLICY.maxOutputChars) {
@@ -220,7 +219,7 @@ export function sandboxSignal(external: AbortSignal | undefined): AbortSignal {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(new Error("SANDBOX TIMEOUT")), SANDBOX_POLICY.callTimeoutMs);
   if (external) {
-    if (external.aborted) clearTimeout(timer), ctl.abort(external.reason);
+    if (external.aborted) { clearTimeout(timer); ctl.abort(external.reason); }
     else external.addEventListener("abort", () => {
       clearTimeout(timer);
       ctl.abort(external.reason);
@@ -250,7 +249,7 @@ export interface SandboxAudit {
     rateWaitMs: number;
     tokensIn: number;
     tokensOut: number;
-    trail: string[];
+    trail?: string[];
   };
 }
 

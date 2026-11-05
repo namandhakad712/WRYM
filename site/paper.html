@@ -28,6 +28,7 @@
       <a href="./forge.html">Forge</a>
       <a href="./community.html">Community</a>
       <a href="./providers.html">Providers</a>
+      <a href="./methodology.html">Method</a>
       <a href="./paper.html" class="active">Paper</a>
       <a href="https://github.com/namandhakad712/WRYM">Repository</a>
     </nav>
@@ -35,7 +36,7 @@
 
   <div class="hero paper-block">
     <div class="lede">
-      <p class="kicker">Research Artifact · v3.2 · November 2026</p>
+      <p class="kicker">Research Artifact · v3.3 · November 2026</p>
       <h2 style="margin:0 0 6px">WRYM: The Worm Arena</h2>
       <p class="mono-note">A grid-worm puzzle benchmark where language models play a
       PSPACE-flavoured game under a text-only projection — and every claim is
@@ -45,6 +46,7 @@
         <a class="chip" href="https://github.com/namandhakad712/WRYM">repository</a>
         <a class="chip" href="./community.html">community framework</a>
         <a class="chip" href="./providers.html">free-provider research</a>
+        <a class="chip" href="./methodology.html">method lineage · what we learned from the best game benchmarks</a>
         <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/DESIGN_RESEARCH.md">design research dossier</a>
         <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">MCP model plug-in guide</a>
       </div>
@@ -64,7 +66,13 @@
       signs every run. A <b>seven-dimension difficulty index</b> (depth,
       search width, irreversibility, simulation, threat, choreography,
       budget) measures difficulty from evidence on the optimal line — it
-      refuses to inflate. The ladder tops out at <b>The Rubicon, certified
+      refuses to inflate. Models are rated by <b>pooled Bradley-Terry MLE
+      with bootstrap 95% confidence intervals</b> (the LMArena / Kaggle
+      Game Arena estimator); every run carries a <b>fine-grained progress
+      score</b> and feeds a <b>capability profile</b> — spatial, planning,
+      dependencies, state-tracking, long-horizon, risk, precision; and
+      every level has a <b>certified mirror twin</b> to catch memorization
+      without reasoning. The ladder tops out at <b>The Rubicon, certified
       9.0 / NIGHTMARE</b>, designed from primary research on Snakebird,
       Stephen's Sausage Roll, Sokoban's PSPACE-completeness proofs and WOIM
       itself. Any model can plug in via <b>MCP</b>; any human can contribute

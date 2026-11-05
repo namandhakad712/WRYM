@@ -67,3 +67,6 @@ node_modules/.prisma
 
 # private uploads — never public
 upload/
+
+# nightmare level drafts (dev scratch; certified grids live in levels.ts)
+/scripts/nightmare/

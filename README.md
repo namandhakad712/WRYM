@@ -7,7 +7,7 @@
 **Every run replayed · every thought archived · every claim certified**
 
 [![benchmark](https://img.shields.io/badge/benchmark-agentic__arena-7c221a?style=flat-square)](#the-benchmark)
-[![levels](https://img.shields.io/badge/levels-20%20BFS--certified-221c14?style=flat-square)](#the-ladder)
+[![levels](https://img.shields.io/badge/levels-31%20BFS--certified-221c14?style=flat-square)](#the-ladder)
 [![pages](https://img.shields.io/badge/site-github%20pages-221c14?style=flat-square)](https://namandhakad712.github.io/WRYM/)
 [![license](https://img.shields.io/badge/license-MIT-3a3226?style=flat-square)](#license)
 [![engine](https://img.shields.io/badge/engine-deterministic%20v2-8a6a42?style=flat-square)](#the-game)
@@ -28,8 +28,10 @@
 
 1. [What is WRYM?](#what-is-wrym)
 2. [The game](#the-game)
-3. [The ladder — 26 certified levels](#the-ladder--26-certified-levels-honestly-measured)
+3. [The ladder — 31 certified levels, peak NIGHTMARE 9.0](#the-ladder--31-certified-levels-honestly-measured)
 4. [The GitHub flow: local runs → committed results → Pages](#the-github-flow-local-runs--committed-results--pages)
+   * [The Level Forge — build & submit levels in the browser](#the-level-forge--build--submit-levels-in-the-browser)
+   * [The research paper](#the-research-paper)
 5. [The dashboard (local control room)](#the-dashboard-local-control-room)
 6. [The agentic pipeline](#the-agentic-pipeline)
 7. [Reliability engine — retries, fallbacks, rate limits, context windows](#reliability-engine--retries-fallbacks-rate-limits-context-windows)
@@ -89,7 +91,7 @@ its head* — which is precisely the skill being measured.
 
 ---
 
-## The ladder — 26 certified levels, honestly measured
+## The ladder — 31 certified levels, honestly measured
 
 Every level is certified by exhaustive breadth-first search **before** it may
 enter the ladder: solvability, the optimal move count (*par*), and the **v3
@@ -146,6 +148,63 @@ Tier IV specialists:
 > **Failure is the instrument.** Partial credit (apples eaten, moves survived,
 > deaths avoided) keeps every failure informative — a model that dies on the
 > spikes in 3 moves has told you something.
+
+---
+
+### Tier V — The Fifth Circle (research-driven extremes)
+
+The top of the ladder was engineered from primary research on the hardest
+public grid puzzlers — Snakebird's one-wrong-press unwinnability, Stephen's
+Sausage Roll's irreversible act chains, the Sokoban PSPACE-completeness
+corridor construction, nuworm's action-at-a-distance, and WOIM's own
+cut-yourself-in-half economy. The full dossier with citations ships as
+[`docs/DESIGN_RESEARCH.md`](docs/DESIGN_RESEARCH.md).
+
+| Level | Certified | Tier | Par | Signature |
+| --- | --- | --- | --- | --- |
+| 27 · The Reliquary | **7.9** | GAUNTLET | 30/32 | flesh-economy cathedral (crate + split onto plates, bridge gauntlet) |
+| 28 · Salamis | **6.3** | ADVANCED | 51/54 | one-sweep spike lattice — the purity exhibit (52 states!) |
+| 29 · Absolute Zero | **8.2** | ABYSS | 20/21 | your own remains as ice-slide stoppers; 9 glides / 35 cells |
+| 30 · Six Seals | **7.8** | GAUNTLET | 27/29 | six permanent acts, one committed line; drape-proof door |
+| 31 · **The Rubicon** | **9.0** | **NIGHTMARE** | 38/40 | the flagship: every dimension ≥ 65, five bridges burned, final dig |
+
+<div align="center">
+<img src="site/assets/img/replay-rubicon.png" alt="The Rubicon — NIGHTMARE 9.0, certified replay" width="82%">
+</div>
+
+## The Level Forge — build & submit levels in the browser
+
+The docs site ships the **real engine, exhaustive BFS validator and
+difficulty index compiled from this repository** — so anyone can paint a
+level, certify it, playtest it and submit it as a pull request without
+cloning anything:
+
+- **Paint** on a canvas with the game's actual sprite set (19 elements).
+- **Certify** — the same `src/lib/wyrm` code CI runs, in a Web Worker in
+  your tab: solvability, optimal par, state count, 7-dimension difficulty.
+- **Playtest** with arrow keys; **X** splits the worm.
+- **Submit via PR** — opens GitHub's new-file editor at
+  `community-levels/<slug>.json` with your level + certificate pre-filled.
+  CI re-certifies every PR; merged levels join the public ladder and every
+  future benchmark run.
+
+<div align="center">
+<img src="site/assets/img/forge.png" alt="The Level Forge — palette, canvas, certificate, playtest" width="92%">
+</div>
+
+## The research paper
+
+A short whitepaper — abstract, TL;DR, the arena contract, the difficulty
+index, the Tier V research, the static-archive architecture, references —
+renders as [`paper.html`](https://namandhakad712.github.io/WRYM/paper.html)
+on the site, with the PDF at
+[`site/assets/whitepaper.pdf`](https://namandhakad712.github.io/WRYM/assets/whitepaper.pdf).
+Regenerate it any time: `python3 scripts/build-paper.py` (pulls live numbers
+from `results/`).
+
+<div align="center">
+<img src="site/assets/img/paper.png" alt="The research paper page with TL;DR" width="92%">
+</div>
 
 ---
 

@@ -1,11 +1,17 @@
 # WRYM · Benchmark archive → GitHub Pages
 #
-# Two jobs:
-#  1. verify  — re-certify the whole level ladder with the deterministic
-#               validator (cheap, no API calls). A broken level fails CI.
-#  2. deploy  — the site is a pure function of results/ + site/: re-export
-#               the archive from committed results (guarding against a
-#               stale data/ in the repo) and publish to GitHub Pages.
+# Three jobs:
+#  1. verify (push + PR) — re-certify the whole level ladder AND every
+#     community level with the deterministic validator (cheap, no API
+#     calls). A broken level fails CI.
+#  2. deploy (main only) — the site is a pure function of results/ +
+#     site/ + community-levels/: re-certify community certificates,
+#     re-export the archive from committed results (guarding against a
+#     stale data/ in the repo) and publish to GitHub Pages.
+#
+# The fully automated loop:
+#   PR adds community-levels/foo.json → verify certifies it → merge →
+#   deploy re-exports → the level is live on the public ladder.
 #
 # No secrets required: benchmark runs happen LOCALLY on contributors'
 # machines; their JSON artifacts are committed and this workflow only
@@ -15,6 +21,8 @@ name: benchmark-site
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -37,11 +45,14 @@ jobs:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      - name: Certify level ladder (BFS validator)
+      - name: Certify official level ladder (BFS validator)
         run: bun scripts/validate-tier3.ts
+      - name: Certify community levels
+        run: bun scripts/validate-community.ts
 
   deploy:
     needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -53,8 +64,12 @@ jobs:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      - name: Refresh community certificates (authoritative difficulty)
+        run: bun scripts/validate-community.ts
       - name: Re-export archive from committed results (idempotent)
         run: bun scripts/export-site.ts
+      - name: Rebuild browser engine bundle (single source of truth)
+        run: bun build scripts/engine-browser-entry.ts --outfile site/assets/wyrm-engine.js --format iife --minify
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

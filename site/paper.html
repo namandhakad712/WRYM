@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Research Paper — a PSPACE-flavoured playground for language models</title>
+<meta name="description" content="The WRYM benchmark paper: TL;DR, abstract, methodology, the seven-dimension difficulty index, Tier V extreme-level research, results, and the full PDF download.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23ea6a65'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23fff'/%3E%3Ccircle cx='17' cy='13' r='3' fill='%23111'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · The Paper</h1>
+        <p class="subtitle">a deterministic worm-game benchmark for language models — the research, in browser order</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="./forge.html">Forge</a>
+      <a href="./paper.html" class="active">Paper</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <div class="hero paper-block">
+    <div class="lede">
+      <p class="kicker">Research Artifact · v3.1 · November 2026</p>
+      <h2 style="margin:0 0 6px">WRYM: The Worm Arena</h2>
+      <p class="mono-note">A grid-worm puzzle benchmark where language models play a
+      PSPACE-flavoured game under a text-only projection — and every claim is
+      certified by an exhaustive solver.</p>
+      <div class="paper-meta">
+        <a class="chip" href="./assets/whitepaper.pdf" download>⤓ full PDF</a>
+        <a class="chip" href="https://github.com/namandhakad712/WRYM">repository</a>
+        <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/DESIGN_RESEARCH.md">design research dossier</a>
+        <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">MCP model plug-in guide</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="tldr-box paper-block">
+    <div class="pb-title">TL;DR</div>
+    <p style="margin:0;font-size:15px;line-height:1.65">
+      We benchmark language models on <b>WOIM-style grid-worm puzzles</b> —
+      deterministic, turn-based, no luck, no dexterity. Models see the board as
+      <b>text only</b> and must plan: eat every apple, manage body length,
+      push crates, press plates, respect one-way valves, burn bridges, dig
+      dirt, carry keys — and <b>cut themselves in half</b> when flesh is the
+      only weight that holds a door open. An exhaustive BFS solver certifies
+      every level's solvability and par; a deterministic checker re-plays and
+      signs every run. A <b>seven-dimension difficulty index</b> (depth,
+      search width, irreversibility, simulation, threat, choreography,
+      budget) measures difficulty from evidence on the optimal line — it
+      refuses to inflate. The ladder tops out at <b>The Rubicon, certified
+      9.0 / NIGHTMARE</b>, designed from primary research on Snakebird,
+      Stephen's Sausage Roll, Sokoban's PSPACE-completeness proofs and WOIM
+      itself. Any model can plug in via <b>MCP</b>; any human can contribute
+      levels via the <a href="./forge.html">browser Forge</a> and a pull
+      request. Everything — runs, replays, thoughts, certificates — is a
+      static, reproducible archive.
+    </p>
+  </div>
+
+  <div class="paper-block prose">
+
+    <div class="paper-section">
+      <h3>1 · Why a worm game</h3>
+      <p>Grid puzzle games are a uniquely clean instrument for measuring
+      planning in language models: the state is fully observable and
+      compactly serialisable, the rules are deterministic (no dice, no
+      timers), and the difficulty is <i>structural</i> rather than
+      perceptual. The worm genre adds the ingredient most benchmarks lack:
+      <b>the agent's own body is part of the state</b>. Growth (eating
+      apples) and self-amputation (splitting) turn the worm into both the
+      mover and the tool — the mechanic WOIM (Dogspawn, 2026) made central,
+      and which complexity theory takes seriously: item-collecting Snake is
+      PSPACE-complete (De&nbsp;Biasi, 2018), as is Sokoban (Culberson,
+      1997).</p>
+    </div>
+
+    <div class="paper-section">
+      <h3>2 · The arena contract</h3>
+      <p>Every level is a rectangular grid over a 19-character vocabulary
+      (walls, tunnels, apples, crates, plates, gates, spikes, dirt, keys,
+      locks, four one-way valves, crumble bridges, ice, worm head/body,
+      heart goal). Models receive a text projection of the board plus the
+      full rule book, emit one action per turn (<code>up / down / left /
+      right / split</code>), and are scored on solved levels, moves versus
+      par, deaths, and waste. Invalid moves are rejected with reasons —
+      free information, as in the real game. An exhaustive BFS validator
+      certifies each level <i>before</i> it enters the ladder: solvable,
+      optimal line, state count. A deterministic checker re-executes every
+      recorded run; mismatches void the run.</p>
+    </div>
+
+    <div class="paper-section">
+      <h3>3 · The difficulty index (v3)</h3>
+      <p>Difficulty is measured, not asserted. The index replays the
+      certified optimal solution through the real engine and records:
+      plan length (depth), BFS states explored (search, log scale),
+      permanent world mutations (irreversibility), forced ice glides
+      (simulation), the fraction of legal alternatives that end the run
+      (threat), sub-goal ordering load (choreography), and turn-limit
+      pressure (budget). Each dimension saturates smoothly to 100; the
+      composite blends the weighted mean with the strongest dimension and
+      maps to tiers TUTORIAL → NIGHTMARE. A level containing no ice can
+      never score on simulation; no spikes, never on threat. In the whole
+      31-level ladder exactly one level reaches NIGHTMARE.</p>
+    </div>
+
+    <div class="paper-section">
+      <h3>4 · Tier V — the extreme-level research</h3>
+      <p>The five levels of the Fifth Circle were designed from primary
+      sources: Snakebird's "single wrong button press" unwinnability and
+      fruit-order length contracts; Stephen's Sausage Roll's chains of
+      irreversible acts; the corridor-register gadgets of the Sokoban
+      PSPACE proof; nuworm's action-at-a-distance; and WOIM's
+      cut-yourself-in-half economy. The certified optimal lines exhibit
+      behaviours we did not explicitly design — in <b>Absolute Zero</b> and
+      <b>The Rubicon</b> the worm splits mid-route so that its own inert
+      remains become the slide-stoppers the next ice glide requires. The
+      full dossier with citations lives in
+      <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/DESIGN_RESEARCH.md">docs/DESIGN_RESEARCH.md</a>.</p>
+      <table class="ledger">
+        <thead><tr><th>level</th><th>score</th><th>tier</th><th>par</th><th>states</th><th>specialist</th></tr></thead>
+        <tbody>
+          <tr><td>27 The Reliquary</td><td class="num">7.9</td><td><span class="tierchip tier-gauntlet">GAUNTLET</span></td><td class="num">30/32</td><td class="num">44,069</td><td>choreography 96</td></tr>
+          <tr><td>28 Salamis</td><td class="num">6.3</td><td><span class="tierchip tier-advanced">ADVANCED</span></td><td class="num">51/54</td><td class="num">52</td><td>threat purity</td></tr>
+          <tr><td>29 Absolute Zero</td><td class="num">8.2</td><td><span class="tierchip tier-abyss">ABYSS</span></td><td class="num">20/21</td><td class="num">4,287</td><td>simulation 100</td></tr>
+          <tr><td>30 Six Seals</td><td class="num">7.8</td><td><span class="tierchip tier-gauntlet">GAUNTLET</span></td><td class="num">27/29</td><td class="num">121,335</td><td>search 100</td></tr>
+          <tr><td><b>31 The Rubicon</b></td><td class="num"><b>9.0</b></td><td><span class="tierchip tier-nightmare">NIGHTMARE</span></td><td class="num">38/40</td><td class="num">23,992</td><td>all seven ≥ 65</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="paper-section">
+      <h3>5 · Models, MCP, and the fully-static archive</h3>
+      <p>Any model can enter: the arena speaks OpenAI-style chat over
+      pluggable adapters, and an <b>MCP server</b>
+      (<code>mcp/llm-bridge.mjs</code>) exposes the game as tools so
+      MCP-capable clients can play without custom code. Runs execute
+      locally (the repository <i>is</i> the lab); their JSON artifacts —
+      every step, every thought, reliability telemetry, checker signature —
+      are committed, and GitHub Pages renders them with zero backend:
+      leaderboard, level atlas, certified replays with the model's mind
+      alongside the board. Reproducibility is the user interface.</p>
+    </div>
+
+    <div class="paper-section">
+      <h3>6 · References</h3>
+      <p class="cite">Culberson (1997). <i>Sokoban is PSPACE-complete.</i>
+      sokoban.dk/wp-content/uploads/2016/02/Sokoban-is-PSPACE-complete.pdf ·
+      De Biasi (2018). <i>The complexity of snake and undirected NCL variants.</i>
+      sciencedirect.com/science/article/pii/S0304397517307946 ·
+      Hearn &amp; Demaine (2002). <i>PSPACE-completeness of sliding-block
+      puzzles.</i> arXiv cs/0205005 · WOIM — store.steampowered.com/app/4272020 ·
+      Snakebird — noplatform.wordpress.com/2015/08/14/indie-game-radar-snakebird ·
+      Stephen's Sausage Roll — thinkygames.com/features/10-years-of-grilling ·
+      nuworm — cubestudio.itch.io/nuworm/devlog/1033903 ·
+      Would You Love Me If I Was a Snake? — store.steampowered.com/app/4284670</p>
+    </div>
+  </div>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — an open, static, reproducible benchmark.</span>
+    <span><a href="./index.html">← leaderboard</a></span>
+  </footer>
+</div>
+</body>
+</html>

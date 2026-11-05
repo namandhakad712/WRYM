@@ -130,6 +130,16 @@
 
       // methodology footnote numbers
       if ($("#gen-time")) $("#gen-time").textContent = data.generatedAt;
+
+      // configured but not yet run — honesty strip under the board
+      const un = $("#unranked-note");
+      if (un) {
+        un.innerHTML = (data.unranked && data.unranked.length)
+          ? "configured, awaiting first run: " + data.unranked.map(function (m) {
+              return '<span class="chip">' + esc(m.name) + "</span>";
+            }).join(" ") + ' — <a href="https://github.com/namandhakad712/WRYM#running-the-benchmark">run the benchmark locally</a> and push.'
+          : "";
+      }
     }).catch(function (e) {
       const el = $("#leaderboard tbody");
       if (el) el.innerHTML = '<tr><td colspan="9">archive data failed to load: ' + esc(e.message) + "</td></tr>";
@@ -161,10 +171,12 @@
             }).join("<br>")
           : '<span style="color:var(--ink-faint);font-size:12px">awaiting first run</span>';
         return (
-          '<div class="level-card">' +
+          '<div class="level-card' + (l.community ? " community" : "") + '">' +
           '<canvas data-level="' + i + '"></canvas>' +
           "<h3>" + esc(l.name) +
-          ' <span class="tierchip tier-' + esc(String(l.tier || "").toLowerCase()) + '">' + esc(l.tier || "\u2014") + "</span></h3>" +
+          ' <span class="tierchip tier-' + esc(String(l.tier || "").toLowerCase()) + '">' + esc(l.tier || "\u2014") + "</span>" +
+          (l.community ? ' <span class="tierchip tier-community" title="submitted via the Level Forge">community' +
+            (l.author ? " · " + esc(l.author) : "") + "</span>" : "") + "</h3>" +
           '<div class="slug">' + esc(l.slug) + " · budget " + l.turnLimit + " turns · par " + l.minMoves + " · score " +
           (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "</div>" +          '<div class="meta"><span class="diff">' +
           Array.from({ length: 10 }, function (_, k) { return '<i class="' + (k < l.difficulty ? "on" : "") + '"></i>'; }).join("") +

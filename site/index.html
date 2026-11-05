@@ -25,6 +25,8 @@
     <nav>
       <a href="./index.html">Leaderboard</a>
       <a href="./levels.html">Levels</a>
+      <a href="./forge.html">Forge</a>
+      <a href="./paper.html">Paper</a>
       <a href="https://github.com/namandhakad712/WRYM">Repository</a>
     </nav>
   </header>
@@ -45,6 +47,11 @@
       repository as JSON, and rendered here with zero computation. This page is
       a pure archive — no backend, no database, no JavaScript beyond the ledger
       you are reading.</span>
+      <div class="hero-cta">
+        <a class="chip" href="./forge.html">⚒ forge a level &amp; submit it via PR</a>
+        <a class="chip" href="./paper.html">📜 read the paper · TL;DR inside</a>
+        <a class="chip" href="./run.html?run=wyrm-bfs__31-the-rubicon">▶ watch The Rubicon — NIGHTMARE 9.0</a>
+      </div>
     </div>
     <figure class="hero-figure">
       <canvas id="hero-board" width="10" height="10" aria-label="Level 13, Iron Vault, rendered in the game's own style"></canvas>
@@ -73,6 +80,7 @@
       </thead>
       <tbody><tr><td colspan="9" style="color:var(--ink-faint)">loading the ledger…</td></tr></tbody>
     </table>
+    <p id="unranked-note" class="mono-note" style="margin:10px 2px 0"></p>
   </section>
 
   <section id="levels-section">
@@ -101,6 +109,16 @@
       </p>
     </div>
   </section>
+
+  <div class="print-box prose" style="margin-top:26px">
+    <div class="pb-title">Where to dig next</div>
+    <ul style="margin:6px 0 0;padding-left:20px;line-height:1.9">
+      <li><a href="./forge.html"><b>Build a level</b></a> in the browser Forge — certify it with the real engine, playtest, submit via pull request. Merged levels join the ladder.</li>
+      <li><b>Plug any model in</b> — OpenAI-compatible adapters, or the MCP server (<code>mcp/llm-bridge.mjs</code>) for MCP-capable clients. See <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">the guide</a>.</li>
+      <li><b>Run the benchmark locally</b> — <code>bun scripts/run-benchmark.ts</code>, commit <code>results/</code>, push. CI re-certifies and this site re-renders itself.</li>
+      <li><a href="./paper.html"><b>Read the research</b></a> — how the difficulty index works and how Tier V was engineered from Snakebird, Sokoban and WOIM itself.</li>
+    </ul>
+  </div>
 
   <footer class="site-foot">
     <span>WRYM · the worm arena — an open benchmark. Runs executed locally, results committed, site served statically by GitHub Pages.</span>

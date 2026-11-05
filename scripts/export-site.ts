@@ -18,6 +18,41 @@ if (!existsSync(path.join(RESULTS, "levels.json"))) {
 }
 
 const levels = JSON.parse(readFileSync(path.join(RESULTS, "levels.json"), "utf8"));
+
+// ── community levels (PR-submitted via the Level Forge) ─────────────
+const COMMUNITY = path.join(ROOT, "community-levels");
+if (existsSync(COMMUNITY)) {
+  for (const f of readdirSync(COMMUNITY)) {
+    if (!f.endsWith(".json")) continue;
+    try {
+      const doc = JSON.parse(readFileSync(path.join(COMMUNITY, f), "utf8"));
+      const entry = {
+        slug: doc.slug || f.replace(/\.json$/, ""),
+        name: doc.name || doc.slug,
+        grid: doc.grid,
+        turnLimit: doc.turnLimit ?? 120,
+        mechanics: ["community"],
+        community: true,
+        author: doc.author || "anonymous",
+      };
+      // results/levels.json carries the certified stats (difficulty etc.)
+      // — find them by slug; CI certifies community levels too.
+      const cert = (levels as any[]).find((l) => l.slug === entry.slug);
+      if (cert) Object.assign(entry, { difficulty: cert.difficulty, tier: cert.tier,
+        dims: cert.dims, minMoves: cert.minMoves, statesExplored: cert.statesExplored,
+        counts: cert.counts, splitsRequired: cert.splitsRequired, width: cert.width, height: cert.height });
+      else Object.assign(entry, { difficulty: doc.certified?.difficulty ?? 0,
+        tier: doc.certified?.tier ?? "COMMUNITY", minMoves: doc.certified?.minMoves ?? -1,
+        statesExplored: doc.certified?.statesExplored ?? 0,
+        dims: {}, counts: {}, splitsRequired: !!doc.certified?.splitsRequired,
+        width: doc.grid[0]?.length ?? 0, height: doc.grid.length ?? 0 });
+      if (!(levels as any[]).some((l) => l.slug === entry.slug)) (levels as any[]).push(entry);
+      else { const i = (levels as any[]).findIndex((l) => l.slug === entry.slug); (levels as any[])[i] = { ...(levels as any[])[i], ...entry }; }
+    } catch (e) {
+      console.warn(`skip unreadable community level ${f}: ${(e as Error).message}`);
+    }
+  }
+}
 const models = JSON.parse(readFileSync(path.join(RESULTS, "models.json"), "utf8")).filter((m) => m.enabled);
 
 // ── collect runs ─────────────────────────────────────────────────────
@@ -139,13 +174,18 @@ modelRows.sort((a, b) => {
   return (b.elo ?? 1200) - (a.elo ?? 1200);
 });
 
+// honesty rule: a model with zero archived runs is configured, not ranked.
+// It stays in data/models.json (with a note) but never shows a default Elo.
+const ranked = modelRows.filter((r) => r.covered > 0);
+const unranked = modelRows.filter((r) => r.covered === 0);
+
 // solver row goes last-but-visible: it's the reference line, not a competitor
-const solverIdx = modelRows.findIndex((r) => r.kind === "solver");
-let leaderboard = modelRows;
+const solverIdx = ranked.findIndex((r) => r.kind === "solver");
+let leaderboard = ranked;
 if (solverIdx >= 0) {
-  const [solver] = modelRows.splice(solverIdx, 1);
+  const [solver] = ranked.splice(solverIdx, 1);
   solver.elo = null;
-  leaderboard = [...modelRows, solver];
+  leaderboard = [...ranked, solver];
 }
 
 // per-level coverage lines
@@ -184,6 +224,7 @@ const index = {
   },
   models: models.map((m) => ({ key: m.key, name: m.name, kind: m.kind, note: m.note ?? "" })),
   leaderboard,
+  unranked: unranked.map((r) => ({ key: r.key, name: r.name, kind: r.kind })),
   levels: levelDocs,
 };
 

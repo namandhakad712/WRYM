@@ -1242,5 +1242,269 @@
       "ice": 6,
       "dirt": 1
     }
+  },
+  {
+    "slug": "27-the-reliquary",
+    "name": "The Reliquary",
+    "grid": [
+      "#############",
+      "#..oo@.*.*.k#",
+      "###########L#",
+      "#.......*...#",
+      "#.....$%....#",
+      "#.....%.....#",
+      "########D####",
+      "#*<==^~..*..#",
+      "#v###____.__#",
+      "#_____X..~..#",
+      "#############"
+    ],
+    "turnLimit": 32,
+    "mechanics": [
+      "classic",
+      "valves",
+      "bridges",
+      "ice",
+      "keys"
+    ],
+    "width": 13,
+    "height": 11,
+    "difficulty": 7.9,
+    "tier": "GAUNTLET",
+    "dims": {
+      "depth": 77.68698398515703,
+      "search": 82.20665978734152,
+      "irreversibility": 81.99076878520476,
+      "simulation": 74.07597393541084,
+      "threat": 23.560630363330546,
+      "choreography": 96,
+      "budget": 90.77304717673633
+    },
+    "minMoves": 30,
+    "statesExplored": 44069,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 5,
+      "crates": 1,
+      "plates": 2,
+      "keys": 1,
+      "valves": 3,
+      "bridges": 2,
+      "ice": 11,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "28-salamis",
+    "name": "Salamis",
+    "grid": [
+      "###########",
+      "#oo@...*..#",
+      "#~#~#~#~#v#",
+      "#....*.*..#",
+      "#v#~#~#~#~#",
+      "#....*....#",
+      "#~#~#~#~#v#",
+      "#.........#",
+      "#v#~#~#~#~#",
+      "#.........#",
+      "#~#~#~#~#v#",
+      "#.....X..*#",
+      "###########"
+    ],
+    "turnLimit": 54,
+    "mechanics": [
+      "classic",
+      "valves"
+    ],
+    "width": 11,
+    "height": 13,
+    "difficulty": 6.3,
+    "tier": "ADVANCED",
+    "dims": {
+      "depth": 92.19183339988469,
+      "search": 0,
+      "irreversibility": 76.03489635582243,
+      "simulation": 0,
+      "threat": 69.03879375105058,
+      "choreography": 28,
+      "budget": 91.78350204849085
+    },
+    "minMoves": 51,
+    "statesExplored": 52,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 5,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 5,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "29-absolute-zero",
+    "name": "Absolute Zero",
+    "grid": [
+      "###############",
+      "#o@___________#",
+      "#_*_____~____*#",
+      "#_~~__~____~__#",
+      "#_____*____k__#",
+      "#~_____~______#",
+      "#______*______#",
+      "#___~_____~___#",
+      "#____~L_______#",
+      "#______~______#",
+      "######v########",
+      "#....~.X.~....#",
+      "###############"
+    ],
+    "turnLimit": 21,
+    "mechanics": [
+      "classic",
+      "valves",
+      "ice",
+      "keys"
+    ],
+    "width": 15,
+    "height": 13,
+    "difficulty": 8.2,
+    "tier": "ABYSS",
+    "dims": {
+      "depth": 63.212055882855765,
+      "search": 31.60767417553163,
+      "irreversibility": 76.03489635582243,
+      "simulation": 99.94422873356592,
+      "threat": 60.32118130982988,
+      "choreography": 99,
+      "budget": 92.94286409033649
+    },
+    "minMoves": 20,
+    "statesExplored": 4287,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 0,
+      "keys": 1,
+      "valves": 1,
+      "bridges": 0,
+      "ice": 98,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "30-six-seals",
+    "name": "Six Seals",
+    "grid": [
+      "#############",
+      "#oo@*.......#",
+      "#####~+######",
+      "#*____k_____#",
+      "#L###########",
+      "#..*...~#####",
+      "######%######",
+      "######v######",
+      "######.######",
+      "#####~.~#####",
+      "#####~.######",
+      "######.######",
+      "######.######",
+      "######D######",
+      "#~....*.==X.#",
+      "#############"
+    ],
+    "turnLimit": 29,
+    "mechanics": [
+      "classic",
+      "valves",
+      "bridges",
+      "ice",
+      "keys"
+    ],
+    "width": 13,
+    "height": 16,
+    "difficulty": 7.8,
+    "tier": "GAUNTLET",
+    "dims": {
+      "depth": 74.07597393541086,
+      "search": 100,
+      "irreversibility": 72.35469533704358,
+      "simulation": 54.69109827198311,
+      "threat": 49.28268428657999,
+      "choreography": 69,
+      "budget": 89.8356365398566
+    },
+    "minMoves": 27,
+    "statesExplored": 121335,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 1,
+      "keys": 1,
+      "valves": 1,
+      "bridges": 2,
+      "ice": 9,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "31-the-rubicon",
+    "name": "The Rubicon",
+    "grid": [
+      "###############",
+      "#o@___________#",
+      "#_*_____~____*#",
+      "#_~~__~____~__#",
+      "#_____*____k__#",
+      "#~_____~______#",
+      "#______*______#",
+      "#___~_____~~~_#",
+      "#____~L_______#",
+      "#______~______#",
+      "######v#~#~####",
+      "#....~=====%..#",
+      "####~#~#~#~##D#",
+      "#..X........+.#",
+      "###############"
+    ],
+    "turnLimit": 40,
+    "mechanics": [
+      "classic",
+      "valves",
+      "bridges",
+      "ice",
+      "keys"
+    ],
+    "width": 15,
+    "height": 15,
+    "difficulty": 9,
+    "tier": "NIGHTMARE",
+    "dims": {
+      "depth": 85.04313807773649,
+      "search": 69.00332263757352,
+      "irreversibility": 95.68406907385474,
+      "simulation": 99.94136927958957,
+      "threat": 65.22345241278882,
+      "choreography": 99,
+      "budget": 92.59454627568515
+    },
+    "minMoves": 38,
+    "statesExplored": 23992,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 1,
+      "keys": 1,
+      "valves": 1,
+      "bridges": 5,
+      "ice": 96,
+      "dirt": 1
+    }
   }
 ]

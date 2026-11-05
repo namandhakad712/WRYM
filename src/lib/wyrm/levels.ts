@@ -32,6 +32,12 @@
 //   25     ouroboros rex     — SPLIT ECONOMICS: flesh for plates (7.0)
 //   26     wyrm genocide     — THE END: every family at once (7.3)
 //
+// TIER V — THE FIFTH CIRCLE (2026-11 research sprint):
+//   27     the reliquary     — flesh-economy cathedral (7.9)
+//   28     salamis           — one-sweep spike lattice (6.3, purity)
+//   29     absolute zero     — remains-as-stoppers ice rink (8.2)
+//   30     six seals         — six permanent acts, one line (7.8)
+//   31     the rubicon       — THE FLAGSHIP: certified NIGHTMARE 9.0
 // NOTE (engine v3): the worm parser once silently dropped one body
 // segment on `oo@` layouts; that bug is fixed. Levels 01–20 keep their
 // original 2-segment starts (`.o@`) so every archived run still
@@ -541,6 +547,143 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
       "###############",
     ],
     turnLimit: 54,
+  },
+
+  // ── Tier V · THE FIFTH CIRCLE ─────────────────────────────────────
+  // Designed from primary research on the hardest public grid puzzlers:
+  // WOIM (Dogspawn, 2026 — self-cutting as a resource), Snakebird
+  // (one wrong press = unwinnable; fruit-order length contracts),
+  // Stephen's Sausage Roll (irreversible act chains), Sokoban
+  // (PSPACE-complete corridor commitment, Culberson 1997), and
+  // "Would You Love Me If I Was a Snake?" (your body is the tool).
+  // Difficulty index v3 certifies every score below.
+
+  {
+    // CHOREOGRAPHY cathedral: pay in flesh to open the reliquary —
+    // push the crate onto its plate, sever your back half onto the
+    // second, then thread a one-way bridge gauntlet under spikes.
+    // A 1-high farm row teaches the hardest Snakebird lesson first:
+    // a worm can never turn around.
+    name: "The Reliquary",
+    slug: "27-the-reliquary",
+    grid: [
+      "#############",
+      "#..oo@.*.*.k#",
+      "###########L#",
+      "#.......*...#",
+      "#.....$%....#",
+      "#.....%.....#",
+      "########D####",
+      "#*<==^~..*..#",
+      "#v###____.__#",
+      "#_____X..~..#",
+      "#############",
+    ],
+    turnLimit: 32,
+  },
+  {
+    // THREAT purity: a one-sweep lattice. Every row is a single pass
+    // through a spike comb; every descent is a one-way valve. There is
+    // no turning back and no second apple run — the order you eat in
+    // IS the puzzle. (Snakebird's "plan the whole line before you move".)
+    name: "Salamis",
+    slug: "28-salamis",
+    grid: [
+      "###########",
+      "#oo@...*..#",
+      "#~#~#~#~#v#",
+      "#....*.*..#",
+      "#v#~#~#~#~#",
+      "#....*....#",
+      "#~#~#~#~#v#",
+      "#.........#",
+      "#v#~#~#~#~#",
+      "#.........#",
+      "#~#~#~#~#v#",
+      "#.....X..*#",
+      "###########",
+    ],
+    turnLimit: 54,
+  },
+  {
+    // SIMULATION abyss: a frictionless relic field where your own
+    // severed halves become the stop-blocks your slides need. The lock
+    // on the descent line doubles as a wall until you hold the key.
+    // Two splits, nine glides, thirty-five forced cells — every entry
+    // vector is a commitment.
+    name: "Absolute Zero",
+    slug: "29-absolute-zero",
+    grid: [
+      "###############",
+      "#o@___________#",
+      "#_*_____~____*#",
+      "#_~~__~____~__#",
+      "#_____*____k__#",
+      "#~_____~______#",
+      "#______*______#",
+      "#___~_____~___#",
+      "#____~L_______#",
+      "#______~______#",
+      "######v########",
+      "#....~.X.~....#",
+      "###############",
+    ],
+    turnLimit: 21,
+  },
+  {
+    // PRECISION shaft: six permanent seals on one committed line —
+    // dig, key, lock, valve, split, dig again. The door at the bottom
+    // opens only for a worm that has left its back half on the plate
+    // above; drape-tricks are geometrically impossible.
+    name: "Six Seals",
+    slug: "30-six-seals",
+    grid: [
+      "#############",
+      "#oo@*.......#",
+      "#####~+######",
+      "#*____k_____#",
+      "#L###########",
+      "#..*...~#####",
+      "######%######",
+      "######v######",
+      "######.######",
+      "#####~.~#####",
+      "#####~.######",
+      "######.######",
+      "######.######",
+      "######D######",
+      "#~....*.==X.#",
+      "#############",
+    ],
+    turnLimit: 29,
+  },
+  {
+    // THE FLAGSHIP. Everything the engine knows, interlocked, with a
+    // 38-move optimal line and two turns of slack. The rink demands
+    // your own remains as slide-stoppers; the chamber demands you
+    // re-grow and pay five bridges to reach the plate; the exit run
+    // demands a final dig under spikes. Certified NIGHTMARE 9.0 —
+    // the only level in the ladder that requires it.
+    name: "The Rubicon",
+    slug: "31-the-rubicon",
+    grid: [
+      "###############",
+      "#o@___________#",
+      "#_*_____~____*#",
+      "#_~~__~____~__#",
+      "#_____*____k__#",
+      "#~_____~______#",
+      "#______*______#",
+      "#___~_____~~~_#",
+      "#____~L_______#",
+      "#______~______#",
+      "######v#~#~####",
+      "#....~=====%..#",
+      "####~#~#~#~##D#",
+      "#..X........+.#",
+      "###############",
+    ],
+    turnLimit: 40,
   },
 ];
 

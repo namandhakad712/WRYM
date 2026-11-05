@@ -26,6 +26,8 @@
       <a href="./index.html">Leaderboard</a>
       <a href="./levels.html">Levels</a>
       <a href="./forge.html">Forge</a>
+      <a href="./community.html">Community</a>
+      <a href="./providers.html">Providers</a>
       <a href="./paper.html">Paper</a>
       <a href="https://github.com/namandhakad712/WRYM">Repository</a>
     </nav>
@@ -49,8 +51,9 @@
       you are reading.</span>
       <div class="hero-cta">
         <a class="chip" href="./forge.html">⚒ forge a level &amp; submit it via PR</a>
+        <a class="chip" href="./community.html">🪱 community board · live submissions</a>
+        <a class="chip" href="./providers.html">⚡ free LLM providers · $0 entry</a>
         <a class="chip" href="./paper.html">📜 read the paper · TL;DR inside</a>
-        <a class="chip" href="./run.html?run=wyrm-bfs__31-the-rubicon">▶ watch The Rubicon — NIGHTMARE 9.0</a>
       </div>
     </div>
     <figure class="hero-figure">
@@ -69,7 +72,7 @@
   <section id="leaderboard-section">
     <p class="kicker">Standings · Chatbot-Arena method</p>
     <h2>Leaderboard</h2>
-    <p class="section-sub">Pairwise Elo on shared levels (K=32): a solved run beats an unsolved one; two solved runs are separated by efficiency. Efficiency = BFS-par moves ÷ model moves.</p>
+    <p class="section-sub">Pairwise Elo on shared levels (K=32): a solved run beats an unsolved one; two solved runs are separated by efficiency. Efficiency = BFS-par moves ÷ model moves. Every model name links to its <a href="https://artificialanalysis.ai/models" rel="noopener">Artificial Analysis</a> page — independent, third-party measurements (intelligence index, speed, price) by <b>AA ↗</b>.</p>
     <table class="ledger" id="leaderboard">
       <thead>
         <tr>
@@ -84,7 +87,7 @@
   </section>
 
   <section id="levels-section">
-    <p class="kicker">The Ladder · twenty certified trials</p>
+    <p class="kicker">The Ladder · thirty-one certified trials</p>
     <h2>Levels &amp; Coverage</h2>
     <p class="section-sub">Every level is certified solvable by exhaustive search before entering the ladder. Difficulty is the v3 index: seven measured dimensions — depth, search breadth, irreversibility, ice simulation, threat, choreography, budget — replayed from the optimal line and folded into one honest score with a tier label. Full gallery with rendered boards on the <a href="./levels.html">Levels page</a>.</p>
     <table class="ledger" id="levels">
@@ -113,8 +116,9 @@
   <div class="print-box prose" style="margin-top:26px">
     <div class="pb-title">Where to dig next</div>
     <ul style="margin:6px 0 0;padding-left:20px;line-height:1.9">
-      <li><a href="./forge.html"><b>Build a level</b></a> in the browser Forge — certify it with the real engine, playtest, submit via pull request. Merged levels join the ladder.</li>
-      <li><b>Plug any model in</b> — OpenAI-compatible adapters, or the MCP server (<code>mcp/llm-bridge.mjs</code>) for MCP-capable clients. See <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">the guide</a>.</li>
+      <li><a href="./forge.html"><b>Build a level</b></a> in the browser Forge — certify it with the real engine, playtest, submit via pull request. wyrm-bot certifies it, a maintainer approves it, and it joins the ladder with <b>your name on the certificate</b>.</li>
+      <li><a href="./community.html"><b>Watch the pipeline work</b></a> — live community board: open PRs, bot verdicts, maintainer decisions, merges and credits.</li>
+      <li><b>Plug any model in for $0</b> — <a href="./providers.html">eleven verified free-tier providers</a>, no credit card, with exact hookup snippets. Or the MCP server (<code>mcp/llm-bridge.mjs</code>) for MCP-capable clients — see <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">the guide</a>.</li>
       <li><b>Run the benchmark locally</b> — <code>bun scripts/run-benchmark.ts</code>, commit <code>results/</code>, push. CI re-certifies and this site re-renders itself.</li>
       <li><a href="./paper.html"><b>Read the research</b></a> — how the difficulty index works and how Tier V was engineered from Snakebird, Sokoban and WOIM itself.</li>
     </ul>

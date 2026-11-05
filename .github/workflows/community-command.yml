@@ -1,0 +1,123 @@
+# WRYM · wyrm-bot — maintainer slash commands
+#
+# The human half of the approval system. Maintainers (listed in the
+# repository file `MAINTAINERS`, one GitHub login per line) steer a
+# certified submission to its verdict:
+#
+#   /wyrm approve [note]              → label bot:approved, enable
+#                                       auto-merge, celebrate
+#   /wyrm request-changes <reason>    → return to the contributor with
+#                                       notes (design/fun/originality —
+#                                       the things a bot cannot judge)
+#   /wyrm revalidate                  → re-run the certification on the
+#                                       current PR head
+#   /wyrm help                        → command reference
+#
+# Authorization is strict: only logins in MAINTAINERS may command the
+# bot; anyone else gets a polite refusal comment.
+
+name: wyrm-bot · commands
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  actions: write
+
+jobs:
+  command:
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.event.comment.body, '/wyrm') && github.event.issue.pull_request }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse the command
+        id: cmd
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.comment.body.trim();
+            const m = body.match(/^\/wyrm\s+(\S+)([\s\S]*)$/);
+            if (!m) { core.setOutput('op', 'help'); return; }
+            core.setOutput('op', m[1]);
+            core.setOutput('rest', m[2].trim());
+            core.setOutput('pr', context.issue.number);
+            core.setOutput('by', context.payload.comment.user.login);
+
+      - name: Authorize against MAINTAINERS
+        id: auth
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const who = '${{ steps.cmd.outputs.by }}';
+            let ok = false;
+            if (fs.existsSync('MAINTAINERS')) {
+              ok = fs.readFileSync('MAINTAINERS', 'utf8')
+                .split('\n').map(l => l.trim())
+                .filter(l => l && !l.startsWith('#'))
+                .includes(who);
+            }
+            core.setOutput('ok', ok ? '1' : '0');
+            core.info(`maintainer check for ${who}: ${ok}`);
+
+      - name: Refuse non-maintainers
+        if: ${{ steps.auth.outputs.ok != '1' && steps.cmd.outputs.op != 'help' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🔒 @${context.payload.comment.user.login} — only maintainers listed in \`MAINTAINERS\` can command wyrm-bot.`
+            });
+
+      - name: Approve
+        if: ${{ steps.auth.outputs.ok == '1' && steps.cmd.outputs.op == 'approve' }}
+        run: node scripts/wyrm-bot.mjs approve --pr ${{ steps.cmd.outputs.pr }} --by ${{ steps.cmd.outputs.by }} --note "${{ steps.cmd.outputs.rest }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Request changes
+        if: ${{ steps.auth.outputs.ok == '1' && steps.cmd.outputs.op == 'request-changes' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reason = `${{ steps.cmd.outputs.rest }}` || '(no reason given)';
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: ${{ steps.cmd.outputs.pr }},
+              body: `↩️ **Returned for modification by @${{ steps.cmd.outputs.by }}.**\n\n> ${reason}\n\n@${{ github.event.issue.user.login }} — the machine checks passed, but a maintainer judged the design not ready yet. Address the note, push, and the review cycle restarts.` });
+            const { data: pr } = await github.rest.pulls.get({ owner: context.repo.owner, repo: context.repo.repo, pull_number: ${{ steps.cmd.outputs.pr }} });
+            const names = pr.labels.map(l => l.name).filter(n => !['bot:approved','bot:awaiting-review'].includes(n));
+            names.push('bot:changes-requested');
+            await github.rest.issues.setLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: ${{ steps.cmd.outputs.pr }}, labels: names });
+
+      - name: Revalidate
+        if: ${{ steps.auth.outputs.ok == '1' && steps.cmd.outputs.op == 'revalidate' }}
+        run: |
+          gh workflow run community-review.yml -f pr_number=${{ steps.cmd.outputs.pr }}
+          gh pr comment ${{ steps.cmd.outputs.pr }} --body "🔁 wyrm-bot is re-certifying this PR — fresh review card in ~a minute."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Help
+        if: ${{ steps.cmd.outputs.op == 'help' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+              body: [
+                '🪱 **wyrm-bot commands** (maintainers only — see `MAINTAINERS`):',
+                '',
+                '- `/wyrm approve [note]` — approve a certified submission, enable auto-merge',
+                '- `/wyrm request-changes <reason>` — return it to the contributor with notes',
+                '- `/wyrm revalidate` — re-run the deterministic certification on the current head',
+                '- `/wyrm help` — this card',
+                '',
+                'Contributors: pushing to the PR branch re-runs certification automatically.'
+              ].join('\n')
+            });

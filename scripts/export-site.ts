@@ -33,7 +33,10 @@ if (existsSync(COMMUNITY)) {
         turnLimit: doc.turnLimit ?? 120,
         mechanics: ["community"],
         community: true,
-        author: doc.author || "anonymous",
+        author: doc.contributor?.name ?? (doc.author || "anonymous"),
+        contributorGithub: doc.contributor?.github,
+        contributorIntent: doc.contributor?.intent,
+        tags: doc.contributor?.tags ?? [],
       };
       // results/levels.json carries the certified stats (difficulty etc.)
       // — find them by slug; CI certifies community levels too.
@@ -156,6 +159,7 @@ const modelRows = models.map((m) => {
     key: m.key,
     name: m.name,
     kind: m.kind,
+    aaUrl: (m as any).aaUrl ?? null,
     elo: m.kind === "solver" ? null : Math.round(elos[m.key] ?? 1200),
     covered: mine.length,
     solved: solvedRuns.length,
@@ -189,7 +193,7 @@ if (solverIdx >= 0) {
 }
 
 // per-level coverage lines
-const levelDocs = levels.map((l) => ({
+const levelDocs = levels.map((l: any) => ({
   slug: l.slug,
   name: l.name,
   difficulty: l.difficulty,
@@ -201,6 +205,11 @@ const levelDocs = levels.map((l) => ({
   width: l.width,
   height: l.height,
   grid: l.grid,
+  community: l.community ?? false,
+  author: l.author ?? null,
+  contributorGithub: l.contributorGithub ?? null,
+  contributorIntent: l.contributorIntent ?? null,
+  tags: l.tags ?? [],
   runs: runs
     .filter((r) => r.level.slug === l.slug)
     .map((r) => ({
@@ -222,9 +231,9 @@ const index = {
     solvedPct: runs.length ? Math.round((solvedCount / runs.length) * 100) : 0,
     levels: levels.length,
   },
-  models: models.map((m) => ({ key: m.key, name: m.name, kind: m.kind, note: m.note ?? "" })),
+  models: models.map((m) => ({ key: m.key, name: m.name, kind: m.kind, aaUrl: (m as any).aaUrl ?? null, note: m.note ?? "" })),
   leaderboard,
-  unranked: unranked.map((r) => ({ key: r.key, name: r.name, kind: r.kind })),
+  unranked: unranked.map((r) => ({ key: r.key, name: r.name, kind: r.kind, aaUrl: r.aaUrl ?? null })),
   levels: levelDocs,
 };
 

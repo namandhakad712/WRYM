@@ -77,8 +77,14 @@
   window.WyrmIndex = function () {
     Promise.all([fetchJSON("./data/index.json")]).then(function (res) {
       const data = res[0];
-      // stats
-      $("#stat-models .num").textContent = data.models.length;
+      // stats — "ranked" counts models with archived runs; the rest are
+      // honestly listed below the board as awaiting their first run
+      const rankedCount = (data.leaderboard || []).length;
+      const unrankedCount = (data.unranked || []).length;
+      $("#stat-models .num").textContent = rankedCount + (unrankedCount ? "+" + unrankedCount : "");
+      $("#stat-models .lbl").textContent = unrankedCount
+        ? "ranked (" + unrankedCount + " awaiting first run)"
+        : "models ranked";
       $("#stat-levels .num").textContent = data.levels.length;
       $("#stat-runs .num").textContent = fmt(data.summary.runs);
       $("#stat-solved .num").textContent = data.summary.solvedPct + "%";
@@ -87,10 +93,13 @@
       const board = $("#leaderboard tbody");
       board.innerHTML = data.leaderboard.map(function (row, i) {
         const eff = row.avgEfficiency == null ? "—" : (row.avgEfficiency * 100).toFixed(0) + "%";
+        const modelMeta = (data.models || []).find(function (m) { return m.key === row.key; }) || {};
+        const aa = row.aaUrl || modelMeta.aaUrl;
         return (
           "<tr>" +
           '<td><span class="rank">' + (i + 1) + "</span></td>" +
           '<td><span class="model-name">' + esc(row.name) + "</span>" +
+          (aa ? ' <a class="aa-chip" href="' + esc(aa) + '" target="_blank" rel="noopener" title="independent analysis on Artificial Analysis">AA ↗</a>' : "") +
           '<span class="model-kind">' + esc(row.kind) + "</span></td>" +
           '<td class="num">' + fmt(row.elo) + "</td>" +
           '<td class="num">' + row.solved + "/" + row.covered + "</td>" +
@@ -106,8 +115,9 @@
       // level table
       const lv = $("#levels tbody");
       lv.innerHTML = data.levels.map(function (l) {
+        const diff = typeof l.difficulty === "number" ? l.difficulty : 0;
         const meter = Array.from({ length: 10 }, function (_, k) {
-          return '<i class="' + (k < l.difficulty ? "on" : "") + '"></i>';
+          return '<i class="' + (k < Math.round(diff) ? "on" : "") + '"></i>';
         }).join("");
         const runsCell = l.runs.length
           ? l.runs.map(function (r) {
@@ -136,8 +146,8 @@
       if (un) {
         un.innerHTML = (data.unranked && data.unranked.length)
           ? "configured, awaiting first run: " + data.unranked.map(function (m) {
-              return '<span class="chip">' + esc(m.name) + "</span>";
-            }).join(" ") + ' — <a href="https://github.com/namandhakad712/WRYM#running-the-benchmark">run the benchmark locally</a> and push.'
+              return '<span class="chip">' + esc(m.name) + (m.aaUrl ? ' <a style="color:var(--frost)" href="' + esc(m.aaUrl) + '" target="_blank" rel="noopener">AA ↗</a>' : "") + "</span>";
+            }).join(" ") + ' — <a href="https://github.com/namandhakad712/WRYM#running-the-benchmark">run the benchmark locally</a> and push, or grab a <a href="./providers.html">free provider</a> and do it for $0.'
           : "";
       }
     }).catch(function (e) {

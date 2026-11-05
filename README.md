@@ -31,7 +31,9 @@
 3. [The ladder — 31 certified levels, peak NIGHTMARE 9.0](#the-ladder--31-certified-levels-honestly-measured)
 4. [The GitHub flow: local runs → committed results → Pages](#the-github-flow-local-runs--committed-results--pages)
    * [The Level Forge — build & submit levels in the browser](#the-level-forge--build--submit-levels-in-the-browser)
+   * [The community review framework (bot + maintainers)](#the-community-review-framework-bot--maintainers)
    * [The research paper](#the-research-paper)
+   * [Free LLM providers — $0 entry](#free-llm-providers--0-entry)
 5. [The dashboard (local control room)](#the-dashboard-local-control-room)
 6. [The agentic pipeline](#the-agentic-pipeline)
 7. [Reliability engine — retries, fallbacks, rate limits, context windows](#reliability-engine--retries-fallbacks-rate-limits-context-windows)
@@ -183,10 +185,32 @@ cloning anything:
 - **Certify** — the same `src/lib/wyrm` code CI runs, in a Web Worker in
   your tab: solvability, optimal par, state count, 7-dimension difficulty.
 - **Playtest** with arrow keys; **X** splits the worm.
+- **Submission card** — contributor name, GitHub handle, design intent,
+  tags: embedded in the level file (`community-2` envelope), credited on
+  the ladder and the community board, read by maintainers at review time.
 - **Submit via PR** — opens GitHub's new-file editor at
-  `community-levels/<slug>.json` with your level + certificate pre-filled.
-  CI re-certifies every PR; merged levels join the public ladder and every
-  future benchmark run.
+  `community-levels/<slug>.json` with your level + certificate + card
+  pre-filled, and copies a PR description to your clipboard.
+
+### The community review framework (bot + maintainers)
+
+Every submission goes through a two-sided professional review:
+
+- **wyrm-bot** (`.github/workflows/community-review.yml`) re-certifies every
+  changed level and the whole community ladder, posts a structured review
+  card on the PR and labels it. Failed submissions are **returned to the
+  contributor** with exact fixes; pushing re-certifies automatically.
+- **Maintainers** (`MAINTAINERS` file) judge design/fun/originality via
+  `/wyrm approve` (auto-merge) and `/wyrm request-changes <reason>`
+  (`.github/workflows/community-command.yml`).
+- **On merge**: welcome comment, site re-export, the level goes live with
+  the contributor's name on its certificate — every future benchmark run
+  plays it.
+
+Track it all live on the
+[community board](https://namandhakad712.github.io/WRYM/community.html).
+Governance contract:
+[`docs/COMMUNITY_PIPELINE.md`](docs/COMMUNITY_PIPELINE.md).
 
 <div align="center">
 <img src="site/assets/img/forge.png" alt="The Level Forge — palette, canvas, certificate, playtest" width="92%">
@@ -194,17 +218,31 @@ cloning anything:
 
 ## The research paper
 
-A short whitepaper — abstract, TL;DR, the arena contract, the difficulty
-index, the Tier V research, the static-archive architecture, references —
-renders as [`paper.html`](https://namandhakad712.github.io/WRYM/paper.html)
+A professional whitepaper — abstract, TL;DR, numbered sections, tables,
+verified references — renders as
+[`paper.html`](https://namandhakad712.github.io/WRYM/paper.html)
 on the site, with the PDF at
 [`site/assets/whitepaper.pdf`](https://namandhakad712.github.io/WRYM/assets/whitepaper.pdf).
-Regenerate it any time: `python3 scripts/build-paper.py` (pulls live numbers
-from `results/`).
+Every reference was opened and verified (Chatbot Arena, Sokoban PSPACE-
+completeness, NCL, the complexity of Snake, WOIM/Snakebird/Stephen's
+Sausage Roll on Steam, MCP, Artificial Analysis). Regenerate it any time:
+`python3 scripts/build-paper.py` (pulls live numbers from `results/`).
 
 <div align="center">
 <img src="site/assets/img/paper.png" alt="The research paper page with TL;DR" width="92%">
 </div>
+
+## Free LLM providers — $0 entry
+
+Deep research (verified November 2026): **eleven providers with genuine free
+tiers and no credit card** — Google AI Studio (most generous), Groq, Cerebras,
+OpenRouter `:free`, Mistral Experiment (~1B tokens/month), Cloudflare Workers
+AI, NVIDIA NIM, Cohere trial, SiliconFlow, AnyAPI, and local Ollama. Also documented:
+**GitHub Models was retired 30 July 2026**, and which popular providers ask
+for a card. `bench/models.json` ships pre-configured entries for the free
+tiers (rate-limit aware). Full table with sources:
+[`docs/FREE_PROVIDERS.md`](docs/FREE_PROVIDERS.md) · browser version:
+[providers page](https://namandhakad712.github.io/WRYM/providers.html).
 
 ---
 
@@ -511,10 +549,13 @@ Dockerfile, docker-compose.yml, DOCKER.md
 | Document | Contents |
 | --- | --- |
 | **README.md** (this file) | system overview, the GitHub flow, methodology, replay guide |
+| [`docs/COMMUNITY_PIPELINE.md`](docs/COMMUNITY_PIPELINE.md) | community level governance: envelope, bot checks, maintainer checks, slash commands, branch-protection setup |
+| [`docs/FREE_PROVIDERS.md`](docs/FREE_PROVIDERS.md) | verified free-tier LLM provider research (no credit card), exclusions, hookup snippets |
 | [`docs/LLM_RESILIENCE.md`](docs/LLM_RESILIENCE.md) | reliability engine spec: taxonomy, policies, limits, breakers, chains, config |
 | [`docs/WOIM_DESIGN_BIBLE.md`](docs/WOIM_DESIGN_BIBLE.md) | every element of the real game, researched & color-matched; the renderer's source of truth; the multi-game arena roadmap |
 | [`docs/BENCHMARK_LANDSCAPE.md`](docs/BENCHMARK_LANDSCAPE.md) | lm-eval-harness, HELM, OpenAI Evals, SWE-bench, Chatbot Arena, Kaggle Game Arena, BALROG — how they work, what's open source, WRYM's conformance map |
-| [`docs/whitepaper.pdf`](docs/whitepaper.pdf) | game formalization, mechanic taxonomy, difficulty engineering, isolation model, control plane |
+| [`docs/MCP_SUPPORT.md`](docs/MCP_SUPPORT.md) | the MCP bridge: plug ANY model over Model Context Protocol |
+| [`docs/whitepaper.pdf`](docs/whitepaper.pdf) | the professional paper: game formalization, difficulty engineering, governance, verified references |
 | [`bench/models.json`](bench/models.json) | the entrant registry, self-documented |
 
 ---

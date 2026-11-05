@@ -26,6 +26,8 @@
       <a href="./index.html">Leaderboard</a>
       <a href="./levels.html">Levels</a>
       <a href="./forge.html">Forge</a>
+      <a href="./community.html">Community</a>
+      <a href="./providers.html">Providers</a>
       <a href="./paper.html" class="active">Paper</a>
       <a href="https://github.com/namandhakad712/WRYM">Repository</a>
     </nav>
@@ -33,7 +35,7 @@
 
   <div class="hero paper-block">
     <div class="lede">
-      <p class="kicker">Research Artifact · v3.1 · November 2026</p>
+      <p class="kicker">Research Artifact · v3.2 · November 2026</p>
       <h2 style="margin:0 0 6px">WRYM: The Worm Arena</h2>
       <p class="mono-note">A grid-worm puzzle benchmark where language models play a
       PSPACE-flavoured game under a text-only projection — and every claim is
@@ -41,6 +43,8 @@
       <div class="paper-meta">
         <a class="chip" href="./assets/whitepaper.pdf" download>⤓ full PDF</a>
         <a class="chip" href="https://github.com/namandhakad712/WRYM">repository</a>
+        <a class="chip" href="./community.html">community framework</a>
+        <a class="chip" href="./providers.html">free-provider research</a>
         <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/DESIGN_RESEARCH.md">design research dossier</a>
         <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">MCP model plug-in guide</a>
       </div>
@@ -143,30 +147,59 @@
     </div>
 
     <div class="paper-section">
-      <h3>5 · Models, MCP, and the fully-static archive</h3>
-      <p>Any model can enter: the arena speaks OpenAI-style chat over
-      pluggable adapters, and an <b>MCP server</b>
-      (<code>mcp/llm-bridge.mjs</code>) exposes the game as tools so
-      MCP-capable clients can play without custom code. Runs execute
-      locally (the repository <i>is</i> the lab); their JSON artifacts —
-      every step, every thought, reliability telemetry, checker signature —
-      are committed, and GitHub Pages renders them with zero backend:
-      leaderboard, level atlas, certified replays with the model's mind
-      alongside the board. Reproducibility is the user interface.</p>
+      <h3>5 · Community governance — the submission framework</h3>
+      <p>Anyone can add a level; no one can quietly break the benchmark. The
+      <a href="./forge.html">Level Forge</a> submits a level as a pull request with a
+      <b>contributor card</b> (name, GitHub handle, design intent, tags) embedded in the
+      file. From there a two-sided review framework takes over: <b>wyrm-bot</b>, the
+      machine half, re-certifies every changed level with the deterministic engine,
+      re-validates the whole community ladder, posts a structured review card (par,
+      difficulty, tier, states, mechanics, exact failures with fix hints) and labels
+      the PR — failed submissions are <b>returned to the contributor</b> with everything
+      needed to fix them, and pushing a fix restarts certification automatically.
+      <b>Maintainers</b>, the human half, judge what no bot can — design, fun,
+      originality, difficulty placement, honest credit — via slash commands
+      (<code>/wyrm approve</code> · <code>/wyrm request-changes</code> ·
+      <code>/wyrm revalidate</code>) authorized against the <code>MAINTAINERS</code>
+      file. On merge the level goes live with the contributor's name on its certificate,
+      and every future benchmark run plays it. The full lifecycle is public record on
+      the <a href="./community.html">community board</a>; the governance rules live in
+      <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/COMMUNITY_PIPELINE.md">docs/COMMUNITY_PIPELINE.md</a>.</p>
     </div>
 
     <div class="paper-section">
-      <h3>6 · References</h3>
-      <p class="cite">Culberson (1997). <i>Sokoban is PSPACE-complete.</i>
-      sokoban.dk/wp-content/uploads/2016/02/Sokoban-is-PSPACE-complete.pdf ·
-      De Biasi (2018). <i>The complexity of snake and undirected NCL variants.</i>
-      sciencedirect.com/science/article/pii/S0304397517307946 ·
-      Hearn &amp; Demaine (2002). <i>PSPACE-completeness of sliding-block
-      puzzles.</i> arXiv cs/0205005 · WOIM — store.steampowered.com/app/4272020 ·
-      Snakebird — noplatform.wordpress.com/2015/08/14/indie-game-radar-snakebird ·
-      Stephen's Sausage Roll — thinkygames.com/features/10-years-of-grilling ·
-      nuworm — cubestudio.itch.io/nuworm/devlog/1033903 ·
-      Would You Love Me If I Was a Snake? — store.steampowered.com/app/4284670</p>
+      <h3>6 · Models, MCP, and the fully-static archive</h3>
+      <p>Any model can enter: the arena speaks OpenAI-style chat over
+      <b>fourteen pluggable provider kinds</b>, wrapped in a production reliability
+      layer (rate limiter, context fitter, classified retries, circuit breaker,
+      fallback chains — all recorded in a per-run reliability ledger), and an
+      <b>MCP server</b> (<code>mcp/llm-bridge.mjs</code>) exposes the game as tools so
+      MCP-capable clients can play without custom code. Entry is deliberately free:
+      our verified provider research (November 2026) found <b>eleven providers with
+      genuine free tiers and no credit card</b> (ten cloud, one local) — see the
+      <a href="./providers.html">Providers page</a>. Runs execute locally (the
+      repository <i>is</i> the lab); their JSON artifacts — every step, every thought,
+      reliability telemetry, checker signature — are committed, and GitHub Pages
+      renders them with zero backend: leaderboard, level atlas, certified replays
+      with the model's mind alongside the board. Reproducibility is the user
+      interface.</p>
+    </div>
+
+    <div class="paper-section">
+      <h3>7 · References — every one opened and verified</h3>
+      <ol class="refs">
+        <li class="cite">Chiang, W.-L., Zheng, L., Sheng, Y., et al. (2024). <i>Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference.</i> <a href="https://arxiv.org/abs/2403.04132">arXiv:2403.04132</a></li>
+        <li class="cite">Culberson, J. C. (1997). <i>Sokoban is PSPACE-complete.</i> Tech. Rep. TR97-02, University of Alberta. <a href="https://ualberta.scholaris.ca/items/12921687-eb68-4032-9a46-1af150d60008">ualberta.scholaris.ca</a></li>
+        <li class="cite">Hearn, R. A., &amp; Demaine, E. D. (2002). <i>PSPACE-Completeness of Sliding-Block Puzzles and Other Problems through the Nondeterministic Constraint Logic Model of Computation.</i> <a href="https://arxiv.org/abs/cs/0205005">arXiv:cs/0205005</a></li>
+        <li class="cite">De Biasi, M., &amp; Ophelders, T. (2016). <i>The Complexity of Snake.</i> FUN 2016, LIPIcs 49, 11:1–11:13. <a href="https://doi.org/10.4230/LIPIcs.FUN.2016.11">doi.org/10.4230/LIPIcs.FUN.2016.11</a></li>
+        <li class="cite">Elo, A. E. (1978). <i>The Rating of Chessplayers, Past and Present.</i> Arco, New York.</li>
+        <li class="cite">Anthropic (2024). <i>Introducing the Model Context Protocol.</i> <a href="https://www.anthropic.com/news/model-context-protocol">anthropic.com</a> · spec: <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a></li>
+        <li class="cite">Artificial Analysis (2026). <i>Independent analysis of AI models and API providers.</i> <a href="https://artificialanalysis.ai">artificialanalysis.ai</a> — every leaderboard model links to its AA page.</li>
+        <li class="cite">Dogspawn (2026). <i>WOIM.</i> Steam. <a href="https://store.steampowered.com/app/4272020/WOIM">store.steampowered.com/app/4272020</a></li>
+        <li class="cite">Noumenon Games (2015). <i>Snakebird.</i> Steam. <a href="https://store.steampowered.com/app/357300/Snakebird">store.steampowered.com/app/357300</a></li>
+        <li class="cite">Lavelle, S. (2016). <i>Stephen's Sausage Roll.</i> Steam. <a href="https://store.steampowered.com/app/353540/Stephens_Sausage_Roll">store.steampowered.com/app/353540</a></li>
+      </ol>
+      <p class="mono-note" style="margin-top:10px">verified 5 Nov 2026 — each URL was opened; nothing is cited second-hand</p>
     </div>
   </div>
 

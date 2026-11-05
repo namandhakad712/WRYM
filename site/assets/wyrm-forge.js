@@ -46,6 +46,7 @@
     game: null,             // playtest GameState
     cert: null,             // last certificate
     worker: null, certifying: false,
+    tags: {},               // selected submission tags
   };
 
   function blankRows(w, h) {
@@ -64,16 +65,75 @@
   }
   function setChar(s, i, c) { return s.slice(0, i) + c + s.slice(i + 1); }
 
+  /* ── contributor card (community-2 submission envelope) ──────────── */
+  function contributor() {
+    var name = $("#f-cname").value.trim();
+    var github = $("#f-cgh").value.trim().replace(/^@/, "");
+    var intent = $("#f-cintent").value.trim();
+    var tags = Object.keys(S.tags).filter(function (t) { return S.tags[t]; });
+    if (!name && !github && !intent) return null;
+    var c = {};
+    if (name) c.name = name;
+    if (github) c.github = github;
+    if (intent) c.intent = intent;
+    if (tags.length) c.tags = tags;
+    c.submittedWith = "level-forge/2";
+    return c;
+  }
+
+  /* what wyrm-bot will check — rendered as a live checklist */
+  function submitReadiness() {
+    var pre = precheck({ name: "x", slug: "x", grid: S.rows, turnLimit: 60 });
+    var items = [
+      {
+        ok: !pre,
+        label: "level structure valid" + (pre ? " — " + pre.reason : ""),
+      },
+      {
+        ok: !!(S.cert && S.cert.solvable),
+        label: (S.cert && S.cert.solvable)
+          ? "certified solvable · par " + S.cert.minMoves + " · difficulty " + S.cert.difficulty.toFixed(1) + " (" + S.cert.tier + ")"
+          : "not certified yet — press ⚗ certify",
+      },
+      { ok: !!$("#f-cname").value.trim(), label: "contributor name (credited on the level card)" },
+      {
+        ok: /^[A-Za-z0-9-]{1,39}$/.test($("#f-cgh").value.trim().replace(/^@/, "")),
+        label: "github handle (links your profile on the community board)",
+      },
+      {
+        ok: $("#f-cintent").value.trim().length >= 20,
+        label: "design intent ≥ 20 chars (what a maintainer judges beyond the machine checks)",
+      },
+    ];
+    return { items: items, ready: items.every(function (i) { return i.ok; }) };
+  }
+
+  function renderChecklist() {
+    var host = $("#submit-checklist");
+    if (!host) return;
+    var r = submitReadiness();
+    host.innerHTML =
+      '<div class="pb-title" style="margin-top:10px">submission readiness</div>' +
+      '<ul class="checklist">' +
+      r.items.map(function (i) {
+        return '<li class="' + (i.ok ? "ok" : "todo") + '">' + (i.ok ? "✓" : "○") + " " + esc(i.label) + "</li>";
+      }).join("") +
+      "</ul>";
+    $("#btn-pr").classList.toggle("armed", r.ready);
+  }
+
   function levelDoc() {
     var doc = {
-      schema: "wyrm.level/community-1",
+      schema: "wyrm.level/community-2",
       name: $("#f-name").value.trim() || "Untitled Wrym",
       slug: ($("#f-slug").value.trim() || "community-level")
         .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
-      author: $("#f-author").value.trim() || undefined,
+      author: $("#f-cname").value.trim() || $("#f-cgh").value.trim().replace(/^@/, "") || undefined,
       grid: S.rows.slice(),
       turnLimit: Math.max(4, Math.min(240, parseInt($("#f-limit").value, 10) || 60)),
     };
+    var c = contributor();
+    if (c) doc.contributor = c;
     if (S.cert && S.cert.solvable) {
       doc.certified = {
         difficulty: S.cert.difficulty,
@@ -282,6 +342,7 @@
     $("#pr-hint").innerHTML = S.cert && S.cert.solvable
       ? "Certificate embedded — ready to submit."
       : "Certify first — the submission embeds the difficulty certificate.";
+    renderChecklist();
   }
 
   /* ── playtest ─────────────────────────────────────────────────────── */
@@ -350,19 +411,40 @@
     var doc = levelDoc();
     var pre = precheck({ grid: doc.grid });
     if (pre) { alert("Fix the level first: " + pre.reason); return; }
-    if (!S.cert || !S.cert.solvable) {
-      if (!confirm("This level has no certificate yet (not certified, or unsolvable). Submit anyway?"))
+    var r = submitReadiness();
+    if (!r.ready) {
+      var missing = r.items.filter(function (i) { return !i.ok; }).map(function (i) { return "· " + i.label; });
+      if (!confirm("The submission card is incomplete — wyrm-bot will return the PR until this is fixed:\n\n" + missing.join("\n") + "\n\nSubmit anyway?"))
         return;
     }
     var fn = (doc.slug || "community-level") + ".json";
+    var prBody =
+      "### Community level submission\n\n" +
+      "- **level**: " + doc.name + " (`" + doc.slug + "`)\n" +
+      "- **contributor**: " + (doc.contributor && doc.contributor.name ? doc.contributor.name : "anonymous") +
+      (doc.contributor && doc.contributor.github ? " ([@" + doc.contributor.github + "](https://github.com/" + doc.contributor.github + "))" : "") + "\n" +
+      "- **intent**: " + (doc.contributor && doc.contributor.intent ? doc.contributor.intent : "—") + "\n" +
+      "- **certificate**: " + (doc.certified
+        ? "par " + doc.certified.minMoves + " · difficulty " + doc.certified.difficulty.toFixed(1) + " (" + doc.certified.tier + ") — certified in the Level Forge with the real engine"
+        : "none (wyrm-bot will certify on arrival)") + "\n\n" +
+      "wyrm-bot will post the full deterministic review card below. A maintainer approves with `/wyrm approve` or returns it with `/wyrm request-changes <reason>`.";
+    // GitHub's zero-backend flow: new-file editor with the JSON pre-filled,
+    // then the PR description from the clipboard (the editor cannot prefill it).
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(prBody).catch(function () {});
+    }
     var url = "https://github.com/namandhakad712/WRYM/new/main/community-levels" +
       "?filename=" + encodeURIComponent(fn) +
       "&value=" + encodeURIComponent(JSON.stringify(doc, null, 2) + "\n");
     window.open(url, "_blank", "noopener");
+    var hint = $("#pr-hint");
+    if (hint) {
+      hint.innerHTML = "✔ PR file opened in GitHub. <b>One more click:</b> paste the PR description (just copied to your clipboard — ⌘/Ctrl-V) into the PR body so maintainers see your intent, then hit <i>Propose new file</i>. wyrm-bot takes over from there.";
+    }
   }
 
   /* ── wiring ───────────────────────────────────────────────────────── */
-  function invalidate() { S.cert = null; refreshOutputs(); }
+  function invalidate() { S.cert = null; refreshOutputs(); renderChecklist(); }
 
   function resize(w, h) {
     w = Math.max(6, Math.min(22, w || S.w));
@@ -382,6 +464,7 @@
     buildPalette();
     drawEditor();
     refreshOutputs();
+    renderChecklist();
 
     // presets
     var sel = $("#f-preset");
@@ -416,8 +499,17 @@
     });
 
     // card fields
-    ["f-name", "f-slug", "f-author"].forEach(function (id) {
-      $("#" + id).addEventListener("input", invalidate);
+    ["f-name", "f-slug", "f-cname", "f-cgh", "f-cintent"].forEach(function (id) {
+      $("#" + id).addEventListener("input", function () { refreshOutputs(); renderChecklist(); });
+    });
+    // submission tags
+    document.querySelectorAll("#f-ctags .tagbtn").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = b.getAttribute("data-tag");
+        S.tags[t] = !S.tags[t];
+        b.classList.toggle("sel", !!S.tags[t]);
+        refreshOutputs();
+      });
     });
     $("#f-limit").addEventListener("change", invalidate);
     $("#f-w").addEventListener("change", function () { resize(parseInt(this.value, 10), S.h); });

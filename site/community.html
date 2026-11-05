@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Community Board — the level submission pipeline, live</title>
+<meta name="description" content="Every community level submission in flight: live pull requests, wyrm-bot verdicts, maintainer approvals, returned-for-revision notes, merged levels and their contributors.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23ea6a65'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23fff'/%3E%3Ccircle cx='17' cy='13' r='3' fill='%23111'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · Community Board</h1>
+        <p class="subtitle">every submission in flight — bot verdicts, maintainer decisions, merges and credits</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="./forge.html">Forge</a>
+      <a href="./community.html" class="active">Community</a>
+      <a href="./providers.html">Providers</a>
+      <a href="./paper.html">Paper</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="lede">
+      <p class="kicker">Submission Pipeline · Zero Backend</p>
+      <p>Community levels enter the arena through a <b>full professional
+      review framework</b>: a deterministic GitHub bot certifies every
+      machine-checkable property, a human maintainer judges everything a
+      bot cannot (design, fun, originality), and nothing reaches the
+      public ladder without both signatures. This board tracks the whole
+      lifecycle — live.</p>
+      <div class="hero-cta">
+        <a class="chip" href="./forge.html">⚒ build &amp; submit a level</a>
+        <a class="chip" href="https://github.com/namandhakad712/WRYM/pulls">↗ all pull requests</a>
+        <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/COMMUNITY_PIPELINE.md">📜 the governance doc</a>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <p class="kicker">Lifecycle · six gates from idea to canon</p>
+    <h2>How a submission travels</h2>
+    <div class="pipe">
+      <div class="pipe-stage">
+        <div class="ps-step">stage 1 · you</div>
+        <div class="ps-title">⚒ Forge</div>
+        <div class="ps-desc">Paint the level, certify it in-browser with the real engine, playtest it, fill the contributor card.</div>
+      </div>
+      <div class="pipe-stage">
+        <div class="ps-step">stage 2 · you</div>
+        <div class="ps-title">⇧ Pull request</div>
+        <div class="ps-desc">One click opens a PR with the level, its certificate and your contributor card embedded.</div>
+      </div>
+      <div class="pipe-stage bot">
+        <div class="ps-step">stage 3 · the bot</div>
+        <div class="ps-title">🪱 Certification</div>
+        <div class="ps-desc">The bot re-runs the exhaustive validator + policy checks and posts a structured review card with labels.</div>
+      </div>
+      <div class="pipe-stage bot">
+        <div class="ps-step">on failure</div>
+        <div class="ps-title">↩️ Returned</div>
+        <div class="ps-desc">Failed submissions are returned with exact errors and fix hints. Push a fix — the bot re-certifies automatically.</div>
+      </div>
+      <div class="pipe-stage human">
+        <div class="ps-step">stage 4 · maintainer</div>
+        <div class="ps-title">⚖️ Approval</div>
+        <div class="ps-desc">A maintainer judges the design: <code>/wyrm approve</code> merges it, <code>/wyrm request-changes</code> returns it with notes.</div>
+      </div>
+      <div class="pipe-stage human">
+        <div class="ps-step">stage 5 · canon</div>
+        <div class="ps-title">🎉 Live</div>
+        <div class="ps-desc">Merged levels join the public ladder within minutes — replays, difficulty profile, your name on the certificate.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Live · straight from the GitHub API</p>
+    <h2>Submissions in flight</h2>
+    <p class="section-sub">Open pull requests touching <code>community-levels/</code>, with their bot verdicts. Fetched live from the public GitHub API — nothing is cached, nothing is curated.</p>
+    <div id="pr-board" class="pr-list">
+      <div class="pr-card"><div class="pr-main"><span class="pr-title">loading the board…</span></div></div>
+    </div>
+    <h3 style="margin-top:28px" id="merged-heading">Recently merged</h3>
+    <div id="pr-merged" class="pr-list">
+      <div class="pr-card"><div class="pr-main"><span class="pr-title">loading…</span></div></div>
+    </div>
+    <p class="verified-strip" id="board-meta"></p>
+  </section>
+
+  <section>
+    <p class="kicker">Canon · merged community levels</p>
+    <h2>Community ladder &amp; contributors</h2>
+    <p class="section-sub">Levels that passed the full framework and now live on the public ladder — every future benchmark run plays them. Credit is embedded in the level file itself.</p>
+    <div id="merged-levels" class="contrib-grid"></div>
+    <div id="community-empty" class="notice design-empty" style="display:none">
+      <span class="n-title">the community ladder awaits its first canon</span>
+      Every level above is official-house-built. The first community submission to survive
+      the bot, a maintainer and the merge will be remembered here — with its author's name
+      on the certificate. <a href="./forge.html">Be the deepest dig.</a>
+    </div>
+  </section>
+
+  <section class="prose wide-section">
+    <p class="kicker">The framework · what each side checks</p>
+    <h2>Division of judgement</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:14px">
+      <div class="print-box" style="margin:0">
+        <div class="pb-title">🪱 wyrm-bot — the machine half <span class="lbl lbl-green">deterministic</span></div>
+        <ul style="margin:8px 0 0;padding-left:20px;line-height:1.85;font-size:14px">
+          <li>schema: <code>community-2</code> envelope — name, slug, grid, turn limit, <b>contributor card</b> (name, GitHub handle, design intent, tags)</li>
+          <li>structure: rectangular grid, one head, one heart, known characters, size &amp; budget limits</li>
+          <li>solvability — exhaustive BFS, the same engine the Forge runs</li>
+          <li>certificate honesty: claimed difficulty vs computed (site always shows the computed value)</li>
+          <li>search-space ceiling so CI stays fast; regression re-validation of the whole community ladder</li>
+          <li>slug collisions with the official ladder</li>
+        </ul>
+      </div>
+      <div class="print-box" style="margin:0">
+        <div class="pb-title">⚖️ maintainers — the human half <span class="lbl lbl-blue">judgement</span></div>
+        <ul style="margin:8px 0 0;padding-left:20px;line-height:1.85;font-size:14px">
+          <li><b>Design quality</b> — is the idea interesting, or a corridor with apples?</li>
+          <li><b>Fairness</b> — hard but honest: no pixel-perfect luck, no unreadable ambiguity</li>
+          <li><b>Originality</b> — does it use the vocabulary (valves, ice, splits, bridges) in a new way?</li>
+          <li><b>Difficulty placement</b> — does the tier fit the ladder's curve?</li>
+          <li><b>Credit &amp; intent</b> — is the contributor card honest and the intent legible?</li>
+        </ul>
+        <p class="mono-note" style="margin-top:10px">commands: <code>/wyrm approve</code> · <code>/wyrm request-changes &lt;reason&gt;</code> · <code>/wyrm revalidate</code> · <code>/wyrm help</code> — maintainers are listed in <code>MAINTAINERS</code></p>
+      </div>
+    </div>
+    <div class="print-box" style="margin-top:14px">
+      <div class="pb-title">Label language — the PR state machine</div>
+      <p style="margin:8px 0 0;line-height:2.1;font-size:14px">
+        <span class="lbl lbl-gray">community-level</span> touches the community ladder ·
+        <span class="lbl lbl-green">bot:validated</span> every machine check passed ·
+        <span class="lbl lbl-blue">bot:awaiting-review</span> certified, waiting for a maintainer ·
+        <span class="lbl lbl-amber">bot:needs-revision</span> returned to the contributor ·
+        <span class="lbl lbl-purple">bot:approved</span> maintainer approved, merge cleared ·
+        <span class="lbl lbl-red">bot:changes-requested</span> maintainer returned it with notes
+      </p>
+    </div>
+  </section>
+
+  <div class="print-box prose wide-section">
+    <div class="pb-title">Contribute</div>
+    <p style="margin:8px 0 0;font-size:14.5px;line-height:1.8">The bar is deliberately professional: a level must be
+    <b>certified by mathematics and approved by a human</b> before it can shape the leaderboard. That protects
+    every model ranking on this site from a broken or gamed level. Build yours in the
+    <a href="./forge.html">Level Forge</a> — the whole flow, from first paint to merged canon, is one uninterrupted
+    pipeline, and every step on this board is public record. The full governance rules live in
+    <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/COMMUNITY_PIPELINE.md">docs/COMMUNITY_PIPELINE.md</a>.</p>
+  </div>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — an open, static, reproducible benchmark.</span>
+    <span><a href="./forge.html">forge a level →</a></span>
+  </footer>
+</div>
+
+<script src="./assets/wyrm-render.js"></script>
+<script src="./assets/wyrm-community.js"></script>
+<script>window.addEventListener("DOMContentLoaded", WyrmCommunity);</script>
+</body>
+</html>

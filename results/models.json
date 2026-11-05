@@ -11,6 +11,7 @@
     "name": "GLM-4.6",
     "kind": "zai",
     "modelId": "glm-4.6",
+    "aaUrl": "https://artificialanalysis.ai/models/glm-4-6",
     "note": "Built-in sandbox model. Zero-config fallback brain of the arena.",
     "enabled": true
   },
@@ -19,6 +20,7 @@
     "name": "GPT-4o",
     "kind": "openai",
     "modelId": "gpt-4o",
+    "aaUrl": "https://artificialanalysis.ai/models/gpt-4o",
     "enabled": false
   },
   {
@@ -26,6 +28,7 @@
     "name": "Claude Sonnet 4.5",
     "kind": "anthropic",
     "modelId": "claude-sonnet-4-5",
+    "aaUrl": "https://artificialanalysis.ai/models/claude-4-5-sonnet",
     "enabled": false
   },
   {
@@ -33,6 +36,15 @@
     "name": "Gemini 2.5 Pro",
     "kind": "google",
     "modelId": "gemini-2.5-pro",
+    "aaUrl": "https://artificialanalysis.ai/models/gemini-2-5-pro",
+    "enabled": false
+  },
+  {
+    "key": "gemini-2.5-flash",
+    "name": "Gemini 2.5 Flash (free tier)",
+    "kind": "google",
+    "modelId": "gemini-2.5-flash",
+    "note": "Google AI Studio free tier — no credit card, generous daily caps. The zero-cost entry point for frontier-family models.",
     "enabled": false
   },
   {
@@ -40,6 +52,7 @@
     "name": "DeepSeek V3",
     "kind": "deepseek",
     "modelId": "deepseek-chat",
+    "aaUrl": "https://artificialanalysis.ai/models/deepseek-v3",
     "enabled": false
   },
   {
@@ -47,6 +60,31 @@
     "name": "Llama 3.3 70B (Groq)",
     "kind": "groq",
     "modelId": "llama-3.3-70b-versatile",
+    "note": "Groq free tier — no credit card, LPU-class speed. The arena's favourite free horsepower.",
+    "enabled": false
+  },
+  {
+    "key": "cerebras-llama-3.3-70b",
+    "name": "Llama 3.3 70B (Cerebras free)",
+    "kind": "custom",
+    "modelId": "llama-3.3-70b",
+    "note": "Cerebras free tier — fastest tokens/sec on the planet, daily allowance. No credit card.",
+    "enabled": false
+  },
+  {
+    "key": "mistral-small",
+    "name": "Mistral Small (Experiment tier)",
+    "kind": "mistral",
+    "modelId": "mistral-small-latest",
+    "note": "Mistral La Plateforme Experiment tier — ~1B tokens/month free (1 req/s). Phone verification required.",
+    "enabled": false
+  },
+  {
+    "key": "openrouter-free",
+    "name": "OpenRouter :free pool",
+    "kind": "openrouter",
+    "modelId": "deepseek/deepseek-chat-v3-0324:free",
+    "note": "Any :free model on OpenRouter — one key, ~21 free models. Swap modelId freely.",
     "enabled": false
   },
   {

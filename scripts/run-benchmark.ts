@@ -318,6 +318,7 @@ writeFileSync(
       name: m.name,
       kind: m.kind,
       modelId: m.modelId,
+      aaUrl: m.aaUrl,
       note: m.note,
       enabled: m.enabled !== false,
     })),

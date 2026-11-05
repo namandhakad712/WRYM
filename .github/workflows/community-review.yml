@@ -1,0 +1,100 @@
+# WRYM · wyrm-bot — the community level review pipeline
+#
+# This is the professional submission framework for community levels:
+#
+#   1. A PR touching community-levels/ opens → the `review` job re-certifies
+#      every changed level with the deterministic engine (the same code the
+#      Level Forge runs in the browser) and re-validates the whole existing
+#      community ladder so regressions fail too.
+#   2. wyrm-bot posts/updates a structured review card as a PR comment
+#      (contributor, intent, par, difficulty, tier, exact failures with fix
+#      hints) and labels the PR by verdict:
+#        bot:validated + bot:awaiting-review   → ready for a maintainer
+#        bot:needs-revision                    → returned to contributor
+#   3. A maintainer approves with `/wyrm approve` or returns the level with
+#      `/wyrm request-changes <reason>` (see community-command.yml).
+#   4. On merge, `welcome` celebrates and the benchmark-site workflow
+#      re-exports the site — the level goes live automatically.
+#
+# Security posture: the bot's CODE always runs from main (trusted). The PR's
+# community-levels/ directory is materialised into the working tree for
+# validation only — a submitted level can never execute its own reviewer.
+#
+# Enable enforcement (repo Settings → Branches → main):
+#   require status check `wyrm-bot / review`
+#   require a pull request review before merging
+# The bot works without that too — the labels are then advisory.
+
+name: wyrm-bot
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths: ["community-levels/**"]
+  pull_request_target:
+    branches: [main]
+    types: [closed]
+    paths: ["community-levels/**"]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR to re-validate (/wyrm revalidate)"
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: wyrm-bot-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request_target' }}
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+    steps:
+      # trusted reviewer code — always from main, never from the PR
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Materialise the pull request's community levels
+        run: |
+          git fetch origin "pull/${PR_NUMBER}/head:pr-head"
+          git diff --name-only --diff-filter=ACMRT origin/main...pr-head -- community-levels/ > /tmp/changed.txt || true
+          git checkout pr-head -- community-levels/ || echo "(no community-levels directory in this PR)"
+          echo "changed community files:"; cat /tmp/changed.txt
+
+      - name: Certify changed levels + re-validate the whole community ladder
+        run: |
+          bun scripts/review-community.ts --changed /tmp/changed.txt --json /tmp/report.json --md /tmp/report.md
+
+      - name: wyrm-bot · review card + labels
+        if: ${{ always() }}
+        run: node scripts/wyrm-bot.mjs review --pr "$PR_NUMBER" --report /tmp/report.md --json /tmp/report.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login || '' }}
+
+  welcome:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.merged == true }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: wyrm-bot · celebrate the merge
+        run: node scripts/wyrm-bot.mjs welcome --pr ${{ github.event.pull_request.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Free LLM Providers — verified no-credit-card tiers</title>
+<meta name="description" content="Deep-researched, verified list of LLM API providers with genuine free tiers and no credit card: Google AI Studio, Groq, Cerebras, OpenRouter, Mistral, Cloudflare, NVIDIA NIM, Cohere, SiliconFlow — with exact WRYM hookup instructions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23ea6a65'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23fff'/%3E%3Ccircle cx='17' cy='13' r='3' fill='%23111'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · Free Providers</h1>
+        <p class="subtitle">every LLM API with a genuine free tier and no credit card — verified, with exact arena hookup</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="./forge.html">Forge</a>
+      <a href="./community.html">Community</a>
+      <a href="./providers.html" class="active">Providers</a>
+      <a href="./paper.html">Paper</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="lede">
+      <p class="kicker">Deep Research · Verified 5 Nov 2026</p>
+      <p>You do not need a credit card to put a frontier-class model into
+      this arena. We researched every public LLM API's free tier — read the
+      provider docs, cross-checked two independent comparisons, and
+      <b>opened every signup page linked below</b>. What survived: eleven
+      providers with real, permanent free tiers — ten in the cloud plus
+      your own GPU.</p>
+      <p>Every card carries the exact <code>bench/models.json</code> snippet
+      that plugs it into the benchmark. The arena's reliability layer
+      (rate limiter, retries, fallback chains) already knows how to live
+      inside free-tier limits.</p>
+      <div class="hero-cta">
+        <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/FREE_PROVIDERS.md">📜 full research doc</a>
+        <a class="chip" href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">🔌 MCP bridge guide</a>
+        <a class="chip" href="./index.html">← back to the leaderboard</a>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <p class="kicker">The Lineup · ranked by generosity for benchmark runs</p>
+    <h2>Genuine free tiers, no credit card</h2>
+    <div class="prov-grid">
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#8ab4f8,#4285f4)">G</div>
+          <div><div class="pv-name">Google AI Studio</div><div class="pv-kind">Gemini API · kind: google</div></div>
+        </div>
+        <div class="pv-free"><b>The most generous free tier anywhere.</b> Gemini
+        Flash &amp; Flash-Lite family (~15 models), multimodal, 1M-token
+        context windows. One Google account, zero billing setup.</div>
+        <div class="pv-limit">≈ up to 1,500 requests/day (model-dependent) · 5–15 rpm</div>
+        <div class="pv-limit" style="color:var(--gold);border-color:rgba(255,207,51,.4)">free tier = Flash / Flash-Lite only · data may train models outside EU/UK/EEA (opt-out exists)</div>
+        <code class="pv-setup">{ "kind": "google", "modelId": "gemini-2.5-flash", "apiKeyEnv": "GEMINI_API_KEY" }</code>
+        <div class="pv-links"><a href="https://aistudio.google.com/" rel="noopener">aistudio.google.com ↗</a><a href="https://ai.google.dev/gemini-api/docs" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#f55036,#c21515)">⚡</div>
+          <div><div class="pv-name">Groq</div><div class="pv-kind">LPU inference · kind: groq</div></div>
+        </div>
+        <div class="pv-free"><b>Absurd speed on open models.</b> Llama 3.x/4,
+        Qwen, GPT-OSS and Whisper on LPU hardware. Our fastest-turnaround
+        free provider — great for replay-heavy arena runs.</div>
+        <div class="pv-limit">12 free models · ~30 rpm / ~14.4k requests/day class limits (model-dependent)</div>
+        <code class="pv-setup">{ "kind": "groq", "modelId": "llama-3.3-70b-versatile", "apiKeyEnv": "GROQ_API_KEY" }</code>
+        <div class="pv-links"><a href="https://console.groq.com/keys" rel="noopener">console.groq.com ↗</a><a href="https://console.groq.com/docs/rate-limits" rel="noopener">rate limits ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#f8b26a,#e8641c)">◼</div>
+          <div><div class="pv-name">Cerebras</div><div class="pv-kind">wafer-scale · kind: custom</div></div>
+        </div>
+        <div class="pv-free"><b>The fastest tokens per second on Earth.</b>
+        Llama, Qwen and GPT-OSS families on wafer-scale clusters. Ideal when
+        a benchmark run makes twenty sequential model calls.</div>
+        <div class="pv-limit">daily token allowance resets every 24h · ~1M tok/day class</div>
+        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://api.cerebras.ai/v1", "modelId": "llama-3.3-70b", "apiKeyEnv": "CEREBRAS_API_KEY" }</code>
+        <div class="pv-links"><a href="https://cloud.cerebras.ai/" rel="noopener">cloud.cerebras.ai ↗</a><a href="https://inference-docs.cerebras.ai/" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#c9d1d9,#8b949e)">⌁</div>
+          <div><div class="pv-name">OpenRouter</div><div class="pv-kind">aggregator · kind: openrouter</div></div>
+        </div>
+        <div class="pv-free"><b>One key, hundreds of models.</b> ~21 models
+        carry the <code>:free</code> suffix — frontier-adjacent open weights
+        (DeepSeek, Llama, Qwen, GLM) through a single OpenAI-compatible
+        endpoint. Free lineup churns; treat it as a snapshot.</div>
+        <div class="pv-limit">~21 :free models · daily per-model caps · account needs a (possibly $0) credit balance</div>
+        <code class="pv-setup">{ "kind": "openrouter", "modelId": "deepseek/deepseek-chat-v3-0324:free", "apiKeyEnv": "OPENROUTER_API_KEY" }</code>
+        <div class="pv-links"><a href="https://openrouter.ai/models?max_price=0" rel="noopener">free models ↗</a><a href="https://openrouter.ai/docs" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#ffb800,#ff7000)">◈</div>
+          <div><div class="pv-name">Mistral La Plateforme</div><div class="pv-kind">Experiment tier · kind: mistral</div></div>
+        </div>
+        <div class="pv-free"><b>~1 billion tokens per month, free.</b> The
+        largest volume allowance on this page — Mistral Nemo, Small, Codestral
+        and more, OpenAI-compatible.</div>
+        <div class="pv-limit">1 req/s · 500k tok/min · phone verification required</div>
+        <div class="pv-limit" style="color:var(--gold);border-color:rgba(255,207,51,.4)">Experiment tier = your data trains their models (that is the trade)</div>
+        <code class="pv-setup">{ "kind": "mistral", "modelId": "mistral-small-latest", "apiKeyEnv": "MISTRAL_API_KEY" }</code>
+        <div class="pv-links"><a href="https://console.mistral.ai/" rel="noopener">console.mistral.ai ↗</a><a href="https://docs.mistral.ai/" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#fbad41,#f6821f)">☁</div>
+          <div><div class="pv-name">Cloudflare Workers AI</div><div class="pv-kind">edge inference · kind: custom</div></div>
+        </div>
+        <div class="pv-free"><b>Free inference on every edge node.</b> 50+
+        open models (Llama, Qwen, Gemma) served from Cloudflare's network —
+        the same OpenAI-compatible surface, no card.</div>
+        <div class="pv-limit">10,000 neurons/day free (≈ hundreds of small chat calls)</div>
+        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://api.cloudflare.com/client/v4/accounts/&lt;ACCOUNT_ID&gt;/ai/v1", "apiKeyEnv": "CLOUDFLARE_API_TOKEN" }</code>
+        <div class="pv-links"><a href="https://developers.cloudflare.com/workers-ai/" rel="noopener">developers.cloudflare.com ↗</a><a href="https://developers.cloudflare.com/workers-ai/platform/pricing/" rel="noopener">pricing ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#76b900,#4c7a00)">▲</div>
+          <div><div class="pv-name">NVIDIA NIM</div><div class="pv-kind">build.nvidia.com · kind: custom</div></div>
+        </div>
+        <div class="pv-free"><b>100+ accelerated open models.</b> Llama,
+        Mistral, Gemma, Qwen, DeepSeek on NVIDIA infrastructure —
+        rate-limited but genuinely free.</div>
+        <div class="pv-limit">~40 requests/minute class · per-model daily caps</div>
+        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://integrate.api.nvidia.com/v1", "modelId": "meta/llama-3.3-70b-instruct", "apiKeyEnv": "NVIDIA_API_KEY" }</code>
+        <div class="pv-links"><a href="https://build.nvidia.com/" rel="noopener">build.nvidia.com ↗</a><a href="https://docs.api.nvidia.com/" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#39594d,#0e3e2a)">∞</div>
+          <div><div class="pv-name">Cohere</div><div class="pv-kind">trial key · kind: custom</div></div>
+        </div>
+        <div class="pv-free"><b>Command R family, free for evaluation.</b>
+        A compact, predictable monthly allowance — enough to rank a model
+        on the tutorial tier of the ladder.</div>
+        <div class="pv-limit">20 req/min · 1,000 requests/month · non-commercial</div>
+        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://api.cohere.ai/compatibility/v1", "modelId": "command-r-08-2024", "apiKeyEnv": "COHERE_API_KEY" }</code>
+        <div class="pv-links"><a href="https://dashboard.cohere.com/api-keys" rel="noopener">dashboard.cohere.com ↗</a><a href="https://docs.cohere.com/" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#6f5bff,#4a3dd6)">硅</div>
+          <div><div class="pv-name">SiliconFlow</div><div class="pv-kind">CN platform · kind: custom</div></div>
+        </div>
+        <div class="pv-free"><b>15+ open-weight models at ¥0.</b> Qwen,
+        GLM, DeepSeek and more — the broadest free lineup of Chinese
+        frontier-adjacent open weights.</div>
+        <div class="pv-limit">per-model daily token caps · signup without a card</div>
+        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://api.siliconflow.cn/v1", "modelId": "Qwen/Qwen2.5-72B-Instruct", "apiKeyEnv": "SILICONFLOW_API_KEY" }</code>
+        <div class="pv-links"><a href="https://siliconflow.cn/" rel="noopener">siliconflow.cn ↗</a><a href="https://docs.siliconflow.cn/" rel="noopener">docs ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#7ee2a8,#3fae6a)">Λ</div>
+          <div><div class="pv-name">AnyAPI</div><div class="pv-kind">aggregator · kind: custom</div></div>
+        </div>
+        <div class="pv-free"><b>400+ models, 15 of them free.</b>
+        An OpenAI-compatible aggregator with a small always-free pool and
+        unlimited users per key — a decent second shelf behind OpenRouter.</div>
+        <div class="pv-limit">100k tokens/day · no credit card</div>
+        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://api.anyapi.io/v1", "apiKeyEnv": "ANYAPI_API_KEY" }</code>
+        <div class="pv-links"><a href="https://anyapi.io/" rel="noopener">anyapi.io ↗</a></div>
+      </div>
+
+      <div class="prov-card">
+        <div class="pv-head">
+          <div class="pv-glyph" style="background:linear-gradient(135deg,#e8e2d5,#b8b0a0)">🦙</div>
+          <div><div class="pv-name">Ollama</div><div class="pv-kind">local · kind: ollama</div></div>
+        </div>
+        <div class="pv-free"><b>Unlimited, offline, private.</b> Your
+        hardware is the free tier. No rate limits, no key, no data policy —
+        the context fitter trims history to whatever your model loads.</div>
+        <div class="pv-limit">your VRAM · e.g. qwen2.5:14b needs ~9 GB</div>
+        <code class="pv-setup">{ "kind": "ollama", "baseUrl": "http://localhost:11434/v1", "modelId": "qwen2.5:14b" }</code>
+        <div class="pv-links"><a href="https://ollama.com/" rel="noopener">ollama.com ↗</a><a href="https://github.com/ollama/ollama" rel="noopener">github ↗</a></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Honesty section · researched and excluded</p>
+    <h2>What did not make the cut — and why</h2>
+    <table class="ledger">
+      <thead><tr><th>Provider</th><th>Status</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><b>GitHub Models</b></td><td><span class="lbl lbl-red">retired</span></td>
+        <td>Fully retired 30 Jul 2026 — playground, catalog, inference API and BYOK are gone. Successors: Azure AI Foundry / GitHub Copilot. <a href="https://docs.github.com/en/github-models">docs.github.com/en/github-models ↗</a></td></tr>
+        <tr><td><b>SambaNova</b></td><td><span class="lbl lbl-amber">card required</span></td>
+        <td>Free tier exists but asks for payment details at signup — fails our no-credit-card bar.</td></tr>
+        <tr><td><b>Hugging Face Inference</b></td><td><span class="lbl lbl-amber">unusable</span></td>
+        <td>Free accounts get ≈ $0.10/month of inference credit — not a real tier. PRO raises it to ≈ $2/month.</td></tr>
+        <tr><td><b>DeepSeek platform</b></td><td><span class="lbl lbl-gray">starter credit</span></td>
+        <td>5M tokens once at signup, then pay-per-token. A welcome gift, not a permanent free tier.</td></tr>
+        <tr><td><b>Together · DeepInfra · Fireworks</b></td><td><span class="lbl lbl-gray">paid</span></td>
+        <td>Excellent open-model hosts, but minimum purchase / no permanent free models.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="prose">
+    <p class="kicker">Hookup · three ways in</p>
+    <h2>Plugging a free model into the arena</h2>
+    <div class="print-box" style="margin-top:14px">
+      <div class="pb-title">1 · bench/models.json (the native path)</div>
+      <pre class="code-block">{
+  "key": "groq-llama33-70b",
+  "name": "Llama 3.3 70B (Groq)",
+  "kind": "groq",
+  "modelId": "llama-3.3-70b-versatile",
+  "apiKeyEnv": "GROQ_API_KEY",
+  "rpm": 25, "tpm": 12000,
+  "fallback": "glm-4.6",
+  "enabled": true
+}</pre>
+      <p style="margin:10px 0 0;font-size:13.5px">Then: <code>export GROQ_API_KEY=…</code> and
+      <code>bun scripts/run-benchmark.ts --models groq-llama33-70b</code>. Set
+      <code>rpm</code>/<code>tpm</code> below the provider's ceiling — the built-in
+      limiter, retry classifier and fallback chain do the rest, and every rate-limit
+      wait is recorded honestly in the run's reliability ledger.</p>
+    </div>
+    <div class="print-box" style="margin-top:14px">
+      <div class="pb-title">2 · any OpenAI-compatible endpoint (the custom path)</div>
+      <p style="margin:8px 0 0;font-size:13.5px">Cerebras, Cloudflare, NVIDIA NIM, Cohere and
+      SiliconFlow all speak the Chat Completions dialect — <code>kind: "custom"</code> with
+      their <code>baseUrl</code> (snippets on each card above) and you are running.</p>
+    </div>
+    <div class="print-box" style="margin-top:14px">
+      <div class="pb-title">3 · MCP — literally any model (the universal path)</div>
+      <p style="margin:8px 0 0;font-size:13.5px">Any model reachable over Model Context Protocol,
+      including a local server you launch yourself. See
+      <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">docs/MCP_SUPPORT.md</a>
+      and the zero-dependency bridge <code>mcp/llm-bridge.mjs</code>.</p>
+    </div>
+    <div class="verified-strip">
+      <span class="v">verified 2026-11-05</span>
+      <span class="v">cross-checked: OpenRouter "Free LLM APIs in 2026" + awesome-free-models (checked 2026-10-29)</span>
+      <span class="v">every signup link opened</span>
+      <span class="v">GitHub Models retirement confirmed on docs.github.com</span>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>WRYM · the worm arena — an open, static, reproducible benchmark.</span>
+    <span><a href="https://github.com/namandhakad712/WRYM">github.com/namandhakad712/WRYM</a></span>
+  </footer>
+</div>
+</body>
+</html>

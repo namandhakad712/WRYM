@@ -26,6 +26,8 @@
       <a href="./index.html">Leaderboard</a>
       <a href="./levels.html">Levels</a>
       <a href="./forge.html" class="active">Forge</a>
+      <a href="./community.html">Community</a>
+      <a href="./providers.html">Providers</a>
       <a href="./paper.html">Paper</a>
       <a href="https://github.com/namandhakad712/WRYM">Repository</a>
     </nav>
@@ -59,7 +61,6 @@
         <div class="pb-title">level card</div>
         <label class="fld">name <input id="f-name" type="text" maxlength="40" value="My First Wrym" spellcheck="false"></label>
         <label class="fld">slug <input id="f-slug" type="text" maxlength="40" value="my-first-wrym" spellcheck="false"></label>
-        <label class="fld">author <input id="f-author" type="text" maxlength="40" placeholder="your handle (optional)" spellcheck="false"></label>
         <label class="fld">turn limit <input id="f-limit" type="number" min="4" max="240" value="60" step="1"></label>
         <div class="fld-row">
           <label class="fld half">width <input id="f-w" type="number" min="6" max="22" value="11" step="1"></label>
@@ -75,6 +76,26 @@
         </div>
         <p class="hint">left-drag paints · right-drag erases to floor · the
         worm needs exactly one <b>@</b> head and one <b>X</b> exit.</p>
+      </div>
+      <div class="panel" id="contributor-panel">
+        <div class="pb-title">submission card <span class="mono-note">required by wyrm-bot</span></div>
+        <label class="fld">contributor name <input id="f-cname" type="text" maxlength="60" placeholder="e.g. Ada Digger" spellcheck="false"></label>
+        <label class="fld">github handle <input id="f-cgh" type="text" maxlength="39" placeholder="e.g. octocat" spellcheck="false"></label>
+        <label class="fld">design intent <textarea id="f-cintent" rows="3" maxlength="280" placeholder="the idea a maintainer judges — e.g. the exit only opens while a plate is held" spellcheck="false"></textarea></label>
+        <div class="fld">
+          <span class="fld-lbl">tags (what the level is about)</span>
+          <div id="f-ctags" class="tag-row">
+            <button class="tagbtn" data-tag="sokoban">sokoban</button>
+            <button class="tagbtn" data-tag="ice">ice</button>
+            <button class="tagbtn" data-tag="split">split</button>
+            <button class="tagbtn" data-tag="gauntlet">gauntlet</button>
+            <button class="tagbtn" data-tag="logic">logic</button>
+            <button class="tagbtn" data-tag="speedrun">speedrun</button>
+          </div>
+        </div>
+        <p class="hint">Your name and handle are embedded in the level file,
+        shown on its card, and credited on the community board. The intent
+        note is what the maintainer reads when deciding to approve.</p>
       </div>
     </aside>
 
@@ -116,7 +137,8 @@
           <button id="btn-pr" class="primary" title="opens GitHub's editor with this level pre-filled">⇧ submit via pull request</button>
         </div>
         <p class="hint" id="pr-hint">Certify first — the submission embeds the
-        difficulty certificate, and CI re-certifies every PR anyway.</p>
+        difficulty certificate, and wyrm-bot re-certifies every PR anyway.</p>
+        <div id="submit-checklist" class="submit-checklist"></div>
         <details class="code-details">
           <summary>level source (grid text)</summary>
           <pre id="grid-text" class="code-block"></pre>
@@ -126,28 +148,43 @@
           <pre id="json-view" class="code-block"></pre>
         </details>
       </div>
-    </section>
-  </div>
 
-  <div class="print-box prose">
-    <div class="pb-title">How a submitted level becomes arena canon</div>
-    <ol>
-      <li><b>You certify here.</b> The BFS validator in this page is the same
-      <code>src/lib/wyrm</code> codebase CI uses — if it passes here, it
-      passes there. Solvability, optimal par, state count and the
-      seven-dimension difficulty index are measured, not guessed.</li>
-      <li><b>You submit.</b> The button opens GitHub's new-file editor at
-      <code>community-levels/&lt;slug&gt;.json</code> with your level and its
-      certificate pre-filled. Propose the change and GitHub opens a pull
-      request for you — no tooling, no clone.</li>
-      <li><b>CI judges.</b> The <code>verify</code> workflow re-certifies the
-      full ladder <em>plus every community level</em> with the deterministic
-      validator. A broken or uncertifiable level fails the check.</li>
-      <li><b>Merge → live.</b> Once merged, the export pipeline picks the
-      level up, the Pages site re-renders, and your level appears on the
-      public ladder with runs, replays and its difficulty profile — and
-      every future benchmark run plays it.</li>
-    </ol>
+    <div class="print-box" style="margin-top:16px">
+      <div class="pb-title">How a submitted level becomes arena canon — the full review framework</div>
+      <ol class="pipe-steps">
+        <li><b>You certify here.</b> The BFS validator in this page is the same
+        <code>src/lib/wyrm</code> codebase CI uses — if it passes here, it
+        passes there. Solvability, optimal par, state count and the
+        seven-dimension difficulty index are measured, not guessed.</li>
+        <li><b>You submit.</b> The button opens GitHub's new-file editor at
+        <code>community-levels/&lt;slug&gt;.json</code> with your level, certificate
+        <em>and contributor card</em> pre-filled. Propose the change and GitHub
+        opens a pull request for you — no tooling, no clone.</li>
+        <li><b>wyrm-bot judges the machine half.</b> Within a minute of the PR
+        opening, the bot re-certifies every changed level, re-validates the
+        whole community ladder, posts a structured <b>review card</b> (par,
+        difficulty, tier, states, mechanics on the optimal line — plus exact
+        failures with fix hints), and labels the PR:
+        <span class="lbl lbl-green">bot:validated</span>+
+        <span class="lbl lbl-blue">bot:awaiting-review</span> or
+        <span class="lbl lbl-amber">bot:needs-revision</span> — a failed
+        submission is <em>returned to you</em> with everything needed to fix it.</li>
+        <li><b>A maintainer judges the human half.</b> Design, fun, originality —
+        the things no bot can measure. They either comment
+        <code>/wyrm approve</code> (auto-merge engages) or
+        <code>/wyrm request-changes &lt;reason&gt;</code> to return it with notes.
+        Push a fix and the cycle restarts automatically.</li>
+        <li><b>Merge → live.</b> wyrm-bot celebrates on the PR, the export
+        pipeline picks the level up, the Pages site re-renders, and your level
+        appears on the public ladder with runs, replays, its difficulty
+        profile <em>and your name on the certificate</em> — every future
+        benchmark run plays it.</li>
+      </ol>
+      <p class="hint">Track every submission in flight on the
+      <a href="./community.html">community board</a> — live PRs, bot verdicts,
+      maintainer decisions and merged levels with their contributors.</p>
+    </div>
+    </section>
   </div>
 
   <footer class="site-foot">

@@ -16,7 +16,7 @@ import type { LevelDef } from "../src/lib/wyrm/types";
 const OK_LEVEL = [
   "########",
   "#..*..X#",
-  "#@..o..#",
+  "#@o....#",
   "########",
 ].join("\n");
 

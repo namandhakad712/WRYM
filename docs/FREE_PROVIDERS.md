@@ -4,9 +4,10 @@
 credit card required**, good enough to run this benchmark?
 
 **Method:** provider signup/docs pages opened directly; cross-checked against
-two independent comparisons — OpenRouter's "Free LLM API in 2026: 13 Options
-Ranked and Compared" and the `awesome-free-models` list (last checked
-2026-10-29). Every claim below was verified on **5 November 2026**. The
+independent comparisons and the providers' own rate-limit documentation.
+Verified on **5 November 2026**, re-audited **7 November 2026** — Cerebras
+moved from the lineup to the excluded table (their FAQ now states there is no
+permanent free tier and the $5 trial requires a verified payment method). The
 quick-reference rendering of this doc is the
 [Providers page](https://namandhakad712.github.io/WRYM/providers.html) on the
 docs site.
@@ -17,8 +18,7 @@ docs site.
 |---|---|---|---|
 | **Google AI Studio** | Gemini Flash / Flash-Lite family (~15 models), multimodal, 1M context — the most generous free tier anywhere | up to ~1,500 req/day (model-dependent), 5–15 rpm | `{"kind":"google","modelId":"gemini-2.5-flash","apiKeyEnv":"GEMINI_API_KEY"}` |
 | **Groq** | 12 models — Llama 3.x/4, Qwen, GPT-OSS, Whisper on LPU | ~30 rpm class, ~14.4k req/day class | `{"kind":"groq","modelId":"llama-3.3-70b-versatile","apiKeyEnv":"GROQ_API_KEY"}` |
-| **Cerebras** | fastest tokens/sec (wafer-scale) | daily token allowance (~1M tok/day class) | `{"kind":"custom","baseUrl":"https://api.cerebras.ai/v1","apiKeyEnv":"CEREBRAS_API_KEY"}` |
-| **OpenRouter** | ~21 `:free` models through one key (DeepSeek, Llama, Qwen, GLM…) | per-model daily caps; account needs a (possibly $0) credit balance | `{"kind":"openrouter","modelId":"deepseek/deepseek-chat-v3-0324:free","apiKeyEnv":"OPENROUTER_API_KEY"}` |
+| **OpenRouter** | ~21 `:free` models through one key (DeepSeek, Llama, Qwen, GLM…) | `:free` models: **20 rpm · 50 req/day** (rises to **1,000/day** once ≥ $10 lifetime credits purchased); failed requests still count; balance must not be negative | `{"kind":"openrouter","modelId":"deepseek/deepseek-chat-v3-0324:free","apiKeyEnv":"OPENROUTER_API_KEY"}` |
 | **Mistral La Plateforme** | Experiment tier ≈ **1B tokens/month** | 1 req/s, 500k tok/min; phone verification; data opt-in | `{"kind":"mistral","modelId":"mistral-small-latest","apiKeyEnv":"MISTRAL_API_KEY"}` |
 | **Cloudflare Workers AI** | 50+ open models at the edge | 10,000 neurons/day | `{"kind":"custom","baseUrl":"https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/v1","apiKeyEnv":"CLOUDFLARE_API_TOKEN"}` |
 | **NVIDIA NIM** (build.nvidia.com) | 100+ accelerated open models | ~40 rpm class, per-model daily caps | `{"kind":"custom","baseUrl":"https://integrate.api.nvidia.com/v1","apiKeyEnv":"NVIDIA_API_KEY"}` |
@@ -30,14 +30,17 @@ docs site.
 Caveats worth knowing: Google's free tier is **Flash/Flash-Lite only** (Pro
 needs billing; Gemini 2.0 Flash was shut down Jun 2026) and data may train
 models outside EU/UK/EEA unless opted out. Mistral's Experiment tier trades
-your data for the huge allowance. OpenRouter's free lineup churns constantly.
+your data for the huge allowance. OpenRouter's free lineup churns constantly,
+and its `:free` daily cap tracks your **lifetime** credit purchases, not your
+current balance.
 
 ## Researched and excluded
 
 | provider | status | why |
 |---|---|---|
 | **GitHub Models** | **retired 30 Jul 2026** | playground, catalog, inference API and BYOK all shut down (confirmed on docs.github.com/en/github-models). Successors: Azure AI Foundry / GitHub Copilot |
-| **SambaNova** | card required | free tier exists but asks payment details at signup |
+| **Cerebras** | **card required** (moved out of the lineup 7 Nov 2026) | official rate-limits FAQ (inference-docs.cerebras.ai): new accounts get $5 trial credits **after adding a verified payment method** — skip the card and "Playground and API access remain inactive"; the FAQ states plainly: "Is there a permanently free tier? No." Still a superb paid host if you have a card |
+| **SambaNova** | card required | free tier exists but asks payment details at signup (and is being folded into a $5-credit developer tier) |
 | **Hugging Face Inference** | unusable | ≈ $0.10/month of inference credit on free accounts ($2 for PRO) |
 | **DeepSeek platform** | starter credit | 5M tokens once at signup, then pay-per-token |
 | **Together / DeepInfra / Fireworks** | paid | excellent hosts, but minimum purchase / no permanent free models |
@@ -65,8 +68,11 @@ ledger.
 ## Sources
 
 - OpenRouter, *Free LLM API in 2026: 13 Options Ranked and Compared* — https://openrouter.ai/blog/tutorials/free-llm-apis-compared
+- OpenRouter limits reference — https://openrouter.ai/docs/api_reference/limits
 - awesome-free-models (checked 2026-10-29) — https://github.com/12britz/awesome-free-models
 - GitHub Models retirement — https://docs.github.com/en/github-models
-- Provider consoles/docs: aistudio.google.com · console.groq.com · cloud.cerebras.ai · openrouter.ai · console.mistral.ai · developers.cloudflare.com/workers-ai · build.nvidia.com · dashboard.cohere.com · siliconflow.cn · ollama.com
+- Cerebras rate limits & free-trial FAQ — https://inference-docs.cerebras.ai/support/rate-limits
+- Groq rate limits — https://console.groq.com/docs/rate-limits
+- Provider consoles/docs: aistudio.google.com · console.groq.com · openrouter.ai · console.mistral.ai · developers.cloudflare.com/workers-ai · build.nvidia.com · dashboard.cohere.com · siliconflow.cn · ollama.com
 
-All opened and verified 5 Nov 2026.
+All opened and verified 5 Nov 2026; Cerebras/OpenRouter/Groq re-verified 7 Nov 2026.

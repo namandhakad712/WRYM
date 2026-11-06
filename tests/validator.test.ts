@@ -15,6 +15,12 @@ import type { LevelDef } from "../src/lib/wyrm/types";
 
 const VALID_TIERS = new Set(["TUTORIAL", "CORE", "ADVANCED", "GAUNTLET", "ABYSS", "NIGHTMARE"]);
 
+// The full ladder certifies ~31 levels including Tier-V nightmares whose
+// exhaustive BFS explores hundreds of thousands of states — far beyond
+// bun's 5s default. One sweep, memoized by the validator cache, feeds
+// every assertion that needs a report.
+const LADDER_TIMEOUT_MS = 180_000;
+
 describe("validator · official ladder", () => {
   test("every official level is solvable, replayable and honestly measured", () => {
     for (const lv of HANDCRAFTED_LEVELS) {
@@ -40,7 +46,7 @@ describe("validator · official ladder", () => {
       }
       expect(s.status).toBe("won");
     }
-  });
+  }, LADDER_TIMEOUT_MS);
 
   test("difficulty is a number with one decimal of honesty", () => {
     for (const lv of HANDCRAFTED_LEVELS) {
@@ -48,7 +54,7 @@ describe("validator · official ladder", () => {
       expect(Number.isFinite(r.difficulty)).toBe(true);
       expect(Math.round(r.difficulty * 10) / 10).toBe(r.difficulty);
     }
-  });
+  }, LADDER_TIMEOUT_MS);
 
   test("unsolvable levels are reported as such (never invented solutions)", () => {
     // apple sealed behind permanent wall: no path can exist
@@ -56,10 +62,10 @@ describe("validator · official ladder", () => {
       name: "Impossible",
       slug: "impossible",
       grid: [
-        "########",
+        "#######",
         "#@..#*#",
         "#...#.X",
-        "########",
+        "#######",
       ],
     };
     const r = validateLevel(broken);
@@ -103,5 +109,5 @@ describe("difficulty · tier system", () => {
   test("official ladder spans multiple tiers (a real difficulty curve)", () => {
     const tiers = new Set(HANDCRAFTED_LEVELS.map((lv) => tierOf(validateLevel(lv).difficulty)));
     expect(tiers.size).toBeGreaterThanOrEqual(3);
-  });
+  }, LADDER_TIMEOUT_MS);
 });

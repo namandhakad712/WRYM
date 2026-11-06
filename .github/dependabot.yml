@@ -1,0 +1,35 @@
+# WRYM · Dependabot — keeps the pinned supply chain honest.
+# The workflows pin every action by commit SHA; Dependabot is what turns
+# those pins from "frozen forever" into "reviewed upgrades".
+
+version: 2
+updates:
+  # GitHub Actions referenced in workflows (SHA pins → PRs with the diff).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "ci(deps)"
+
+  # npm/bun dependency tree (site runtime, engine, dev tooling).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "deps"
+    groups:
+      radix-ui:
+        patterns: ["@radix-ui/*"]
+      react-ecosystem:
+        patterns: ["react", "react-dom", "next", "typescript", "@types/*"]
+
+  # GitHub Pages site is static; no docker/ecosystem updates needed beyond
+  # the two above (the Dockerfile is for local benchmark isolation only).

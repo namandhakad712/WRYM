@@ -19,6 +19,20 @@ import { computeDifficulty } from "./difficulty";
 
 const MAX_STATES = 400_000;
 
+/** Certification cache — validateLevel is pure, so identical levels
+ *  (same slug + grid + turn limit) must never pay for BFS twice. The
+ *  ladder is certified by tests, CI, site export and the benchmark
+ *  harness; one 55s sweep used to be paid four times per process. */
+const certCache = new Map<string, ValidatorReport>();
+
+export function clearValidationCache(): void {
+  certCache.clear();
+}
+
+function cacheKey(level: LevelDef): string {
+  return `${level.slug}::${level.turnLimit ?? 0}::${level.grid.join("\n")}`;
+}
+
 interface Node {
   state: GameState;
   parent: Node | null;
@@ -60,9 +74,17 @@ const MOVE_ACTIONS: Action[] = ["up", "down", "left", "right"];
  *  A phase-1 solution is still a valid optimal-or-near-optimal line —
  *  and `splitsRequired` tells the truth about which phase answered. */
 export function validateLevel(level: LevelDef): ValidatorReport {
+  const ck = cacheKey(level);
+  const hit = certCache.get(ck);
+  if (hit) return hit;
   const phase1 = bfs(level, MOVE_ACTIONS, false);
-  if (phase1.solvable) return phase1;
-  return bfs(level, ACTIONS, true);
+  if (!phase1.solvable) {
+    const phase2 = bfs(level, ACTIONS, true);
+    certCache.set(ck, phase2);
+    return phase2;
+  }
+  certCache.set(ck, phase1);
+  return phase1;
 }
 
 function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): ValidatorReport {
@@ -96,12 +118,16 @@ function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): Validator
 
   const startKey = stateKey(start);
   const seen = new Set<string>([startKey]);
+  // head-indexed queue: Array.shift() is O(n) per pop and turns BFS on
+  // large ladders into a quadratic crawl. Advancing a cursor is O(1)
+  // and lets the GC reclaim popped nodes early.
   const queue: Node[] = [{ state: start, parent: null, action: null }];
+  let head = 0;
   let explored = 0;
   let splitsSeen = false;
 
-  while (queue.length > 0 && explored < MAX_STATES) {
-    const node = queue.shift()!;
+  while (head < queue.length && explored < MAX_STATES) {
+    const node = queue[head++];
     explored++;
 
     if (node.state.status === "won") {

@@ -13,6 +13,10 @@
     "modelId": "glm-4.6",
     "aaUrl": "https://artificialanalysis.ai/models/glm-4-6",
     "note": "Built-in sandbox model. Zero-config fallback brain of the arena.",
+    "rpm": 6,
+    "concurrency": 1,
+    "maxRetries": 8,
+    "retryBaseMs": 5000,
     "enabled": true
   }
 ]

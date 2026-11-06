@@ -20,6 +20,9 @@ export type ProviderKind =
   | "mistral"
   | "xai"
   | "together"
+  | "moonshot" // Moonshot AI — Kimi K-series (verified: platform.kimi.ai)
+  | "minimax" // MiniMax M-series (verified: platform.minimax.io)
+  | "dashscope" // Alibaba Model Studio / DashScope — Qwen family
   | "zhipu" // Z.ai / Zhipu BigModel — GLM family (free Flash tier)
   | "piapi" // PiAPI — one-key aggregator bundle (GPT/Claude/DeepSeek/Gemini)
   | "nvidia" // NVIDIA NIM — build.nvidia.com evaluation endpoint
@@ -142,6 +145,44 @@ export const PROVIDER_KINDS: Record<ProviderKind, ProviderKindMeta> = {
     modelHint: "meta-llama/…",
     note: "Open-source model hub, OpenAI-compatible.",
     contextHint: 32_768,
+  },
+  moonshot: {
+    label: "Moonshot (Kimi)",
+    protocol: "openai-compat",
+    // verified on platform.kimi.ai/docs/api/overview — OpenAI Chat Completions base
+    defaultBaseUrl: "https://api.moonshot.ai/v1",
+    needsKey: true,
+    keyPattern: "sk-…",
+    modelHint: "kimi-k3.1-pro / kimi-k3 (1M context)",
+    note:
+      "Kimi K-series — 3T-class open flagship with a 1M-token window. OpenAI-compatible; " +
+      "an Anthropic-compatible surface also exists at /anthropic. reasoning_content streams are captured as thinking.",
+    contextHint: 1_000_000,
+  },
+  minimax: {
+    label: "MiniMax",
+    protocol: "openai-compat",
+    // verified on platform.minimax.io/docs/api-reference/text-openai-api
+    defaultBaseUrl: "https://api.minimax.io/v1",
+    needsKey: true,
+    modelHint: "MiniMax-M3.1-Flash / MiniMax-M3 (1M context)",
+    note:
+      "Frontier multimodal coding models with 1M-token windows. OpenAI-compatible; " +
+      "reasoning_content deltas are captured as thinking. Pay-as-you-go keys from the platform console.",
+    contextHint: 1_000_000,
+  },
+  dashscope: {
+    label: "Alibaba Model Studio (Qwen)",
+    protocol: "openai-compat",
+    // international portal; CN accounts use https://dashscope.aliyuncs.com/compatible-mode/v1
+    defaultBaseUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+    needsKey: true,
+    keyPattern: "sk-…",
+    modelHint: "qwen-plus / qwen3-max — see the Model Studio model list",
+    note:
+      "Alibaba's Qwen family over the OpenAI-compatible DashScope endpoint. International " +
+      "base by default; CN accounts switch to dashscope.aliyuncs.com/compatible-mode/v1.",
+    contextHint: 131_072,
   },
   zhipu: {
     label: "Z.ai / Zhipu (GLM)",

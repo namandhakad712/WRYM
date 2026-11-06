@@ -43,11 +43,13 @@ names an *environment variable* (`apiKeyEnv`) that must be exported before
 ### Valid `kind` values
 
 `zai` (built-in sandbox) · `openai` · `anthropic` · `google` · `openrouter` ·
-`groq` · `deepseek` · `mistral` · `xai` · `together` · `zhipu` (Z.ai/Zhipu,
-free GLM Flash) · `piapi` (aggregator bundle) · `nvidia` (NIM) · `cloudflare`
-(Workers AI) · `cohere` · `siliconflow` · `ollama` (local) · `lmstudio`
-(local) · `mcp` (any MCP server) · `custom` (any OpenAI-compatible endpoint) ·
-`solver` (the deterministic BFS baseline — no API, no cost)
+`groq` · `deepseek` · `mistral` · `xai` · `together` · `moonshot` (Kimi
+K-series, 1M ctx) · `minimax` (M-series, 1M ctx) · `dashscope` (Alibaba
+Qwen) · `zhipu` (Z.ai/Zhipu, free GLM Flash) · `piapi` (aggregator bundle) ·
+`nvidia` (NIM) · `cloudflare` (Workers AI) · `cohere` · `siliconflow` ·
+`ollama` (local) · `lmstudio` (local) · `mcp` (any MCP server) · `custom`
+(any OpenAI-compatible endpoint) · `solver` (the deterministic BFS baseline —
+no API, no cost)
 
 ## Adding an entrant (the 60-second version)
 

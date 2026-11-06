@@ -461,7 +461,7 @@ reliability engine (`0`/absent = engine default):
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `zai` (built-in), `openai`, `anthropic`, `google`, `openrouter`, `groq`, `deepseek`, `mistral`, `xai`, `together`, `ollama`, `lmstudio`, `mcp` (**any Model Context Protocol server**), `custom` — any OpenAI-compatible endpoint |
+| `kind` | `zai` (built-in), `openai`, `anthropic`, `google`, `openrouter`, `groq`, `deepseek`, `mistral`, `xai`, `together`, `moonshot` (Kimi K-series), `minimax` (M-series), `dashscope` (Alibaba Qwen), `zhipu` (GLM, free Flash tier), `piapi` (aggregator bundle), `nvidia` (NIM), `cloudflare` (Workers AI), `cohere`, `siliconflow`, `ollama`, `lmstudio`, `mcp` (**any Model Context Protocol server**), `custom` — any OpenAI-compatible endpoint |
 | `apiKeyEnv` | **name** of the environment variable holding the key (keys are never committed) |
 | `modelId`, `baseUrl` | vendor identifiers; sensible defaults per kind |
 | `contextWindow` | custom context size in tokens; `0` = auto by kind (8k local → 1M Gemini) |
@@ -568,7 +568,8 @@ Dockerfile, docker-compose.yml, DOCKER.md
 ## Verification & tests
 
 ```bash
-bun scripts/validate-tier3.ts     # BFS re-certification of all 26 levels (CI runs this)
+bun test                          # unit suite: engine, elo, tokens, validator, site-data, secret scan
+bun scripts/validate-tier3.ts     # BFS re-certification of all 31 levels (CI runs this)
 bun scripts/test-mcp.ts           # MCP chain: client → bridge → mock upstream (16 checks)
 bun scripts/test-mechanics.ts     # engine v2 mechanics
 bun scripts/test-levels.ts        # ladder validation
@@ -580,6 +581,29 @@ The reliability smoke test asserts observable behavior end-to-end: truncation
 markers appear, the final observation survives fitting, 429-quota classifies
 as failover-not-retry, a dead endpoint fails over to the built-in model in
 <1 s, and every logical call lands a telemetry row.
+
+---
+
+## Security & supply chain
+
+The arena is **static and secrets-free by design** — full policy in
+[`.github/SECURITY.md`](.github/SECURITY.md):
+
+- **no secrets in Git** — keys live in each contributor's environment
+  (`apiKeyEnv` indirection); `tests/secret-scan.test.ts` fails CI on live
+  token patterns
+- **actions pinned by full commit SHA** — every `uses:` in the three
+  workflows is immutable; Dependabot turns the pins into reviewed upgrades
+  (`.github/dependabot.yml`)
+- **untrusted PR data never executes** — wyrm-bot checks out `main` for its
+  reviewer code and materialises only `community-levels/` data from the PR
+- **least-privilege tokens** — per-workflow `permissions:` blocks; the Pages
+  deploy uses the OIDC `id-token` flow
+- **deterministic grading** — scores come from the BFS validator and engine
+  replay, never from parsing model text, so nothing can talk its way up the
+  leaderboard
+- [`CODEOWNERS`](.github/CODEOWNERS) routes workflow/engine/results changes
+  through maintainer review
 
 ---
 

@@ -1,0 +1,18 @@
+# WRYM code ownership — reviews that matter go to the people who own the risk.
+# Syntax: https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# The engine and its certification are the source of truth for every score.
+/src/lib/wyrm/       @namandhakad712
+/community-levels/   @namandhakad712
+
+# CI/CD and the bot can publish and comment — always reviewed.
+/.github/            @namandhakad712
+/scripts/wyrm-bot.mjs @namandhakad712
+/scripts/review-community.ts @namandhakad712
+
+# Result artifacts alter the public leaderboard.
+/results/            @namandhakad712
+/site/               @namandhakad712
+
+# Fallback: everything else.
+*                    @namandhakad712

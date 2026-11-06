@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WRYM · Free LLM Providers — verified no-credit-card tiers</title>
-<meta name="description" content="Deep-researched, verified list of LLM API providers with genuine free tiers and no credit card: Google AI Studio, Groq, Cerebras, OpenRouter, Mistral, Cloudflare, NVIDIA NIM, Cohere, SiliconFlow — with exact WRYM hookup instructions.">
+<meta name="description" content="Deep-researched, verified list of LLM API providers with genuine free tiers and no credit card: Google AI Studio, Groq, OpenRouter, Mistral, Cloudflare, NVIDIA NIM, Cohere, SiliconFlow — with exact WRYM hookup instructions.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -36,12 +36,12 @@
 
   <div class="hero">
     <div class="lede">
-      <p class="kicker">Deep Research · Verified 5 Nov 2026</p>
+      <p class="kicker">Deep Research · Verified 5 Nov 2026 · re-audited 7 Nov 2026</p>
       <p>You do not need a credit card to put a frontier-class model into
       this arena. We researched every public LLM API's free tier — read the
-      provider docs, cross-checked two independent comparisons, and
-      <b>opened every signup page linked below</b>. What survived: eleven
-      providers with real, permanent free tiers — ten in the cloud plus
+      provider docs, cross-checked independent comparisons, and
+      <b>opened every signup page linked below</b>. What survived: ten
+      providers with real, permanent free tiers — nine in the cloud plus
       your own GPU.</p>
       <p>Every card carries the exact <code>bench/models.json</code> snippet
       that plugs it into the benchmark. The arena's reliability layer
@@ -89,19 +89,6 @@
 
       <div class="prov-card">
         <div class="pv-head">
-          <div class="pv-glyph" style="background:linear-gradient(135deg,#f8b26a,#e8641c)">◼</div>
-          <div><div class="pv-name">Cerebras</div><div class="pv-kind">wafer-scale · kind: custom</div></div>
-        </div>
-        <div class="pv-free"><b>The fastest tokens per second on Earth.</b>
-        Llama, Qwen and GPT-OSS families on wafer-scale clusters. Ideal when
-        a benchmark run makes twenty sequential model calls.</div>
-        <div class="pv-limit">daily token allowance resets every 24h · ~1M tok/day class</div>
-        <code class="pv-setup">{ "kind": "custom", "baseUrl": "https://api.cerebras.ai/v1", "modelId": "llama-3.3-70b", "apiKeyEnv": "CEREBRAS_API_KEY" }</code>
-        <div class="pv-links"><a href="https://cloud.cerebras.ai/" rel="noopener">cloud.cerebras.ai ↗</a><a href="https://inference-docs.cerebras.ai/" rel="noopener">docs ↗</a></div>
-      </div>
-
-      <div class="prov-card">
-        <div class="pv-head">
           <div class="pv-glyph" style="background:linear-gradient(135deg,#c9d1d9,#8b949e)">⌁</div>
           <div><div class="pv-name">OpenRouter</div><div class="pv-kind">aggregator · kind: openrouter</div></div>
         </div>
@@ -109,9 +96,9 @@
         carry the <code>:free</code> suffix — frontier-adjacent open weights
         (DeepSeek, Llama, Qwen, GLM) through a single OpenAI-compatible
         endpoint. Free lineup churns; treat it as a snapshot.</div>
-        <div class="pv-limit">~21 :free models · daily per-model caps · account needs a (possibly $0) credit balance</div>
+        <div class="pv-limit">:free models · 20 rpm · 50 req/day (1,000/day once ≥ $10 lifetime credits) · failed requests still count</div>
         <code class="pv-setup">{ "kind": "openrouter", "modelId": "deepseek/deepseek-chat-v3-0324:free", "apiKeyEnv": "OPENROUTER_API_KEY" }</code>
-        <div class="pv-links"><a href="https://openrouter.ai/models?max_price=0" rel="noopener">free models ↗</a><a href="https://openrouter.ai/docs" rel="noopener">docs ↗</a></div>
+        <div class="pv-links"><a href="https://openrouter.ai/models?max_price=0" rel="noopener">free models ↗</a><a href="https://openrouter.ai/docs/api_reference/limits" rel="noopener">limits ↗</a></div>
       </div>
 
       <div class="prov-card">
@@ -217,6 +204,8 @@
       <tbody>
         <tr><td><b>GitHub Models</b></td><td><span class="lbl lbl-red">retired</span></td>
         <td>Fully retired 30 Jul 2026 — playground, catalog, inference API and BYOK are gone. Successors: Azure AI Foundry / GitHub Copilot. <a href="https://docs.github.com/en/github-models">docs.github.com/en/github-models ↗</a></td></tr>
+        <tr><td><b>Cerebras</b></td><td><span class="lbl lbl-amber">card required</span></td>
+        <td>Moved out of the lineup 7 Nov 2026 — the official rate-limits FAQ now states there is <i>no permanent free tier</i>: new accounts get $5 trial credits only <i>after adding a verified payment method</i>, and skipping the card leaves API access inactive. A superb paid host if you have a card. <a href="https://inference-docs.cerebras.ai/support/rate-limits">inference-docs.cerebras.ai ↗</a></td></tr>
         <tr><td><b>SambaNova</b></td><td><span class="lbl lbl-amber">card required</span></td>
         <td>Free tier exists but asks for payment details at signup — fails our no-credit-card bar.</td></tr>
         <tr><td><b>Hugging Face Inference</b></td><td><span class="lbl lbl-amber">unusable</span></td>
@@ -252,7 +241,7 @@
     </div>
     <div class="print-box" style="margin-top:14px">
       <div class="pb-title">2 · any OpenAI-compatible endpoint (the custom path)</div>
-      <p style="margin:8px 0 0;font-size:13.5px">Cerebras, Cloudflare, NVIDIA NIM, Cohere and
+      <p style="margin:8px 0 0;font-size:13.5px">Cloudflare, NVIDIA NIM, Cohere and
       SiliconFlow all speak the Chat Completions dialect — <code>kind: "custom"</code> with
       their <code>baseUrl</code> (snippets on each card above) and you are running.</p>
     </div>
@@ -264,10 +253,10 @@
       and the zero-dependency bridge <code>mcp/llm-bridge.mjs</code>.</p>
     </div>
     <div class="verified-strip">
-      <span class="v">verified 2026-11-05</span>
-      <span class="v">cross-checked: OpenRouter "Free LLM APIs in 2026" + awesome-free-models (checked 2026-10-29)</span>
+      <span class="v">verified 2026-11-05 · re-audited 2026-11-07</span>
+      <span class="v">cross-checked against OpenRouter's comparisons + the providers' own rate-limit docs</span>
       <span class="v">every signup link opened</span>
-      <span class="v">GitHub Models retirement confirmed on docs.github.com</span>
+      <span class="v">GitHub Models retirement + Cerebras card requirement confirmed on official docs</span>
     </div>
   </section>
 

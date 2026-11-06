@@ -72,7 +72,11 @@ if (existsSync(COMMUNITY)) {
     }
   }
 }
-const models = JSON.parse(readFileSync(path.join(RESULTS, "models.json"), "utf8")).filter((m) => m.enabled);
+// bench/models.json (byte-mirrored into results/) is a wrapped document:
+// { $schema, version, comment, defaults, models: [...] } — the roster is
+// the inner array. Filter to enabled entrants only.
+const modelsDoc = JSON.parse(readFileSync(path.join(RESULTS, "models.json"), "utf8"));
+const models: any[] = (Array.isArray(modelsDoc) ? modelsDoc : (modelsDoc.models ?? [])).filter((m) => m.enabled);
 
 // ── collect runs ─────────────────────────────────────────────────────
 interface RunDoc {

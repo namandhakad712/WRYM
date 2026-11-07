@@ -35,6 +35,7 @@
     { ch: "v", name: "valve down", tip: "one-way: enter moving down only" },
     { ch: "=", name: "crumble bridge", tip: "crosses once, then rubble" },
     { ch: "_", name: "frictionless ice", tip: "enter it and you slide" },
+    { ch: "O", name: "egg", tip: "fragile cargo — rests on the cell below; cracks if unsupported" },
   ];
 
   /* ── state ────────────────────────────────────────────────────────── */

@@ -115,7 +115,75 @@ next slide needs** — the certified optimal line does this twice.
 | 28 Salamis | 6.3 | ADVANCED | 51/54 | 52 | threat 69 · depth 92 (purity exhibit) |
 | 29 Absolute Zero | 8.2 | ABYSS | 20/21 | 4,287 | simulation 100 |
 | 30 Six Seals | 7.8 | GAUNTLET | 27/29 | 121,335 | search 100 · budget 90 |
-| **31 The Rubicon** | **9.0** | **NIGHTMARE** | 38/40 | 23,992 | all seven ≥ 65; the only NIGHTMARE in the ladder |
+| **31 The Rubicon** | **8.4** | **ABYSS** | 38/40 | 23,992 | all dimensions ≥ 65; the Tier V flagship (9.0 NIGHTMARE under v3) |
+
+## 4b · Tier VI — THE HATCHERY (engine v4: eggs) — Nov 2026 research sprint
+
+Primary sources for the mechanic, both public:
+
+- **WOIM Steam page** (dogspawn, app 4272020): the official mechanic list —
+  "Push blocks, flip switches, eat apples and… cut yourself in half!",
+  "Rock pushing · **Egg cracking** · **Carrying eggs** · Worm snipping" —
+  and the pitch line "Explore the world beneath our feet, digging deeper
+  and deeper into the earth below."
+- **Kotaku review** ("Woim Is A Super-Smart Puzzle Game That Combines Snake
+  With Sokoban"): "super-difficult" with "incredibly well-constructed
+  puzzles"; the body-as-tool core — "the worm must be long enough to touch
+  a switch AND go through the gate it opens simultaneously"; no handholding
+  — new mechanics (mud, eggs, jigsaws) are experienced, never explained.
+
+**The mechanic as implemented (engine v4).** An egg is static, fragile,
+gravity-bound cargo: the cell directly SOUTH of it must be solid — wall,
+dirt, bridge, lock, crate, remains, another egg, **or any segment of the
+worm**. The instant an action leaves an egg unsupported it falls, cracks,
+and the run is LOST — including on the winning move (custody is owed to the
+very last turn). Crumbled-bridge rubble is loose debris: an egg perched on
+a span falls through when it collapses. Eggs block entry and can never be
+pushed. Consequences, each of which became a level:
+
+1. **Forbidden zone** — the support cell is dirt/crate/bridge you must not
+   dig, push or burn. The greedy route dies on move one.
+2. **Dig-carry-split** — tunnel through the egg's own pillar: the digging
+   head *becomes* the support, the body conveys custody cell by cell, and
+   a split parks the egg on remains forever. Growth first: the back half
+   must reach the support column (Snakebird's length economics).
+3. **Push-carry-split** — push the pedestal crate out from under the egg;
+   the head lands beneath (the egg rides it), the crate is then free to
+   serve a plate. Exactly N pushes, then split — one push more slides the
+   tail off the support: crack.
+4. **Bridge custody** — an egg on a crumble bridge: cross and the span
+   dies under it unless a severed half is left standing on the span. One
+   split, two jobs.
+5. **The living wire** — Kotaku's lesson weaponised: hold the plate, carry
+   the egg, and walk through the door on one unbroken body, winning
+   before the circuit breaks. No split at all — pure length and timing.
+6. **Slide custody** — on ice, a slide stretches the body through the
+   support cell; end-of-turn gravity means a well-aimed glide *is* a
+   catch. The rink denies every pause.
+
+**Difficulty index v4.** Hardness is now measured primarily in MINIMAL
+TURNS (depth weight raised to 0.22, saturation slowed) and gains an eighth
+measured dimension — **custody**: turns spent with an egg riding the body
+plus decision points where a legal move cracks one. Threat now counts
+egg-cracking moves as fatal alternatives, exactly like spikes.
+
+| Level | Difficulty | Tier | Par | States | Signature |
+| --- | --- | --- | --- | --- | --- |
+| 32 Nestvakt | 5.8 | ADVANCED | 19/22 | 193,010 | dig-carry-split gateway (custody 37) |
+| 33 The Pedestal | 6.0 | ADVANCED | 21/24 | 10,738 | five pushes then split (custody 100) |
+| 34 Bridge of Glass | 5.3 | ADVANCED | 15/19 | 62,279 | rubble-drop rule: split holds span + egg |
+| 35 Precious Cargo | 4.2 | CORE | 13/15 | 795 | living wire: plate + egg + door on one body |
+| 36 Ovum Vault | 6.1 | ADVANCED | 26/30 | 68,157 | pillar in, lock out, valve commits |
+| 37 Cold Brood | 7.4 | GAUNTLET | 33/35 | 107,919 | slide-carry, mid-rink split, irreversibility 86 |
+| 38 The Hatchery | 8.0 | ABYSS | 40/42 | 185,289 | two custodies + valve + razor budget (custody 100, budget 93) |
+
+**Mirror twins under gravity.** The contamination-check twins
+(`scripts/make-variants.ts`) moved from vertical to **horizontal** mirroring
+in v4: a vertical flip would leave every gravity-bound egg floating
+unsupported. The horizontal mirror preserves the south direction, remaps
+`<↔>` valves, and leaves `^`/`v` untouched — the parser additionally
+accepts left-facing worm starts (`@oo`) since v4, which the twins produce.
+38/38 twins certified, identical par.
 
 ## 5 · Design workflow that produced them
 
@@ -129,5 +197,6 @@ next slide needs** — the certified optimal line does this twice.
 
 The difficulty index refuses to inflate: a level that contains no ice can
 never score on simulation; no spikes, never on threat. A 9.0 must be
-extreme in *every measured dimension simultaneously* — which is why only
-one level in thirty-one reaches it.
+extreme in *every measured dimension simultaneously* — which is why, after
+the v4 rebalance made the index stricter (depth-led, custody added), the
+peak of thirty-eight levels is an honest 8.4. No score is grandfathered.

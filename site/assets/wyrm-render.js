@@ -507,6 +507,40 @@
     (st.r || []).forEach(function (p) {
       drawSleeper(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell, cell);
     });
+    (st.e || []).forEach(function (p, i) {
+      var carried = (st.m || []).some(function (w) { return w.x === p.x && w.y === p.y + 1; });
+      drawEgg(g, pad + (p.x + 0.5) * cell, pad + (p.y + 0.5) * cell + cell * 0.08, cell * 0.34, i, carried, t);
+    });
+  }
+
+  /* the egg — precious cargo; wobbles nervously while the worm carries it */
+  function drawEgg(g, cx, cy, r, seed, carried, t) {
+    var now = t || 0;
+    var wobble = carried ? Math.sin(now * 0.012 + seed * 2.1) * r * 0.1 : Math.sin(now * 0.002 + seed) * r * 0.02;
+    var rnd = cellRand(seed, 7, 33);
+    g.save();
+    g.translate(cx, cy);
+    g.rotate(wobble * 0.3);
+    g.fillStyle = "rgba(0,0,0,0.26)";
+    g.beginPath(); g.ellipse(0, r * 1.0, r * 0.66, r * 0.2, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath();
+    g.moveTo(0, -r);
+    g.bezierCurveTo(r * 0.78, -r * 0.86, r * 0.86, r * 0.42, 0, r);
+    g.bezierCurveTo(-r * 0.86, r * 0.42, -r * 0.78, -r * 0.86, 0, -r);
+    var eg = g.createRadialGradient(-r * 0.28, -r * 0.34, r * 0.1, 0, 0, r * 1.05);
+    eg.addColorStop(0, "#ffffff"); eg.addColorStop(0.7, "#f7f1e6"); eg.addColorStop(1, "#e8dcc6");
+    g.fillStyle = eg; g.fill();
+    g.strokeStyle = "#8a7a66"; g.lineWidth = Math.max(1.6, r * 0.11); g.stroke();
+    g.fillStyle = "rgba(190,168,132,0.55)";
+    for (var i = 0; i < 5; i++) {
+      var sx = (rnd() - 0.5) * r * 1.1, sy = (rnd() - 0.5) * r * 1.3;
+      if (Math.hypot(sx / (r * 0.62), sy / (r * 0.9)) < 0.82) {
+        g.beginPath(); g.ellipse(sx, sy, r * 0.09, r * 0.07, rnd() * 3, 0, Math.PI * 2); g.fill();
+      }
+    }
+    g.fillStyle = "rgba(255,255,255,0.92)";
+    g.beginPath(); g.ellipse(-r * 0.3, -r * 0.36, r * 0.16, r * 0.26, -0.35, 0, Math.PI * 2); g.fill();
+    g.restore();
   }
 
   /* the apple — glossy red with a leaf, straight from the orchard */
@@ -779,6 +813,7 @@
       case "*": drawApple(g, cx, cy, size * 0.42, opts.t || 0, opts.seed || 0); break;
       case "$": drawWalnut(g, cx, cy, size * 0.40, opts.seed || 0, 1); break;
       case "k": drawKey(g, cx, cy, size, opts.t || 0, opts.seed || 0); break;
+      case "O": drawEgg(g, cx, cy + size * 0.08, size * 0.34, (opts.seed || 0) % 9, false, opts.t || 0); break;
       case "@": drawWormHeadIcon(g, cx, cy, size); break;
       case "o": drawWormBodyIcon(g, cx, cy, size); break;
       default: break;

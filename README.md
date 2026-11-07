@@ -7,7 +7,7 @@
 **Every run replayed · every thought archived · every claim certified**
 
 [![benchmark](https://img.shields.io/badge/benchmark-agentic__arena-7c221a?style=flat-square)](#the-benchmark)
-[![levels](https://img.shields.io/badge/levels-31%20BFS--certified-221c14?style=flat-square)](#the-ladder)
+[![levels](https://img.shields.io/badge/levels-38%20BFS--certified-221c14?style=flat-square)](#the-ladder)
 [![pages](https://img.shields.io/badge/site-github%20pages-221c14?style=flat-square)](https://namandhakad712.github.io/WRYM/)
 [![license](https://img.shields.io/badge/license-MIT-3a3226?style=flat-square)](#license)
 [![engine](https://img.shields.io/badge/engine-deterministic%20v2-8a6a42?style=flat-square)](#the-game)
@@ -28,7 +28,7 @@
 
 1. [What is WRYM?](#what-is-wrym)
 2. [The game](#the-game)
-3. [The ladder — 31 certified levels, peak NIGHTMARE 9.0](#the-ladder--31-certified-levels-honestly-measured)
+3. [The ladder — 38 certified levels, peak ABYSS 8.4 — The Rubicon & The Hatchery](#the-ladder--38-certified-levels-honestly-measured)
 4. [The GitHub flow: local runs → committed results → Pages](#the-github-flow-local-runs--committed-results--pages)
    * [The Level Forge — build & submit levels in the browser](#the-level-forge--build--submit-levels-in-the-browser)
    * [The community review framework (bot + maintainers)](#the-community-review-framework-bot--maintainers)
@@ -98,7 +98,7 @@ its head* — which is precisely the skill being measured.
 
 ---
 
-## The ladder — 31 certified levels, honestly measured
+## The ladder — 38 certified levels, honestly measured
 
 Every level is certified by exhaustive breadth-first search **before** it may
 enter the ladder: solvability, the optimal move count (*par*), and the **v3
@@ -169,15 +169,52 @@ cut-yourself-in-half economy. The full dossier with citations ships as
 
 | Level | Certified | Tier | Par | Signature |
 | --- | --- | --- | --- | --- |
-| 27 · The Reliquary | **7.9** | GAUNTLET | 30/32 | flesh-economy cathedral (crate + split onto plates, bridge gauntlet) |
+| 27 · The Reliquary | **7.4** | GAUNTLET | 30/32 | flesh-economy cathedral (crate + split onto plates, bridge gauntlet) |
 | 28 · Salamis | **6.3** | ADVANCED | 51/54 | one-sweep spike lattice — the purity exhibit (52 states!) |
-| 29 · Absolute Zero | **8.2** | ABYSS | 20/21 | your own remains as ice-slide stoppers; 9 glides / 35 cells |
-| 30 · Six Seals | **7.8** | GAUNTLET | 27/29 | six permanent acts, one committed line; drape-proof door |
-| 31 · **The Rubicon** | **9.0** | **NIGHTMARE** | 38/40 | the flagship: every dimension ≥ 65, five bridges burned, final dig |
+| 29 · Absolute Zero | **7.6** | GAUNTLET | 20/21 | your own remains as ice-slide stoppers; 9 glides / 35 cells |
+| 30 · Six Seals | **7.4** | GAUNTLET | 27/29 | six permanent acts, one committed line; drape-proof door |
+| 31 · **The Rubicon** | **8.4** | **ABYSS** | 38/40 | the Tier V flagship: five bridges burned, final dig under spikes |
 
 <div align="center">
-<img src="site/assets/img/replay-rubicon.png" alt="The Rubicon — NIGHTMARE 9.0, certified replay" width="82%">
+<img src="site/assets/img/replay-rubicon.png" alt="The Rubicon — certified replay" width="82%">
 </div>
+
+---
+
+### Tier VI — The Hatchery (engine v4 · eggs, difficulty index v4)
+
+The egg mechanic is straight from the real WOIM's official list — *"carrying
+eggs", "egg cracking"* (Steam, dogspawn) — with Kotaku's review supplying
+the design brief: *"super-difficult… the worm must be long enough to touch
+a switch and go through the gate it opens."* An egg is gravity-bound cargo:
+the cell directly beneath it must stay solid, **or the egg falls, cracks,
+and the run is lost — even on the winning move**. Your own body counts as
+support, which turns every dig, push, split and bridge crossing near an egg
+into a razor decision. Hardness is now measured primarily in **minimal
+turns** (par), with a dedicated *custody* dimension counting the turns an
+egg rides your back and the decision points where one wrong legal move
+cracks one.
+
+| Level | Certified | Tier | Par | Signature |
+| --- | --- | --- | --- | --- |
+| 32 · Nestvakt | **5.8** | ADVANCED | 19/22 | dig-carry-split: tunnel through the egg's own pillar, sever a half as the pedestal |
+| 33 · The Pedestal | **6.0** | ADVANCED | 21/24 | push the pedestal crate out from under the egg — exactly 5 pushes, then split |
+| 34 · Bridge of Glass | **5.3** | ADVANCED | 15/19 | the egg rests on the only bridge; one split holds span AND egg (rubble drops eggs) |
+| 35 · Precious Cargo | **4.2** | CORE | 13/15 | the living wire: hold plate + carry egg + walk through the door on one body |
+| 36 · Ovum Vault | **6.1** | ADVANCED | 26/30 | dig in through the pillar, key + one-way valve, lock out — the tunnel seals behind you |
+| 37 · Cold Brood | **7.4** | GAUNTLET | 33/35 | ice rink custody: slide-carry the egg, split mid-rink, two-apple sweep below |
+| 38 · **The Hatchery** | **8.0** | **ABYSS** | 40/42 | the new flagship: two eggs, two custodies, valve commit, razor budget |
+
+Every level also ships a certified **horizontal-mirror twin**
+(`results/variants.json`, 38/38, identical par) — a vertical flip would
+leave gravity-bound eggs floating, so the contamination check mirrors
+left↔right with valves remapped instead.
+
+> **v4 honesty note.** The rebalanced index (minimal-turns-led, + egg
+> custody) re-scores the whole ladder: The Rubicon certifies 8.4 ABYSS
+> where the v3 index said 9.0 NIGHTMARE. The index got stricter — the
+> level did not get easier. NIGHTMARE stays reserved for a level that
+> earns it under v4; no score is ever grandfathered.
 
 ## The Level Forge — build & submit levels in the browser
 
@@ -569,7 +606,7 @@ Dockerfile, docker-compose.yml, DOCKER.md
 
 ```bash
 bun test                          # unit suite: engine, elo, tokens, validator, site-data, secret scan
-bun scripts/validate-tier3.ts     # BFS re-certification of all 31 levels (CI runs this)
+bun scripts/validate-tier3.ts     # BFS re-certification of all 38 levels (CI runs this)
 bun scripts/test-mcp.ts           # MCP chain: client → bridge → mock upstream (16 checks)
 bun scripts/test-mechanics.ts     # engine v2 mechanics
 bun scripts/test-levels.ts        # ladder validation

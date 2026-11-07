@@ -20,13 +20,14 @@
     "difficulty": 1.1,
     "tier": "TUTORIAL",
     "dims": {
-      "depth": 29.531191028128656,
+      "depth": 27.252949097571644,
       "search": 0,
       "irreversibility": 0,
       "simulation": 0,
       "threat": 0,
       "choreography": 0,
-      "budget": 1.4088838503239731
+      "budget": 1.4088838503239731,
+      "custody": 0
     },
     "minMoves": 7,
     "statesExplored": 76,
@@ -64,13 +65,14 @@
     "difficulty": 2.2,
     "tier": "TUTORIAL",
     "dims": {
-      "depth": 42.30501896195133,
+      "depth": 39.346934028736655,
       "search": 5.52948551496244,
       "irreversibility": 0,
       "simulation": 0,
       "threat": 0,
       "choreography": 44,
-      "budget": 2.7753461579227
+      "budget": 2.7753461579227,
+      "custody": 0
     },
     "minMoves": 11,
     "statesExplored": 1290,
@@ -105,16 +107,17 @@
     ],
     "width": 8,
     "height": 8,
-    "difficulty": 2.6,
+    "difficulty": 2.7,
     "tier": "TUTORIAL",
     "dims": {
-      "depth": 39.346934028736655,
+      "depth": 36.52635810597181,
       "search": 0,
       "irreversibility": 0,
       "simulation": 0,
       "threat": 53.32582478842019,
       "choreography": 7,
-      "budget": 2.4056261216234405
+      "budget": 2.4056261216234405,
+      "custody": 0
     },
     "minMoves": 10,
     "statesExplored": 258,
@@ -153,13 +156,14 @@
     "difficulty": 2.6,
     "tier": "TUTORIAL",
     "dims": {
-      "depth": 50.341469620859044,
+      "depth": 47.07866584999497,
       "search": 0,
       "irreversibility": 34.85609424689444,
       "simulation": 0,
       "threat": 0,
       "choreography": 30,
-      "budget": 3.9849252978731773
+      "budget": 3.9849252978731773,
+      "custody": 0
     },
     "minMoves": 14,
     "statesExplored": 761,
@@ -198,13 +202,14 @@
     "difficulty": 2,
     "tier": "TUTORIAL",
     "dims": {
-      "depth": 42.30501896195133,
+      "depth": 39.346934028736655,
       "search": 0,
       "irreversibility": 0,
       "simulation": 0,
       "threat": 0,
       "choreography": 35,
-      "budget": 2.7753461579227
+      "budget": 2.7753461579227,
+      "custody": 0
     },
     "minMoves": 11,
     "statesExplored": 469,
@@ -244,13 +249,14 @@
     "difficulty": 3.5,
     "tier": "CORE",
     "dims": {
-      "depth": 66.71289163019205,
+      "depth": 63.212055882855765,
       "search": 0,
       "irreversibility": 0,
       "simulation": 0,
       "threat": 40.91701819678425,
       "choreography": 42,
-      "budget": 7.84986435362869
+      "budget": 7.84986435362869,
+      "custody": 0
     },
     "minMoves": 22,
     "statesExplored": 268,
@@ -290,16 +296,17 @@
     ],
     "width": 14,
     "height": 12,
-    "difficulty": 3.9,
+    "difficulty": 4,
     "tier": "CORE",
     "dims": {
-      "depth": 80.7950091379246,
+      "depth": 77.68698398515703,
       "search": 15.051499783199063,
       "irreversibility": 24.8522706924714,
       "simulation": 0,
       "threat": 0,
       "choreography": 25,
-      "budget": 32.36859508106377
+      "budget": 32.36859508106377,
+      "custody": 0
     },
     "minMoves": 33,
     "statesExplored": 2000,
@@ -336,16 +343,17 @@
     ],
     "width": 11,
     "height": 9,
-    "difficulty": 3.1,
+    "difficulty": 3.2,
     "tier": "CORE",
     "dims": {
-      "depth": 47.79542232389839,
+      "depth": 44.61764201692413,
       "search": 0,
       "irreversibility": 0,
       "simulation": 70.62422996764671,
       "threat": 0,
       "choreography": 7,
-      "budget": 8.00327921130525
+      "budget": 8.00327921130525,
+      "custody": 0
     },
     "minMoves": 13,
     "statesExplored": 646,
@@ -386,16 +394,17 @@
     ],
     "width": 12,
     "height": 13,
-    "difficulty": 4,
+    "difficulty": 4.1,
     "tier": "CORE",
     "dims": {
-      "depth": 76.54297119062024,
+      "depth": 73.23785556714418,
       "search": 36.978617222504596,
       "irreversibility": 43.52818779922407,
       "simulation": 0,
       "threat": 0,
       "choreography": 21,
-      "budget": 18.290822393032062
+      "budget": 18.290822393032062,
+      "custody": 0
     },
     "minMoves": 29,
     "statesExplored": 5490,
@@ -433,16 +442,17 @@
     ],
     "width": 11,
     "height": 10,
-    "difficulty": 4.7,
+    "difficulty": 4.8,
     "tier": "CORE",
     "dims": {
-      "depth": 69.88057880877977,
+      "depth": 66.40890187608376,
       "search": 100,
       "irreversibility": 24.8522706924714,
       "simulation": 0,
       "threat": 0,
       "choreography": 21,
-      "budget": 16.431676725154983
+      "budget": 16.431676725154983,
+      "custody": 0
     },
     "minMoves": 24,
     "statesExplored": 393139,
@@ -481,16 +491,17 @@
     ],
     "width": 11,
     "height": 11,
-    "difficulty": 6,
+    "difficulty": 5.8,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 55.067103588277845,
+      "depth": 51.67749188101746,
       "search": 100,
       "irreversibility": 57.562715432305,
       "simulation": 37.29109147269438,
       "threat": 0,
       "choreography": 88,
-      "budget": 7.49576926854727
+      "budget": 7.49576926854727,
+      "custody": 0
     },
     "minMoves": 16,
     "statesExplored": 196731,
@@ -538,13 +549,14 @@
     "difficulty": 5.3,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 80.7950091379246,
+      "depth": 77.68698398515703,
       "search": 84.52132304412281,
       "irreversibility": 57.562715432305,
       "simulation": 41.822218579019165,
       "threat": 0,
       "choreography": 32,
-      "budget": 18.957056733575495
+      "budget": 18.957056733575495,
+      "custody": 0
     },
     "minMoves": 33,
     "statesExplored": 49026,
@@ -582,16 +594,17 @@
     ],
     "width": 15,
     "height": 10,
-    "difficulty": 6.3,
+    "difficulty": 6.2,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 88.3515842226503,
+      "depth": 85.8371161189814,
       "search": 79.74778866317047,
       "irreversibility": 43.52818779922407,
       "simulation": 0,
       "threat": 0,
       "choreography": 100,
-      "budget": 55.072237606442584
+      "budget": 55.072237606442584,
+      "custody": 0
     },
     "minMoves": 43,
     "statesExplored": 39351,
@@ -633,16 +646,17 @@
     ],
     "width": 13,
     "height": 13,
-    "difficulty": 5.8,
+    "difficulty": 5.6,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 80.7950091379246,
+      "depth": 77.68698398515703,
       "search": 61.13452323556703,
       "irreversibility": 43.52818779922407,
       "simulation": 81.11243971624383,
       "threat": 0,
       "choreography": 65,
-      "budget": 31.029313351040123
+      "budget": 31.029313351040123,
+      "custody": 0
     },
     "minMoves": 33,
     "statesExplored": 16699,
@@ -683,16 +697,17 @@
     ],
     "width": 11,
     "height": 13,
-    "difficulty": 3.6,
+    "difficulty": 3.7,
     "tier": "CORE",
     "dims": {
-      "depth": 66.71289163019205,
+      "depth": 63.212055882855765,
       "search": 48.19411144643886,
       "irreversibility": 43.52818779922407,
       "simulation": 0,
       "threat": 0,
       "choreography": 14,
-      "budget": 17.619231475415052
+      "budget": 17.619231475415052,
+      "custody": 0
     },
     "minMoves": 22,
     "statesExplored": 9202,
@@ -731,16 +746,17 @@
     ],
     "width": 14,
     "height": 11,
-    "difficulty": 3.2,
+    "difficulty": 3.3,
     "tier": "CORE",
     "dims": {
-      "depth": 55.067103588277845,
+      "depth": 51.67749188101746,
       "search": 61.4610471851369,
       "irreversibility": 0,
       "simulation": 9.516258196404037,
       "threat": 0,
       "choreography": 35,
-      "budget": 8.944271909999161
+      "budget": 8.944271909999161,
+      "custody": 0
     },
     "minMoves": 16,
     "statesExplored": 16952,
@@ -779,16 +795,17 @@
     ],
     "width": 12,
     "height": 11,
-    "difficulty": 5.3,
+    "difficulty": 5.2,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 69.88057880877977,
+      "depth": 66.40890187608376,
       "search": 100,
       "irreversibility": 0,
       "simulation": 0,
       "threat": 0,
       "choreography": 93,
-      "budget": 15.27207096642425
+      "budget": 15.27207096642425,
+      "custody": 0
     },
     "minMoves": 24,
     "statesExplored": 161383,
@@ -828,16 +845,17 @@
     ],
     "width": 14,
     "height": 11,
-    "difficulty": 5.9,
+    "difficulty": 5.8,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 85.04313807773649,
+      "depth": 82.22314271718622,
       "search": 32.73288773247622,
       "irreversibility": 43.52818779922407,
       "simulation": 0,
       "threat": 8,
       "choreography": 100,
-      "budget": 39.99708444184896
+      "budget": 39.99708444184896,
+      "custody": 0
     },
     "minMoves": 38,
     "statesExplored": 4515,
@@ -875,16 +893,17 @@
     ],
     "width": 13,
     "height": 10,
-    "difficulty": 4.3,
+    "difficulty": 4.2,
     "tier": "CORE",
     "dims": {
-      "depth": 68.33632306209468,
+      "depth": 64.84680042135369,
       "search": 64.31271604143953,
       "irreversibility": 51.0458340443047,
       "simulation": 0,
       "threat": 0,
       "choreography": 48,
-      "budget": 21.543774421131356
+      "budget": 21.543774421131356,
+      "custody": 0
     },
     "minMoves": 23,
     "statesExplored": 19331,
@@ -930,16 +949,17 @@
     ],
     "width": 14,
     "height": 15,
-    "difficulty": 6.7,
+    "difficulty": 6.6,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 89.97411562771961,
+      "depth": 87.6425255938386,
       "search": 100,
       "irreversibility": 81.99076878520476,
       "simulation": 65.29662818633287,
       "threat": 10.71248738954376,
       "choreography": 32,
-      "budget": 31.198717922376236
+      "budget": 31.198717922376236,
+      "custody": 0
     },
     "minMoves": 46,
     "statesExplored": 298591,
@@ -977,16 +997,17 @@
     ],
     "width": 9,
     "height": 9,
-    "difficulty": 7.5,
+    "difficulty": 7.1,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 66.71289163019205,
+      "depth": 63.212055882855765,
       "search": 100,
       "irreversibility": 76.03489635582243,
       "simulation": 0,
       "threat": 69.72469480743476,
       "choreography": 74,
-      "budget": 87.76415154433099
+      "budget": 87.76415154433099,
+      "custody": 0
     },
     "minMoves": 22,
     "statesExplored": 261270,
@@ -1024,16 +1045,17 @@
     ],
     "width": 14,
     "height": 9,
-    "difficulty": 8.1,
-    "tier": "ABYSS",
+    "difficulty": 7.6,
+    "tier": "GAUNTLET",
     "dims": {
-      "depth": 59.34303402594009,
+      "depth": 55.87668322400161,
       "search": 100,
       "irreversibility": 68.10934426760295,
       "simulation": 96.2496961901723,
       "threat": 59.097672012449856,
       "choreography": 74,
-      "budget": 85.38149682454625
+      "budget": 85.38149682454625,
+      "custody": 0
     },
     "minMoves": 18,
     "statesExplored": 261073,
@@ -1074,16 +1096,17 @@
     ],
     "width": 13,
     "height": 11,
-    "difficulty": 5.9,
+    "difficulty": 5.7,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 68.33632306209468,
+      "depth": 64.84680042135369,
       "search": 0,
       "irreversibility": 68.10934426760295,
       "simulation": 47.79542232389839,
       "threat": 53.85002333242019,
       "choreography": 21,
-      "budget": 83.20161035345033
+      "budget": 83.20161035345033,
+      "custody": 0
     },
     "minMoves": 23,
     "statesExplored": 98,
@@ -1123,16 +1146,17 @@
     ],
     "width": 13,
     "height": 11,
-    "difficulty": 7.7,
+    "difficulty": 7.4,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 95.49507976064422,
+      "depth": 94.02855842678147,
       "search": 100,
       "irreversibility": 24.8522706924714,
       "simulation": 34.07593697995562,
       "threat": 51.92664801594714,
       "choreography": 100,
-      "budget": 93.15743009537898
+      "budget": 93.15743009537898,
+      "custody": 0
     },
     "minMoves": 62,
     "statesExplored": 107545,
@@ -1167,16 +1191,17 @@
     ],
     "width": 13,
     "height": 8,
-    "difficulty": 7,
+    "difficulty": 6.6,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 68.33632306209468,
+      "depth": 64.84680042135369,
       "search": 77.66319489348983,
       "irreversibility": 57.562715432305,
       "simulation": 0,
       "threat": 37.57633474914523,
       "choreography": 100,
-      "budget": 78.62236578070606
+      "budget": 78.62236578070606,
+      "custody": 0
     },
     "minMoves": 23,
     "statesExplored": 35749,
@@ -1218,16 +1243,17 @@
     ],
     "width": 15,
     "height": 11,
-    "difficulty": 7.3,
+    "difficulty": 7,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 89.46007754381357,
+      "depth": 87.06786058361942,
       "search": 79.16844149463525,
       "irreversibility": 57.562715432305,
       "simulation": 76.73763420827073,
       "threat": 46.938093248283806,
       "choreography": 61,
-      "budget": 76.07257743127307
+      "budget": 76.07257743127307,
+      "custody": 0
     },
     "minMoves": 45,
     "statesExplored": 38315,
@@ -1269,16 +1295,17 @@
     ],
     "width": 13,
     "height": 11,
-    "difficulty": 7.9,
+    "difficulty": 7.4,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 77.68698398515703,
+      "depth": 74.42708400868993,
       "search": 82.20665978734152,
       "irreversibility": 81.99076878520476,
       "simulation": 74.07597393541084,
       "threat": 23.560630363330546,
       "choreography": 96,
-      "budget": 90.77304717673633
+      "budget": 90.77304717673633,
+      "custody": 0
     },
     "minMoves": 30,
     "statesExplored": 44069,
@@ -1322,13 +1349,14 @@
     "difficulty": 6.3,
     "tier": "ADVANCED",
     "dims": {
-      "depth": 92.19183339988469,
+      "depth": 90.15475726149158,
       "search": 0,
       "irreversibility": 76.03489635582243,
       "simulation": 0,
       "threat": 69.03879375105058,
       "choreography": 28,
-      "budget": 91.78350204849085
+      "budget": 91.78350204849085,
+      "custody": 0
     },
     "minMoves": 51,
     "statesExplored": 52,
@@ -1371,16 +1399,17 @@
     ],
     "width": 15,
     "height": 13,
-    "difficulty": 8.2,
-    "tier": "ABYSS",
+    "difficulty": 7.6,
+    "tier": "GAUNTLET",
     "dims": {
-      "depth": 63.212055882855765,
+      "depth": 59.71096784708669,
       "search": 31.60767417553163,
       "irreversibility": 76.03489635582243,
       "simulation": 99.94422873356592,
       "threat": 60.32118130982988,
       "choreography": 99,
-      "budget": 92.94286409033649
+      "budget": 92.94286409033649,
+      "custody": 0
     },
     "minMoves": 20,
     "statesExplored": 4287,
@@ -1427,16 +1456,17 @@
     ],
     "width": 13,
     "height": 16,
-    "difficulty": 7.8,
+    "difficulty": 7.4,
     "tier": "GAUNTLET",
     "dims": {
-      "depth": 74.07597393541086,
+      "depth": 70.69091727162443,
       "search": 100,
       "irreversibility": 72.35469533704358,
       "simulation": 54.69109827198311,
       "threat": 49.28268428657999,
       "choreography": 69,
-      "budget": 89.8356365398566
+      "budget": 89.8356365398566,
+      "custody": 0
     },
     "minMoves": 27,
     "statesExplored": 121335,
@@ -1482,16 +1512,17 @@
     ],
     "width": 15,
     "height": 15,
-    "difficulty": 9,
-    "tier": "NIGHTMARE",
+    "difficulty": 8.4,
+    "tier": "ABYSS",
     "dims": {
-      "depth": 85.04313807773649,
+      "depth": 82.22314271718622,
       "search": 69.00332263757352,
       "irreversibility": 95.68406907385474,
       "simulation": 99.94136927958957,
       "threat": 65.22345241278882,
       "choreography": 99,
-      "budget": 92.59454627568515
+      "budget": 92.59454627568515,
+      "custody": 0
     },
     "minMoves": 38,
     "statesExplored": 23992,
@@ -1504,6 +1535,338 @@
       "valves": 1,
       "bridges": 5,
       "ice": 96,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "32-nestvakt",
+    "name": "Nestvakt",
+    "grid": [
+      "#############",
+      "#..oo@..#...#",
+      "#.*.....O.*.#",
+      "#.......+...#",
+      "#.......#...#",
+      "#....######X#",
+      "#############"
+    ],
+    "turnLimit": 22,
+    "mechanics": [
+      "classic",
+      "eggs"
+    ],
+    "width": 13,
+    "height": 7,
+    "difficulty": 5.8,
+    "tier": "ADVANCED",
+    "dims": {
+      "depth": 57.83738945129965,
+      "search": 100,
+      "irreversibility": 51.0458340443047,
+      "simulation": 0,
+      "threat": 8.4715866650807,
+      "choreography": 37,
+      "budget": 80.25948712912326,
+      "custody": 39
+    },
+    "minMoves": 19,
+    "statesExplored": 193010,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "33-the-pedestal",
+    "name": "The Pedestal",
+    "grid": [
+      "#############",
+      "#..oo@...*.*#",
+      "######O####.#",
+      "#%....$.....#",
+      "##D##########",
+      "#X..........#",
+      "#############"
+    ],
+    "turnLimit": 24,
+    "mechanics": [
+      "classic",
+      "eggs"
+    ],
+    "width": 13,
+    "height": 7,
+    "difficulty": 6,
+    "tier": "ADVANCED",
+    "dims": {
+      "depth": 61.50129010765164,
+      "search": 51.54616998136095,
+      "irreversibility": 34.85609424689444,
+      "simulation": 0,
+      "threat": 7.187404398829543,
+      "choreography": 100,
+      "budget": 81.84875533567997,
+      "custody": 39
+    },
+    "minMoves": 21,
+    "statesExplored": 10738,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 2,
+      "crates": 1,
+      "plates": 1,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "34-bridge-of-glass",
+    "name": "Bridge of Glass",
+    "grid": [
+      "############",
+      "#.oo@..#...#",
+      "#.*..~.O...#",
+      "#......=...#",
+      "#......#...#",
+      "#......#..X#",
+      "############"
+    ],
+    "turnLimit": 19,
+    "mechanics": [
+      "classic",
+      "bridges",
+      "eggs"
+    ],
+    "width": 12,
+    "height": 7,
+    "difficulty": 5.3,
+    "tier": "ADVANCED",
+    "dims": {
+      "depth": 49.43032925625275,
+      "search": 89.71708152912608,
+      "irreversibility": 34.85609424689444,
+      "simulation": 0,
+      "threat": 29.396512991387695,
+      "choreography": 30,
+      "budget": 70.1465776293662,
+      "custody": 33
+    },
+    "minMoves": 15,
+    "statesExplored": 62279,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 1,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 1,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "35-precious-cargo",
+    "name": "Precious Cargo",
+    "grid": [
+      "###############",
+      "#..oo@........#",
+      "#####.#########",
+      "#....*........#",
+      "#....*.~.~.O..#",
+      "#.........%$..#",
+      "############D##",
+      "############X##",
+      "###############"
+    ],
+    "turnLimit": 15,
+    "mechanics": [
+      "classic",
+      "eggs"
+    ],
+    "width": 15,
+    "height": 9,
+    "difficulty": 4.2,
+    "tier": "CORE",
+    "dims": {
+      "depth": 44.61764201692413,
+      "search": 0,
+      "irreversibility": 0,
+      "simulation": 0,
+      "threat": 28.73129200782941,
+      "choreography": 51,
+      "budget": 80.68227580844277,
+      "custody": 24
+    },
+    "minMoves": 13,
+    "statesExplored": 813,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 1,
+      "plates": 1,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "36-ovum-vault",
+    "name": "Ovum Vault",
+    "grid": [
+      "#############",
+      "#..oo@..#...#",
+      "#.*.....O.k.#",
+      "#.......+...#",
+      "##########v##",
+      "#..*....L...#",
+      "#..X....#####",
+      "#############"
+    ],
+    "turnLimit": 30,
+    "mechanics": [
+      "classic",
+      "valves",
+      "keys",
+      "eggs"
+    ],
+    "width": 13,
+    "height": 8,
+    "difficulty": 6.1,
+    "tier": "ADVANCED",
+    "dims": {
+      "depth": 69.32794424234432,
+      "search": 91.6755233131969,
+      "irreversibility": 72.35469533704358,
+      "simulation": 0,
+      "threat": 9.319913329489577,
+      "choreography": 55,
+      "budget": 80.68227580844277,
+      "custody": 33
+    },
+    "minMoves": 26,
+    "statesExplored": 68157,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 1,
+      "valves": 1,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "37-cold-brood",
+    "name": "Cold Brood",
+    "grid": [
+      "#############",
+      "#..oo@.*.*..#",
+      "##########.##",
+      "#.......O...#",
+      "#_______+___#",
+      "########.####",
+      "########.####",
+      "########.####",
+      "#..*...X...*#",
+      "#############"
+    ],
+    "turnLimit": 35,
+    "mechanics": [
+      "classic",
+      "ice",
+      "eggs"
+    ],
+    "width": 13,
+    "height": 10,
+    "difficulty": 7.4,
+    "tier": "GAUNTLET",
+    "dims": {
+      "depth": 77.68698398515703,
+      "search": 100,
+      "irreversibility": 86.46647167633873,
+      "simulation": 22.119921692859513,
+      "threat": 9.786563393606752,
+      "choreography": 100,
+      "budget": 91.55221231720688,
+      "custody": 48
+    },
+    "minMoves": 33,
+    "statesExplored": 107919,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 10,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "38-the-hatchery",
+    "name": "The Hatchery",
+    "grid": [
+      "################",
+      "#..oo@>*.*...###",
+      "############.###",
+      "############+###",
+      "####...<...Ov.~#",
+      "####.##%...$..~#",
+      "####D###########",
+      "#~...###########",
+      "#.*..>..O#######",
+      "######~.=....###",
+      "###########~X###",
+      "################"
+    ],
+    "turnLimit": 42,
+    "mechanics": [
+      "classic",
+      "valves",
+      "bridges",
+      "eggs"
+    ],
+    "width": 16,
+    "height": 12,
+    "difficulty": 8,
+    "tier": "ABYSS",
+    "dims": {
+      "depth": 83.76793888181518,
+      "search": 100,
+      "irreversibility": 89.82986076957732,
+      "simulation": 0,
+      "threat": 47.31030571299037,
+      "choreography": 100,
+      "budget": 92.94286409033649,
+      "custody": 72
+    },
+    "minMoves": 40,
+    "statesExplored": 185289,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 3,
+      "crates": 1,
+      "plates": 1,
+      "keys": 0,
+      "valves": 4,
+      "bridges": 1,
+      "ice": 0,
       "dirt": 1
     }
   }

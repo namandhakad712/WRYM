@@ -80,10 +80,11 @@ engine → rendered exactly so:**
 | Bridge | `=` | planks `#a07a48`/`#8d6a3d`, nails `#4a3a22` | crumbles when the last weight leaves |
 | Key | `k` | gold `#f2c232` + `#8a6210`, bob + spawn animation | pickup, inventory |
 | Padlock | `L` | body `#f2c232 → #c9920f`, shackle `#8a6210`, keyhole `#6b4a08` | consumed on entry with a key |
+| Egg | `O` | shell gradient `#ffffff → #f7f1e6 → #e8dcc6`, outline `#8a7a66`, warm speckles `rgba(190,168,132,.55)`, gleam; drawn perched on the southern lip of its cell so it visibly RESTS on its support; nervous wobble while the worm carries it | **gravity:** the cell directly below must be solid (wall/dirt/bridge/lock/crate/remains/egg/**any worm segment**); support removed ⇒ the egg falls, cracks, run LOST — even on the winning move. Crumbled-bridge rubble is loose debris: the egg falls through. Never pushable, never enterable; your body beneath it IS the carry |
 
 **Researched but not yet in the engine** (the real game's remaining set —
-the roadmap in §5): **eggs** 🥚 (white `#ffffff`, shepherded/cracked),
-**hats** 👒 (cosmetic worm wear, e.g. white dome beanie), **jigsaw pieces**
+the roadmap in §5): **hats** 👒 (cosmetic worm wear, e.g. white dome
+beanie), **jigsaw pieces**
 🧩 (rest-stop mini-puzzles), **macarons** (spotted in capture ss-07: a
 purple macaron ~`#765693`; pink `#eaaecb`, peach `#f4a261`, blue `#90caf9`,
 mint `#a5d6a7`, purple `#c77dff` — each opens the **matching-color gate**),
@@ -140,7 +141,13 @@ publications & the thinky-games canon:
 | **Sokobond Express** | sokoban × path chemistry; pure determinism |
 | **Would You Love Me If I Was a Snake?** | the sibling "misspelled worms" bundle title |
 
-Priority after WOIM-parity: **eggs, macarons + colored gates, hats** (engine
+Eggs 🥚 shipped in engine v4 (Tier VI — THE HATCHERY, see
+`src/lib/wyrm/levels.ts`): gravity-bound fragile cargo straight from the
+real game's "carrying eggs / egg cracking" mechanic list, with the
+dig-carry-split / push-carry-split / bridge-custody / living-wire design
+grammar documented in `docs/DESIGN_RESEARCH.md` §6.
+
+Priority after WOIM-parity: **macarons + colored gates, hats** (engine
 mechanics), then a second game family (Snakebird-class gravity) behind the
 same bench harness.
 

@@ -2,8 +2,8 @@
 // Lesson from LMGame-Bench (arXiv:2505.15146) and BALROG's procedurally
 // generated environments: static benchmarks leak into training data.
 // Their answer is procedural generation; ours is deterministic variation
-// — every ladder level gets a certified MIRROR TWIN (vertical flip,
-// valves remapped ^↔v), solvable by the same optimal-length line.
+// — every ladder level gets a certified MIRROR TWIN (horizontal flip,
+// valves remapped <↔>), solvable by the same optimal-length line.
 //
 // A model that memorized the original but cannot reason will fail its
 // twin; a model that solved both actually played. Run any model against
@@ -17,20 +17,24 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { HANDCRAFTED_LEVELS } from "../src/lib/wyrm/levels";
-import { validateLevel } from "../src/lib/wyrm/validator";
+import { validateLevel, clearValidationCache } from "../src/lib/wyrm/validator";
 import type { LevelDef } from "../src/lib/wyrm/types";
 
 const ROOT = path.resolve((import.meta as any).dir, "..");
 const OUT = path.join(ROOT, "results", "variants.json");
 
-/** Vertical mirror: rows reversed, vertical valve arrows swapped.
- *  The initial worm stays horizontal with its head at the right end
- *  (the parser's invariant), gravity does not exist in this game, and
- *  every mechanic is direction-symmetric once valves are remapped —
- *  so the mirrored solution has EXACTLY the same move count. */
+/** Horizontal mirror: columns reversed, horizontal valve arrows swapped.
+ *  v4 note: the twin MUST be a horizontal (left↔right) mirror, not a
+ *  vertical one — EGGS obey gravity (support = the cell directly
+ *  south), and a vertical flip would leave every egg floating. The
+ *  horizontal mirror preserves the south direction, remaps <↔>, and
+ *  leaves ^/v untouched; the worm comes out facing LEFT (`@oo`), which
+ *  the parser accepts since v4. Every mechanic is direction-symmetric
+ *  once valves are remapped — so the mirrored solution has EXACTLY the
+ *  same move count. */
 function mirrorGrid(grid: string[]): string[] {
-  const swap = (c: string) => (c === "^" ? "v" : c === "v" ? "^" : c);
-  return [...grid].reverse().map((row) => row.split("").map(swap).join(""));
+  const swap = (c: string) => (c === "<" ? ">" : c === ">" ? "<" : c);
+  return grid.map((row) => [...row].reverse().map(swap).join(""));
 }
 
 const levels: unknown[] = [];
@@ -41,6 +45,13 @@ for (const lv of HANDCRAFTED_LEVELS) {
   const base = validateLevel(lv);
   const twin: LevelDef = { name: `${lv.name} (mirror)`, slug: `${lv.slug}-mirror`, grid: mirrorGrid(lv.grid), turnLimit: lv.turnLimit };
   const report = validateLevel(twin);
+  // the certification cache holds a full BFS tree per level — 38 levels
+  // plus twins in one process is an OOM. Release each tree as we go
+  // and force a major GC so the next 300k-state rink starts from zero.
+  clearValidationCache();
+  if (typeof Bun !== "undefined" && typeof (Bun as any).gc === "function") {
+    (Bun as any).gc(true);
+  }
 
   const parity = base.solvable && report.solvable ? report.minMoves === base.minMoves : false;
   if (report.solvable && parity) certified++;
@@ -71,7 +82,7 @@ for (const lv of HANDCRAFTED_LEVELS) {
 const doc = {
   schema: "wyrm.variants/1",
   generatedAt: new Date().toISOString(),
-  method: "vertical-mirror, valve remap ^↔v — deterministic, contamination-check variants",
+  method: "horizontal-mirror, valve remap <↔>, gravity preserved (v4: eggs) — deterministic, contamination-check variants",
   purpose:
     "Certified twins of every ladder level. Run any model on the twin set to test reasoning vs memorization; identical par guarantees comparable scoring.",
   certified,

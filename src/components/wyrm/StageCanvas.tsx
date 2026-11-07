@@ -728,6 +728,41 @@ export function StageCanvas({
       }
     };
 
+    // the egg — precious cargo; wobbles nervously while the worm carries it
+    const drawEgg = (g: CanvasRenderingContext2D, gx: number, gy: number, cell: number, seed: number, carried: boolean) => {
+      const { pad } = sizeRef.current;
+      const ccx = pad + (gx + 0.5) * cell, ccy = pad + (gy + 0.5) * cell + cell * 0.08;
+      const r = cell * 0.34;
+      const now = performance.now();
+      const wobble = carried
+        ? Math.sin(now * 0.012 + seed * 2.1) * r * 0.10
+        : Math.sin(now * 0.002 + seed) * r * 0.02;
+      g.save();
+      g.translate(ccx, ccy);
+      g.rotate(wobble * 0.3);
+      g.fillStyle = "rgba(0,0,0,0.26)";
+      g.beginPath(); g.ellipse(0, r * 1.0, r * 0.66, r * 0.2, 0, 0, Math.PI * 2); g.fill();
+      g.beginPath();
+      g.moveTo(0, -r);
+      g.bezierCurveTo(r * 0.78, -r * 0.86, r * 0.86, r * 0.42, 0, r);
+      g.bezierCurveTo(-r * 0.86, r * 0.42, -r * 0.78, -r * 0.86, 0, -r);
+      const eg = g.createRadialGradient(-r * 0.28, -r * 0.34, r * 0.1, 0, 0, r * 1.05);
+      eg.addColorStop(0, "#ffffff"); eg.addColorStop(0.7, "#f7f1e6"); eg.addColorStop(1, "#e8dcc6");
+      g.fillStyle = eg; g.fill();
+      g.strokeStyle = "#8a7a66"; g.lineWidth = Math.max(1.6, r * 0.11); g.stroke();
+      const rnd = cellRand(gx, gy, 33);
+      g.fillStyle = "rgba(190,168,132,0.55)";
+      for (let i = 0; i < 5; i++) {
+        const sx = (rnd() - 0.5) * r * 1.1, sy = (rnd() - 0.5) * r * 1.3;
+        if (Math.hypot(sx / (r * 0.62), sy / (r * 0.9)) < 0.82) {
+          g.beginPath(); g.ellipse(sx, sy, r * 0.09, r * 0.07, rnd() * 3, 0, Math.PI * 2); g.fill();
+        }
+      }
+      g.fillStyle = "rgba(255,255,255,0.92)";
+      g.beginPath(); g.ellipse(-r * 0.3, -r * 0.36, r * 0.16, r * 0.26, -0.35, 0, Math.PI * 2); g.fill();
+      g.restore();
+    };
+
     const drawKey = (g: CanvasRenderingContext2D, gx: number, gy: number, cell: number, born: number) => {
       const { pad } = sizeRef.current;
       const ccx = pad + (gx + 0.5) * cell, ccy = pad + (gy + 0.5) * cell;
@@ -911,6 +946,10 @@ export function StageCanvas({
         if (to) drawKey(ctx, to.x, to.y, cell, k.born || now);
       });
       s.apples.forEach((p, i) => drawApple(ctx, p.x, p.y, cell, i * 1.3));
+      s.eggs.forEach((p, i) => {
+        const carried = s.worm.some((w) => w.x === p.x && w.y === p.y + 1);
+        drawEgg(ctx, p.x, p.y, cell, i, carried);
+      });
       a.crates.forEach((c, i) => {
         const to = s.crates[i] ?? c;
         drawWalnut(ctx, lerp(c.x, to.x, e), lerp(c.y, to.y, e), cell);

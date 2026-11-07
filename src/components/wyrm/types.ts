@@ -140,6 +140,7 @@ export function hydrateState(json: string): GameState | null {
       keys: d.k ?? [],
       keysHeld: d.kh ?? 0,
       remains: d.r ?? [],
+      eggs: d.e ?? [],
       pits: d.p ?? [],
       bridgeTouched: d.bt ?? [],
       worm: d.m ?? [],

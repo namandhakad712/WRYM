@@ -17,6 +17,7 @@ export function renderAscii(s: GameState): string {
   s.crates.forEach((p) => (rows[p.y][p.x] = CHARS.crate));
   s.keys.forEach((p) => (rows[p.y][p.x] = CHARS.key));
   s.remains.forEach((p) => (rows[p.y][p.x] = CHARS.remain));
+  s.eggs.forEach((p) => (rows[p.y][p.x] = CHARS.egg));
   s.worm.forEach((p, i) => (rows[p.y][p.x] = i === 0 ? CHARS.head : CHARS.body));
   return rows.map((r) => r.join("")).join("\n");
 }
@@ -61,7 +62,9 @@ export const LEGEND_TEXT = `LEGEND (one character = one cell):
      stopped; sliding into spikes kills; slides cannot dig or push)
   k  key (walk over it to pick it up)
   L  lock (impassable until you carry a key; entering it consumes one
-     key and opens it permanently)`;
+     key and opens it permanently)
+  O  egg (FRAGILE CARGO — see rule 12; it rests on the cell DIRECTLY
+     BELOW it and cracks if that support is ever removed)`;
 
 export const RULES_TEXT = `RULES:
   1. One action per turn: up / down / left / right / split.
@@ -86,9 +89,22 @@ export const RULES_TEXT = `RULES:
      matters, not where you step. Ice never holds apples.
   10. BRIDGES (=) are one-way in time: after you leave a bridge tile
      it collapses to #. You can never re-cross it. Remains or crates
-     left on a bridge keep it standing.
+     left on a bridge keep it standing — and an egg resting on the
+     span falls through the rubble when it collapses.
   11. KEYS (k) stack; each lock (L) eats exactly one key and opens
-     forever. You may carry more keys than you need.`;
+     forever. You may carry more keys than you need.
+  12. EGGS (O) are bound by GRAVITY: the cell DIRECTLY BELOW an egg
+     must be solid — wall #, dirt +, bridge =, lock L, a crate $,
+     remains :, another egg, or ANY segment of your body (@ or o).
+     The floor ., plates %, ice _, spikes ~, valves, doors D and
+     crumbled-bridge RUBBLE are NOT support. The instant an action
+     leaves an egg unsupported it falls, cracks, and the run is LOST —
+     even on your winning move.
+     Eggs never move: you cannot push or enter them. If your body is
+     under an egg you are CARRYING it — every segment you shift away
+     must be replaced by another (or by remains / a crate) the same
+     turn. Digging dirt, pushing crates, splitting and crossing
+     bridges under or beside an egg are all razor decisions.`;
 
 export interface ObservationOpts {
   history?: { action: Action; valid: boolean; note?: string }[];
@@ -106,7 +122,8 @@ export function buildObservation(s: GameState, opts: ObservationOpts = {}): stri
   const limit = s.turnLimit;
 
   const mission =
-    `MISSION: ${applesLeft > 0 ? `eat ${applesLeft} apple${applesLeft > 1 ? "s" : ""} (${s.apples.map((a) => `(${a.y},${a.x})`).join(" ")}), then` : "all apples eaten —"} reach the exit${exit ? ` X at (${exit.y},${exit.x})` : ""} with the head.`;
+    `MISSION: ${applesLeft > 0 ? `eat ${applesLeft} apple${applesLeft > 1 ? "s" : ""} (${s.apples.map((a) => `(${a.y},${a.x})`).join(" ")}), then` : "all apples eaten —"} reach the exit${exit ? ` X at (${exit.y},${exit.x})` : ""} with the head.` +
+    (s.eggs.length > 0 ? ` PROTECT ${s.eggs.length} egg${s.eggs.length > 1 ? "s" : ""} (${s.eggs.map((e) => `(${e.y},${e.x})`).join(" ")}) — every egg must keep solid support below it until the run ends, or you LOSE.` : "");
 
   const statusLine = [
     `turn ${s.turn}/${limit} (${limit - s.turn} left)`,
@@ -171,6 +188,16 @@ function perceive(s: GameState): string[] {
   if (t === "_") out.push("you are ON ice — moving starts a slide");
   if (t === "=") out.push("you are ON a crumble bridge — leaving collapses it forever");
   if (t === "%" ) out.push("you are ON a pressure plate");
+  // egg custody facts — the gravity rule made visible
+  for (const seg of s.worm) {
+    const egg = s.eggs.find((e) => e.x === seg.x && e.y === seg.y - 1);
+    if (egg) {
+      out.push(
+        `you are CARRYING the egg at (${egg.y},${egg.x}) — a body segment must stay directly beneath it or it falls`,
+      );
+      break;
+    }
+  }
   const dirs: [string, number, number][] = [["up", 0, -1], ["down", 0, 1], ["left", -1, 0], ["right", 1, 0]];
   for (const [name, dx, dy] of dirs) {
     const nx = h.x + dx, ny = h.y + dy;
@@ -180,11 +207,13 @@ function perceive(s: GameState): string[] {
     if (nt === "=" ) out.push(`bridge ${name} at (${ny},${nx})`);
     if (nt === "L") out.push(`lock ${name} at (${ny},${nx})`);
     if (nt === "D") out.push(`door ${name} at (${ny},${nx})`);
+    if (s.eggs.some((e) => e.x === nx && e.y === ny))
+      out.push(`fragile egg ${name} at (${ny},${nx}) — its support is the cell below it`);
   }
   return out;
 }
 
-/** System prompt for the Thinker — the structured instructions (v3). */
+/** System prompt for the Thinker — the structured instructions (v4). */
 export function thinkerSystemPrompt(): string {
   return `You are WYRM-SOLVER, an expert deterministic-puzzle agent playing "WYRM". You see the board as framed ASCII text with coordinates and must choose exactly ONE action per turn. You never act on instinct: every action you emit is the result of an explicit, checkable reasoning step.
 
@@ -195,19 +224,22 @@ ${RULES_TEXT}
 TURN PROTOCOL — execute these five steps EVERY turn, in order, and show your work inside "thought":
   1. LOCATE — find @ on the board. State its (row, col) and the cells of your body.
   2. SURVEY — list what matters within reach: remaining apples, the exit, spikes,
-     ice lanes, valves, bridges, plates and the door, keys and locks. Name cells
-     as (row, col) pairs.
+     ice lanes, valves, bridges, plates and the door, keys and locks, and every
+     EGG with the cell that currently supports it. Name cells as (row, col) pairs.
   3. VERIFY — take your candidate action and simulate it ONE full step on the
      board: where exactly does the head land? Does it push a crate, dig dirt,
      cross a valve, burn a bridge, pick a key? If it enters ice, trace the
      ENTIRE glide to its stop cell before accepting it.
   4. CHECK FUTURES — if the move is irreversible (valve entry, bridge crossing,
-     digging, splitting, spending a key), prove you can still finish: every
+     digging, splitting, spending a key) prove you can still finish: every
      remaining apple reachable, exit reachable, and turns_left >= the distance
-     you still must travel. If you cannot prove it, do not move.
+     you still must travel. If an egg is anywhere near the blast radius — the
+     dirt you would dig, the crate you would push, the bridge you would burn,
+     the body cells you would vacate — prove the egg keeps support AFTER the
+     move. If you cannot prove it, do not move.
   5. COMMIT — emit the JSON. The action must be legal THIS turn.
 
-FAILURE CATALOGUE — the ten classic ways agents die or strand in WYRM.
+FAILURE CATALOGUE — the eleven classic ways agents die or strand in WYRM.
   Check yourself against the relevant ones before committing:
   1. SLIDE-BLINDNESS: stepping onto ice without tracing the glide to its stop
      cell. The step cell is irrelevant; only the STOP cell matters.
@@ -229,17 +261,30 @@ FAILURE CATALOGUE — the ten classic ways agents die or strand in WYRM.
      If the weight that holds a plate must move away, the door slams shut.
   10. BUDGET BLOWOUT: wandering until the turn limit hits. Compare the
      length of your intended route with turns_left before you start it.
+  11. EGG DROP: an egg is only as safe as the cell directly beneath it.
+     Digging its dirt, pushing its pedestal crate, vacating the body
+     segment carrying it, or letting its bridge crumble all crack the
+     egg and end the run instantly — including on the winning move.
+     Before ANY action near an egg, name its support out loud and prove
+     the action leaves that support (or replaces it) intact.
 
 PLANNING DOCTRINE:
   - Think in sub-goals, ordered by dependency: what must be weighted or
     unlocked BEFORE what. Doors and plates usually precede distant apples.
   - Write coordinates, not vibes: "go to (6,3), push crate up twice" is a
     executable plan; "head toward the door" is not.
+  - Eggs are CONSTRAINTS FIRST: map every egg to its support before you
+    plan the route, and route AROUND forbidden digs and pushes. An egg
+    can also be a TOOL: your body carried beneath it, remains parked
+    under it (split!), or a crate ferried under it can free the rest of
+    the board while the egg stays safe.
   - When two moves look equal, prefer the one that keeps more of the board
     reachable (no burns, no lockouts, no dead ends).
   - If the position confuses you, re-derive the plan from the FULL board
     instead of oscillating between two cells — oscillation burns the budget.
   - Efficiency matters: the benchmark scores you on moves used vs par.
+    Par is the certified MINIMUM number of turns — hunt for the shortest
+    line, not any line.
 
 OUTPUT CONTRACT — reply with ONE JSON object and nothing else:
 {"thought": "<your 5-step protocol execution: locate, survey, verify, futures, commit>", "action": "<up|down|left|right|split>"}`;
@@ -271,13 +316,18 @@ DESIGN REQUIREMENTS:
     0-6 spikes, 0-4 dirt.
   - Advanced elements (optional, at most two families per level):
     0-4 valves, 0-3 bridges, 0-4 ice tiles, 0-1 keys with 0-1 locks.
+  - Eggs (0-3): each egg MUST start on a solid support (wall, dirt,
+    bridge, lock, crate or another egg directly below it). Eggs make
+    zones of the board untouchable — use them to forbid the greedy
+    route, or as cargo the worm's body must carry (a segment beneath
+    the egg every turn; split to park it on remains).
   - Every cell character must be from the legend; all rows equal width.
   - The level MUST be solvable — mentally simulate a solution before
     answering. Prefer levels that need a clever trick: a split, a
     drape over a plate, a crate push, an ice landing, a valve loop,
-    or careful spike threading.
+    careful spike threading, or an egg ferry on the worm's back.
   - Difficulty target: tier ADVANCED to GAUNTLET (index 5.0–8.0 on the
-    v3 scale — depth + irreversibility + threat, not decoration).
+    v4 scale — depth + irreversibility + threat + custody, not decoration).
 
 Reply with ONE JSON object and nothing else:
 {"name": "<two-word level name>", "thought": "<design reasoning + sketched solution>",

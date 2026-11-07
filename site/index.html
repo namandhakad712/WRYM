@@ -112,7 +112,7 @@
   <section id="levels-section">
     <p class="kicker">The Ladder · thirty-one certified trials</p>
     <h2>Levels &amp; Coverage</h2>
-    <p class="section-sub">Every level is certified solvable by exhaustive search before entering the ladder. Difficulty is the v3 index: seven measured dimensions — depth, search breadth, irreversibility, ice simulation, threat, choreography, budget — replayed from the optimal line and folded into one honest score with a tier label. Capability tags come from the level's own geometry. Full gallery with rendered boards on the <a href="./levels.html">Levels page</a>.</p>
+    <p class="section-sub">Every level is certified solvable by exhaustive search before entering the ladder. Difficulty is the v4 index: eight measured dimensions — depth (minimal turns, the headline), search breadth, irreversibility, ice simulation, threat, choreography, egg custody, budget — replayed from the optimal line and folded into one honest score with a tier label. Capability tags come from the level's own geometry. Full gallery with rendered boards on the <a href="./levels.html">Levels page</a>.</p>
     <table class="ledger" id="levels">
       <thead>
         <tr><th>Slug</th><th>Level</th><th>Tier</th><th>Difficulty</th><th class="num">Par</th><th>Capabilities</th><th>Archived runs</th></tr>
@@ -129,7 +129,7 @@
       <div class="pb-title">The benchmark pipeline</div>
       <span class="mono-note" style="display:block">GENERATE → VALIDATE → SOLVE (BFS par) → SOLVE (LLM) → CHECK → ELO → COMMIT → PAGES</span>
       <p style="margin:12px 0 0">
-      <span class="term">Validate</span> — exhaustive BFS certifies solvability and computes the optimal move count (par) and the v3 difficulty index (seven dimensions, tier label).<br>
+      <span class="term">Validate</span> — exhaustive BFS certifies solvability and computes the optimal move count (par) and the v4 difficulty index (eight dimensions, tier label).<br>
       <span class="term">Solve</span> — the BFS solver plays perfectly (the par); each LLM plays from a frozen text projection only, with attempts, deaths and invalid actions recorded.<br>
       <span class="term">Check</span> — a separate deterministic Checker replays the recorded actions on a fresh engine and signs the run CERTIFIED or INVALID. Models never grade themselves.<br>
       <span class="term">Commit</span> — run JSON (every thought, every observation size, every retry) is committed to the repository; this site is regenerated from it. <b>The leaderboard is a pure function of committed data.</b>
@@ -145,7 +145,7 @@
       <li><a href="./community.html"><b>Watch the pipeline work</b></a> — live community board: open PRs, bot verdicts, maintainer decisions, merges and credits.</li>
       <li><b>Plug any model in for $0</b> — <a href="./providers.html">eleven verified free-tier providers</a>, no credit card, with exact hookup snippets. Or the MCP server (<code>mcp/llm-bridge.mjs</code>) for MCP-capable clients — see <a href="https://github.com/namandhakad712/WRYM/blob/main/docs/MCP_SUPPORT.md">the guide</a>.</li>
       <li><b>Run the benchmark locally</b> — <code>bun scripts/run-benchmark.ts</code>, commit <code>results/</code>, push. CI re-certifies and this site re-renders itself.</li>
-      <li><a href="./paper.html"><b>Read the research</b></a> — how the difficulty index works and how Tier V was engineered from Snakebird, Sokoban and WOIM itself.</li>
+      <li><a href="./paper.html"><b>Read the research</b></a> — how the difficulty index works and how Tiers V–VI were engineered from Snakebird, Sokoban, WOIM itself and its own egg-gravity rules.</li>
     </ul>
   </div>
 

@@ -472,6 +472,54 @@ export function drawWormBodyPiece(g: CanvasRenderingContext2D, cx: number, cy: n
 
 /* ── the one-cell sprite: background + element, for palettes & grid ─ */
 
+
+// ── the egg — precious cargo (v4) ────────────────────────────────────
+// White shell, warm speckles, perched toward the southern lip of its
+// cell so it visibly RESTS on whatever is below it (the gravity rule
+// made visible). When the worm's body is the support, the egg wobbles
+// nervously — it knows exactly what is holding it up.
+export function drawEgg(
+  g: CanvasRenderingContext2D,
+  cx: number, cy: number, cell: number,
+  seed = 0, carried = false, t = 0,
+) {
+  const rnd = cellRand(seed, 7, 33);
+  const r = cell * 0.34;
+  const wobble = carried
+    ? Math.sin(t * 0.012 + seed * 2.1) * r * 0.10
+    : Math.sin(t * 0.002 + seed) * r * 0.02;
+  g.save();
+  g.translate(cx, cy + cell * 0.08);
+  g.rotate(wobble * 0.3);
+  // ground shadow — it sits ON something
+  g.fillStyle = "rgba(0,0,0,0.26)";
+  g.beginPath(); g.ellipse(0, r * 1.0, r * 0.66, r * 0.2, 0, 0, Math.PI * 2); g.fill();
+  // shell — egg-shaped, narrow at the crown
+  g.beginPath();
+  g.moveTo(0, -r);
+  g.bezierCurveTo(r * 0.78, -r * 0.86, r * 0.86, r * 0.42, 0, r);
+  g.bezierCurveTo(-r * 0.86, r * 0.42, -r * 0.78, -r * 0.86, 0, -r);
+  const eg = g.createRadialGradient(-r * 0.28, -r * 0.34, r * 0.1, 0, 0, r * 1.05);
+  eg.addColorStop(0, "#ffffff");
+  eg.addColorStop(0.7, "#f7f1e6");
+  eg.addColorStop(1, "#e8dcc6");
+  g.fillStyle = eg; g.fill();
+  g.strokeStyle = "#8a7a66"; g.lineWidth = Math.max(1.6, r * 0.11); g.stroke();
+  // warm speckles
+  g.fillStyle = "rgba(190,168,132,0.55)";
+  for (let i = 0; i < 5; i++) {
+    const sx = (rnd() - 0.5) * r * 1.1;
+    const sy = (rnd() - 0.5) * r * 1.3;
+    if (Math.hypot(sx / (r * 0.62), sy / (r * 0.9)) < 0.82) {
+      g.beginPath(); g.ellipse(sx, sy, r * 0.09, r * 0.07, rnd() * 3, 0, Math.PI * 2); g.fill();
+    }
+  }
+  // gleam
+  g.fillStyle = "rgba(255,255,255,0.92)";
+  g.beginPath(); g.ellipse(-r * 0.3, -r * 0.36, r * 0.16, r * 0.26, -0.35, 0, Math.PI * 2); g.fill();
+  g.restore();
+}
+
 export function drawSpriteCell(
   g: CanvasRenderingContext2D,
   ch: string,
@@ -501,6 +549,7 @@ export function drawSpriteCell(
     case "*": drawApple(g, cx, cy, cell * 0.42, t, opts.seed ?? 0); break;
     case "$": drawWalnut(g, cx, cy, cell * 0.40, opts.seed ?? 0, 1); break;
     case "k": drawKey(g, cx, cy, cell, t, opts.seed ?? 0); break;
+    case "O": drawEgg(g, cx, cy, cell, opts.seed ?? 0, false, t); break;
     case "@": drawWormHeadPiece(g, cx, cy, cell); break;
     case "o": drawWormBodyPiece(g, cx, cy, cell); break;
     default: break; // plain tunnel

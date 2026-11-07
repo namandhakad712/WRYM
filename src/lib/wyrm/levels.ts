@@ -685,6 +685,184 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     ],
     turnLimit: 40,
   },
+
+  // ── Tier VI · THE HATCHERY (engine v4 — eggs, difficulty index v4) ─
+  // Primary research: WOIM's official mechanic list ("carrying eggs",
+  // "egg cracking" — Steam, dogspawn) and Kotaku's review ("super-
+  // difficult… the worm must be long enough to touch a switch AND go
+  // through the gate it opens"). Design grammar, none of it decoration:
+  //   · FORBIDDEN ZONE — an egg's support (the cell directly beneath
+  //     it) is dirt/crate/bridge you must NOT dig, push or burn; the
+  //     greedy route dies on move one.
+  //   · DIG-CARRY-SPLIT — tunnel through the egg's own pillar: the head
+  //     digs the support, the egg rides your back while the body
+  //     conveys through, and a split parks it on remains forever. The
+  //     worm must be LONG enough (growth first — Snakebird economics).
+  //   · PUSH-CARRY-SPLIT — the pedestal crate is pushed out from under
+  //     the egg while your head lands beneath; the crate is then free
+  //     to serve a plate. Exactly N pushes then split — one more and
+  //     the tail vacates the support: crack.
+  //   · BRIDGE CUSTODY — an egg resting on a crumble bridge: cross it
+  //     and the span dies behind you unless a severed half is left
+  //     standing on it — one split holds bridge AND egg.
+  //   · LIVING WIRE — Kotaku's WOIM lesson: be long enough to hold the
+  //     plate AND walk through the door AND keep the egg aloft, all on
+  //     one unbroken body, and win before the circuit breaks.
+  // Hardness is measured in MINIMAL TURNS (par) with razor budgets:
+  // every level below ships turnLimit ≈ par + 2..4.
+
+  {
+    // THE GATEKEEPER. One dirt pillar joins the two chambers; the egg
+    // sits on it. The only way across is to dig the pillar FROM UNDER
+    // the egg, convey it along your back, and sever a half as the
+    // pedestal. Growth first: a 3-segment worm cannot leave a remain
+    // in the support cell. The tunnel closes behind you — remains
+    // block it forever — so everything on the near side must be done
+    // before you commit.
+    name: "Nestvakt",
+    slug: "32-nestvakt",
+    grid: [
+      "#############",
+      "#..oo@..#...#",
+      "#.*.....O.*.#",
+      "#.......+...#",
+      "#.......#...#",
+      "#....######X#",
+      "#############",
+    ],
+    turnLimit: 22,
+  },
+  {
+    // THE PEDESTAL. The crate under the egg is also the only weight
+    // that opens the door. Push it out from beneath the egg (your head
+    // lands under it), convey custody along your body, split after
+    // EXACTLY four pushes — a fifth slides your tail off the support
+    // and the egg dies — with the crate parked on the plate. Greedy
+    // pushing is a trap; counting is the puzzle.
+    name: "The Pedestal",
+    slug: "33-the-pedestal",
+    grid: [
+      "#############",
+      "#..oo@...*.*#",
+      "######O####.#",
+      "#%....$.....#",
+      "##D##########",
+      "#X..........#",
+      "#############",
+    ],
+    turnLimit: 24,
+  },
+  {
+    // BRIDGE CUSTODY in its pure form. The egg rests on the only
+    // bridge between you and the exit. Cross it and the span dies
+    // behind you — with the egg on it — unless you sever yourself so
+    // a half stays standing on the span. One split, two jobs: the
+    // remain holds the bridge AND parks the egg. The spike fangs the
+    // shortcut through the apple row.
+    name: "Bridge of Glass",
+    slug: "34-bridge-of-glass",
+    grid: [
+      "############",
+      "#.oo@..#...#",
+      "#.*..~.O...#",
+      "#......=...#",
+      "#......#...#",
+      "#......#..X#",
+      "############",
+    ],
+    turnLimit: 19,
+  },
+  {
+    // THE LIVING WIRE. Kotaku's WOIM lesson, weaponised: the worm
+    // must be long enough to hold the plate AND carry the egg AND
+    // walk through the door it opens — one unbroken body, one
+    // circuit, no split at all. Push the pedestal crate twice, keep
+    // crawling, and win with the current still flowing through you.
+    name: "Precious Cargo",
+    slug: "35-precious-cargo",
+    grid: [
+      "###############",
+      "#..oo@........#",
+      "#####.#########",
+      "#....*........#",
+      "#....*.~.~.O..#",
+      "#.........%$..#",
+      "############D##",
+      "############X##",
+      "###############",
+    ],
+    turnLimit: 15,
+  },
+  {
+    // THE VAULT. The egg's pillar is the only way in; the only way
+    // OUT is the lock, and the key is on the far side. Dig-carry-
+    // split to enter (the tunnel seals behind you), take the key,
+    // commit down the one-way valve, spend the key on the lock — and
+    // the exit was behind you all along.
+    name: "Ovum Vault",
+    slug: "36-ovum-vault",
+    grid: [
+      "#############",
+      "#..oo@..#...#",
+      "#.*.....O.k.#",
+      "#.......+...#",
+      "##########v##",
+      "#..*....L...#",
+      "#..X....#####",
+      "#############",
+    ],
+    turnLimit: 30,
+  },
+  {
+    // COLD BROOD. The rink again — but this time what you carry is
+    // not a stopper, it is a life. The egg's dirt island interrupts
+    // the only clean slide; dig it and the egg rides a body handed
+    // from segment to segment down a shaft with ice on every side,
+    // and the split that parks it must happen mid-descent. The bottom
+    // row is a two-apple sweep you must plan BEFORE the shaft,
+    // because there is no way back up.
+    name: "Cold Brood",
+    slug: "37-cold-brood",
+    grid: [
+      "#############",
+      "#..oo@.*.*..#",
+      "##########.##",
+      "#.......O...#",
+      "#_______+___#",
+      "########.####",
+      "########.####",
+      "########.####",
+      "#..*...X...*#",
+      "#############",
+    ],
+    turnLimit: 35,
+  },
+  {
+    // THE HATCHERY — THE NEW FLAGSHIP. Two eggs, two custodies, one
+    // line: grow on the farm, dig the only seam, valve-commit into
+    // the vault, push the pedestal crate onto the plate while the egg
+    // rides your back, split to park it, thread the open door, and
+    // cross the span where the second egg dies with its bridge unless
+    // a severed half is left standing on it. Par sits in the thirties
+    // with two turns of slack — everything Tier VI taught, chained.
+    name: "The Hatchery",
+    slug: "38-the-hatchery",
+    grid: [
+      "################",
+      "#..oo@>*.*...###",
+      "############.###",
+      "############+###",
+      "####...<...Ov.~#",
+      "####.##%...$..~#",
+      "####D###########",
+      "#~...###########",
+      "#.*..>..O#######",
+      "######~.=....###",
+      "###########~X###",
+      "################",
+    ],
+    turnLimit: 42,
+  },
 ];
 
 export function levelFromGridText(name: string, slug: string, text: string): LevelDef {

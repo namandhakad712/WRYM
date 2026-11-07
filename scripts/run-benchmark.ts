@@ -311,22 +311,11 @@ for (const m of models) {
 }
 
 // ── static registries the site reads ────────────────────────────────
-writeFileSync(
-  path.join(RESULTS, "models.json"),
-  JSON.stringify(
-    file.models.map((m) => ({
-      key: m.key,
-      name: m.name,
-      kind: m.kind,
-      modelId: m.modelId,
-      aaUrl: m.aaUrl,
-      note: m.note,
-      enabled: m.enabled !== false,
-    })),
-    null,
-    2,
-  ),
-);
+// results/models.json is a BYTE-COPY of bench/models.json — the bench
+// file is the single source of truth and tests/site-data enforce the
+// sync. (It used to be a projected array here, which silently broke
+// both the sync test and the site's .models reader.)
+writeFileSync(path.join(RESULTS, "models.json"), readFileSync(BENCH, "utf8"));
 
 // levels.json always covers the FULL ladder, whatever subset this
 // invocation ran — partial invocations must never shrink the registry.

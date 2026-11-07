@@ -2,12 +2,14 @@
 // The game engine is pure & deterministic: same level + same action
 // sequence ⇒ same result, on server (agents) and client (renderer).
 //
-// MECHANIC FAMILIES (v2):
+// MECHANIC FAMILIES (v4):
 //   classic  — apples, split, crates, plates, doors, dirt, spikes
 //   valves   — one-way arrow tiles: enter only WITH the arrow
 //   bridges  — crumbling tiles: collapse to rubble once vacated
 //   ice      — frictionless floors: entering starts a slide
 //   keys     — key pickups + locked tiles consumed on entry
+//   eggs     — fragile cargo (WOIM's "carrying eggs / egg cracking"):
+//              gravity-bound; crack = instant loss
 
 export type Dir = "up" | "down" | "left" | "right";
 export type Action = Dir | "split";
@@ -73,6 +75,7 @@ export interface GameState {
   keys: Pos[]; // remaining key pickups on the floor
   keysHeld: number; // keys carried by the worm
   remains: Pos[]; // inert dropped halves: solid + weighted
+  eggs: Pos[]; // fragile eggs (v4): static, gravity-bound — see engine.ts
   pits: Pos[]; // cells where a bridge crumbled (rendering hint; terrain is already "#")
   bridgeTouched: string[]; // posKeys of bridges the worm has occupied at least once
   worm: Pos[]; // [0] = head, rest = body
@@ -95,6 +98,7 @@ export type GameEvent =
   | { type: "door"; open: boolean }
   | { type: "spike"; at: Pos }
   | { type: "crumble"; at: Pos } // a bridge collapsed behind you
+  | { type: "egg-crack"; at: Pos; support: string } // an egg lost its support, fell and cracked — run over
   | { type: "key"; at: Pos; held: number } // key picked up
   | { type: "unlock"; at: Pos; held: number } // lock opened, key consumed
   | { type: "exit-sealed"; applesLeft: number }
@@ -111,7 +115,7 @@ export interface StepResult {
 // ── level definition ────────────────────────────────────────────────
 // Level text uses: # wall, . floor, @ head, o body, * apple, $ crate,
 // % plate, D door, X exit, ~ spikes, + dirt, > < ^ v valves, = bridge,
-// _ ice, k key, L lock.
+// _ ice, k key, L lock, O egg.
 // The initial worm must be horizontal with the head at its right end
 // (body stretches to the left of @), facing right.
 
@@ -130,6 +134,7 @@ export function mechanicFamilies(grid: string[]): string[] {
   if (all.includes("=")) fams.add("bridges");
   if (all.includes("_")) fams.add("ice");
   if (all.includes("k") || all.includes("L")) fams.add("keys");
+  if (all.includes("O")) fams.add("eggs");
   return [...fams];
 }
 
@@ -148,7 +153,8 @@ export interface ValidatorReport {
     threat: number;
     choreography: number;
     budget: number;
-  }; // each 0..100 — see lib/wyrm/difficulty.ts
+    custody?: number;
+  }; // each 0..100 — see lib/wyrm/difficulty.ts (v4: + egg custody)
   evidence?: Record<string, number>;
   plates: number;
   apples: number;
@@ -158,6 +164,7 @@ export interface ValidatorReport {
   valves: number;
   bridges: number;
   ice: number;
+  eggs: number;
   splitsRequired: boolean;
   reason?: string;
 }

@@ -117,8 +117,8 @@
       <div class="idea"><b>Sharpest ideas:</b> ① measure the <b>harness delta</b> — the same model raw
       vs&nbsp;scaffolded; ② contamination control through game variation rather than held-out answers.</div>
       <div class="adopt"><b>Adopted:</b> the contamination answer — every ladder level now has a certified
-      <b>mirror twin</b> (vertical flip, valves remapped, identical par; see
-      <code>results/variants.json</code>, 31/31 certified). A model that memorized the original but cannot
+      <b>mirror twin</b> (horizontal flip, valves remapped, gravity preserved for eggs, identical par; see
+      <code>results/variants.json</code>, 38/38 certified). A model that memorized the original but cannot
       reason will fail its twin. Our invalid-action feedback loop (rejected moves return a machine reason)
       is their harness finding operationalized.</div>
       <div class="cite">Hu et&nbsp;al. (2025), <a href="https://arxiv.org/abs/2505.15146" rel="noopener">arXiv:2505.15146</a></div>
@@ -197,7 +197,7 @@
         <tr><td>Head-to-head records</td><td>Kaggle Game Arena</td><td><code>headToHead()</code> → matrix on the leaderboard</td></tr>
         <tr><td>Fine-grained progress score</td><td>BALROG</td><td><code>src/lib/wyrm/progress.ts</code> — 60% apples / 25% goal / 15% distance closure, per run</td></tr>
         <tr><td>Capability decomposition</td><td>SmartPlay</td><td><code>src/lib/wyrm/capabilities.ts</code> — 7 capabilities, geometry-derived tags + intensities, per-model profiles</td></tr>
-        <tr><td>Contamination-resistant variants</td><td>LMGame-Bench · BALROG</td><td><code>scripts/make-variants.ts</code> → <code>results/variants.json</code> — 31/31 certified mirror twins, full par parity</td></tr>
+        <tr><td>Contamination-resistant variants</td><td>LMGame-Bench · BALROG</td><td><code>scripts/make-variants.ts</code> → <code>results/variants.json</code> — 38/38 certified mirror twins (horizontal mirror: gravity-bound eggs survive), full par parity</td></tr>
         <tr><td>Failure taxonomy / error analysis</td><td>Terminal-Bench</td><td>exporter decomposes: spike deaths · exhausted · dead · aborted · invalid-action %</td></tr>
         <tr><td>Cost / tokens / latency columns</td><td>Terminal-Bench · Artificial Analysis</td><td>reliability ledger per run, aggregated into leaderboard rows</td></tr>
         <tr><td>Modality axis (text-first)</td><td>VideoGameBench · BALROG</td><td>frozen text projection for models, pixel canvas for humans; modality recorded per run schema</td></tr>

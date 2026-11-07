@@ -324,6 +324,7 @@
       ["=", "Bridge", "crumbles when the last weight leaves"],
       ["k", "Key", "pickup — each padlock eats one"],
       ["L", "Padlock", "opens forever with a key"],
+      ["O", "Egg", "gravity-bound cargo — support below or it cracks"],
     ];
     const themes = WyrmRender.THEMES;
     const keys = Object.keys(themes);

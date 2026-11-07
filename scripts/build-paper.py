@@ -46,7 +46,8 @@ TIER_COLOR = {
 
 # ── data ───────────────────────────────────────────────────────────────
 levels = json.loads((ROOT / "results" / "levels.json").read_text())
-models = json.loads((ROOT / "results" / "models.json").read_text())
+models_doc = json.loads((ROOT / "results" / "models.json").read_text())
+models = models_doc["models"] if isinstance(models_doc, dict) else models_doc
 runs_root = ROOT / "results" / "runs"
 n_runs = sum(1 for d in runs_root.iterdir() for _ in d.glob("*.json")) if runs_root.exists() else 0
 n_models = sum(1 for m in models if m.get("enabled"))
@@ -178,18 +179,20 @@ E.append(KeepTogether([
         "models: state is fully observable and compactly serialisable, rules are deterministic, and "
         "difficulty is structural rather than perceptual. WRYM (a deliberate misspelling of its ancestor "
         "WOIM) turns a grid-worm puzzle — eat every apple, manage your own body, push crates, press "
-        "plates, respect one-way valves, cross crumbling bridges, slide on ice, and cut yourself in "
-        "half when flesh is the only weight that holds a door open — into a fully static, fully "
+        "plates, respect one-way valves, cross crumbling bridges, slide on ice, cut yourself in "
+        "half when flesh is the only weight that holds a door open, and carry gravity-bound eggs "
+        "whose support you must never destroy — into a fully static, fully "
         "reproducible LLM benchmark. Models see the board only as text and must reason turn by turn "
         "under a tight budget. Every level is certified solvable by an exhaustive breadth-first solver "
         "before entering the ladder; every recorded run is re-played and signed by a deterministic "
-        "checker; difficulty is measured by a seven-dimension index computed from evidence on the "
+        "checker; difficulty is measured by an eight-dimension index computed from evidence on the "
         "optimal line. The arena ships a browser level editor, a GitHub-bot review pipeline with "
         "maintainer approval for community levels, plug-in adapters for fourteen provider kinds plus "
         "Model Context Protocol (MCP), and a leaderboard whose every number is a pure function of "
-        "committed JSON. The ladder tops out at The Rubicon, certified 9.0/10 (NIGHTMARE) — engineered "
-        "from primary research on Snakebird, Stephen's Sausage Roll, Sokoban's PSPACE-completeness "
-        "proofs, and WOIM itself.", "abstract")]],
+        "committed JSON. The ladder tops out at The Rubicon and The Hatchery, certified 8.4 and 8.0 "
+        "(ABYSS) under the v4 index — engineered from primary research on Snakebird, Stephen's "
+        "Sausage Roll, Sokoban's PSPACE-completeness proofs, and WOIM's own carrying-eggs "
+        "mechanic.", "abstract")]],
         [1.0], header_bg=PANEL),
 ]))
 E.append(Spacer(1, 10))
@@ -199,7 +202,7 @@ E.append(KeepTogether([
     Paragraph("<b>TL;DR</b>", S["h2"]),
     tbl([], [[P(
         "<b>We make LLMs play a hard worm puzzle and measure them honestly.</b> Text-only board, "
-        "turn budget, exhaustive-solver par, deterministic checker, seven-dimension difficulty index "
+        "turn budget, exhaustive-solver par, deterministic checker, eight-dimension difficulty index "
         "that refuses to inflate, pooled Bradley-Terry ratings with bootstrap confidence intervals, "
         "fine-grained progress scores, capability profiles, certified mirror variants, community levels "
         "through a bot-and-maintainer review "
@@ -254,7 +257,7 @@ E.append(P("<b>Game benchmarks for LLMs.</b> Five systems directly shaped the v2
            "with pixels than with text — we adopted the progress score (apples, goal, distance "
            "closure on every archived run) and the text-first doctrine. SmartPlay [13] decomposes "
            "agent skill into nine named capabilities and maps each game to the subset it stresses; "
-           "our seven-capability taxonomy (spatial, planning, dependencies, state-tracking, "
+           "our capability taxonomy (spatial, planning, dependencies, state-tracking, "
            "long-horizon, risk, precision) is derived deterministically from each level's geometry "
            "and every model carries an intensity-weighted capability profile. LMGame-Bench [14] "
            "evaluates LLMs on real games with and without a gaming harness and hardens them against "
@@ -291,7 +294,10 @@ E.append(P(
     "beyond the midpoint, permanently donating it as inert terrain. Gates open only while every floor "
     "button is weighted; padlocks consume keys; soft dirt is dug through and never returns; bridges "
     "crumble one turn after their last weight leaves; ice slides the worm until something stops it; "
-    "spikes kill instantly, including mid-slide; one-way valves permit entry only along their arrow. "
+    "spikes kill instantly, including mid-slide; one-way valves permit entry only along their arrow; "
+        "and eggs are gravity-bound cargo — the cell directly beneath an egg must remain solid "
+        "(terrain, crate, remains, or any worm segment), or the egg falls, cracks, and the run is "
+        "lost, even on the winning move. "
     "The run is won when the last apple has been eaten and the head occupies the heart X, and lost "
     "on death or turn-budget exhaustion."))
 vocab_rows = [
@@ -310,10 +316,11 @@ vocab_rows = [
     ["> &lt; ^ v", "one-way valves", "enter only along the arrow"],
     ["=", "crumble bridge", "crosses once, then rubble"],
     ["_", "frictionless ice", "slide until stopped"],
+    ["O", "egg", "gravity-bound: support below or it cracks (loss)"],
 ]
 E.append(KeepTogether([
     tbl(["char", "element", "behaviour"], vocab_rows, [0.12, 0.22, 0.66], aligns=["c", None, None]),
-    Paragraph("Table 1 — The 19-character grid vocabulary (two pairs share rows for space).", S["caption"]),
+    Paragraph("Table 1 — The 20-character grid vocabulary (two pairs share rows for space).", S["caption"]),
 ]))
 
 # ═══════════════════════════════════════ 4 PROTOCOL ═══════════════════
@@ -338,27 +345,31 @@ E.append(P(
     "site re-renders from it, so the leaderboard is a pure function of versioned data."))
 
 # ═══════════════════════════════════════ 5 DIFFICULTY ═════════════════
-E.append(sec("5", "The Difficulty Index (v3)"))
+E.append(sec("5", "The Difficulty Index (v4)"))
 E.append(P(
     "Difficulty is measured, not asserted. The index replays the certified optimal solution through "
-    "the real engine and records evidence along seven dimensions (Table 2), each saturating smoothly "
-    "to 100. The composite blends a weighted mean with the strongest dimension and maps to tiers "
+    "the real engine and records evidence along eight dimensions (Table 2), each saturating smoothly "
+    "to 100. Depth — the minimal-turn length of the optimal line — leads the weighting: hardness is "
+    "first and foremost how long, exact and non-greedy the best plan must be. The composite blends "
+    "a weighted mean with the strongest dimension and maps to tiers "
     "TUTORIAL through NIGHTMARE. Two honesty properties matter more than the formula: a level "
     "containing no ice can never score on simulation, and no spikes means no threat score — the "
     "index refuses to reward mechanics that are absent. In the current %d-level ladder the mean "
-    "difficulty is %.1f and exactly %d level(s) reach NIGHTMARE." % (len(levels), avg_diff, by_tier.get("NIGHTMARE", 0))))
+    "difficulty is %.1f; the v4 rebalance (depth-led, egg custody added) is deliberately stricter "
+    "than v3 — no score is grandfathered." % (len(levels), avg_diff)))
 dim_rows = [
-    ["depth", "plan length of the optimal line", "how far the winning plan stretches"],
+    ["depth", "plan length of the optimal line (par)", "the headline: minimal turns required"],
     ["search", "BFS states explored (log scale)", "combinatorial width of the space"],
     ["irreversibility", "permanent world mutations on the line", "digs, burns, unlocks, splits"],
     ["simulation", "forced ice glides to trace", "must-look-ahead move sequences"],
-    ["threat", "legal moves that would kill", "the price of error"],
+    ["threat", "legal moves that would kill (spikes or cracked eggs)", "the price of error"],
     ["choreography", "sub-goal ordering load", "apples/keys/plates interdependence"],
+    ["custody", "egg-care pressure on the winning line", "turns carrying + one-wrong-move points"],
     ["budget", "turn-limit pressure", "par relative to the limit"],
 ]
 E.append(KeepTogether([
     tbl(["dimension", "measured from", "meaning"], dim_rows, [0.20, 0.38, 0.42]),
-    Paragraph("Table 2 — The seven dimensions of the v3 difficulty index, each 0-100.", S["caption"]),
+    Paragraph("Table 2 — The eight dimensions of the v4 difficulty index, each 0-100.", S["caption"]),
 ]))
 
 # ═══════════════════════════════════════ 6 LADDER ═════════════════════

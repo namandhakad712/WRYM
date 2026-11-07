@@ -26,6 +26,17 @@
 //    turn. Sliding into spikes kills; sliding cannot dig or push.
 //  · KEYS (k) & LOCKS (L): walking over a key picks it up. Entering a
 //    locked tile consumes one key and opens it permanently.
+//  · EGGS (O) — v4, straight from the real WOIM ("carrying eggs",
+//    "egg cracking"): fragile cargo bound by GRAVITY. An egg is safe
+//    only while the cell directly BELOW it (its south neighbour) is
+//    solid: wall #, dirt +, bridge =, lock L, a crate, remains,
+//    another egg — or ANY segment of your body. The moment an action
+//    leaves an egg unsupported it falls, cracks, and the run is LOST.
+//    Eggs never move and cannot be pushed; they block entry like
+//    remains. Crawling under an egg means your body carries it — keep
+//    a segment beneath it every turn, park it on severed remains
+//    (split!) or on a pushed crate. Every dig, push, split and bridge
+//    crossing near an egg is a razor decision.
 //  · Tail-follow is legal (moving into your own tail cell).
 //  · Each level carries its own move budget (turnLimit); exceeding it
 //    ends the run as "exhausted".
@@ -60,6 +71,7 @@ export const CHARS = {
   remain: ":",
   dirt: "+",
   key: "k",
+  egg: "O",
 } as const;
 
 export class LevelFormatError extends Error {}
@@ -77,6 +89,7 @@ export function createGame(level: LevelDef): GameState {
   const crates: Pos[] = [];
   const apples: Pos[] = [];
   const keys: Pos[] = [];
+  const eggs: Pos[] = [];
   const worm: Pos[] = [];
   let exits = 0;
 
@@ -101,6 +114,9 @@ export function createGame(level: LevelDef): GameState {
       } else if (ch === CHARS.key) {
         row.push(".");
         keys.push({ x, y });
+      } else if (ch === CHARS.egg) {
+        row.push(".");
+        eggs.push({ x, y });
       } else if (ch === CHARS.head) {
         row.push(".");
         worm.unshift({ x, y }); // head ALWAYS takes index 0 — a late-scan
@@ -119,12 +135,18 @@ export function createGame(level: LevelDef): GameState {
   if (exits !== 1) throw new LevelFormatError(`expected 1 exit, found ${exits}`);
   if (worm.length < 1) throw new LevelFormatError("worm too short");
 
-  // normalize worm order: head first; initial levels lay the worm out
-  // horizontally with the head at the right end, body stretching left.
+  // normalize worm order: head first. the scan collects the head via
+  // unshift and body cells in reading order (left→right), so:
+  //   · head at the RIGHT end (`oo@`) — the body list is far→near and
+  //     must be REVERSED into a chain running away from the head;
+  //   · head at the LEFT end (`@oo`) — the body is already in chain
+  //     order (mirror twins use this orientation; see make-variants).
   if (worm.length > 1) {
     const [head, ...body] = worm;
-    body.reverse();
-    worm.splice(0, worm.length, head, ...body);
+    const adj = (a: Pos, b: Pos) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y) === 1;
+    const reversed = [...body].reverse();
+    const chain = adj(head, body[0]) ? [head, ...body] : [head, ...reversed];
+    worm.splice(0, worm.length, ...chain);
     for (let i = 1; i < worm.length; i++) {
       const dx = Math.abs(worm[i].x - worm[i - 1].x);
       const dy = Math.abs(worm[i].y - worm[i - 1].y);
@@ -144,6 +166,7 @@ export function createGame(level: LevelDef): GameState {
     keys,
     keysHeld: 0,
     remains: [],
+    eggs,
     pits: [],
     bridgeTouched: [],
     worm,
@@ -196,6 +219,7 @@ function clone(s: GameState): GameState {
     keys: s.keys.map((k) => ({ ...k })),
     keysHeld: s.keysHeld,
     remains: s.remains.map((r) => ({ ...r })),
+    eggs: s.eggs.map((e) => ({ ...e })),
     pits: s.pits.map((p) => ({ ...p })),
     bridgeTouched: [...s.bridgeTouched],
     worm: s.worm.map((w) => ({ ...w })),
@@ -217,6 +241,7 @@ export function serializeState(s: GameState): string {
     k: s.keys,
     kh: s.keysHeld,
     r: s.remains,
+    e: s.eggs,
     p: s.pits,
     bt: s.bridgeTouched,
     m: s.worm,
@@ -237,6 +262,7 @@ export function deserializeState(json: string): GameState {
     keys: d.k ?? [],
     keysHeld: d.kh ?? 0,
     remains: d.r,
+    eggs: d.e ?? [],
     pits: d.p ?? [],
     bridgeTouched: d.bt ?? [],
     worm: d.m,
@@ -261,6 +287,7 @@ export function buildOverlay(s: GameState) {
   s.crates.forEach((p) => (grid[p.y][p.x].entity = "crate"));
   s.keys.forEach((p) => (grid[p.y][p.x].entity = "key"));
   s.remains.forEach((p) => (grid[p.y][p.x].entity = "remain"));
+  s.eggs.forEach((p) => (grid[p.y][p.x].entity = "egg"));
   s.worm.forEach((p, i) => {
     grid[p.y][p.x].entity = i === 0 ? "head" : "body";
     grid[p.y][p.x].wormIndex = i;
@@ -335,6 +362,65 @@ function touchBridges(ns: GameState): void {
   }
 }
 
+// ── eggs (v4) ──────────────────────────────────────────────────────
+
+/** Terrain that can hold an egg up. Doors swing — they never count. */
+const EGG_SOLID_TERRAIN = new Set<string>(["#", "+", "=", "L"]);
+
+/** Human name of what is (or was) under an egg — for events & UI. */
+function supportName(s: GameState, x: number, y: number): string {
+  const terr = s.terrain[y][x];
+  if (EGG_SOLID_TERRAIN.has(terr))
+    return terr === "#" ? "rubble"
+      : terr === "+" ? "dirt"
+      : terr === "=" ? "a crumble bridge"
+      : "a lock";
+  if (s.crates.some((p) => p.x === x && p.y === y)) return "a crate";
+  if (s.remains.some((p) => p.x === x && p.y === y)) return "remains";
+  if (s.eggs.some((p) => p.x === x && p.y === y)) return "another egg";
+  if (s.worm.some((p) => p.x === x && p.y === y)) return "your body";
+  return "nothing";
+}
+
+/** Is the egg at (x,y) supported right now?
+ *  Exposed for the renderer / perception layer.
+ *  NOTE: crumbled-bridge rubble (tracked in `pits`) is LOOSE debris —
+ *  an egg perched on a bridge falls through the rubble when the span
+ *  collapses. Only solid, undisturbed terrain holds an egg. */
+export function eggSupported(s: GameState, x: number, y: number): boolean {
+  const sy = y + 1; // gravity points south (down the screen)
+  if (sy >= s.height) return false;
+  if (s.pits.some((p) => p.x === x && p.y === sy)) return false; // rubble
+  const terr = s.terrain[sy][x];
+  if (EGG_SOLID_TERRAIN.has(terr)) return true;
+  if (s.crates.some((p) => p.x === x && p.y === sy)) return true;
+  if (s.remains.some((p) => p.x === x && p.y === sy)) return true;
+  if (s.eggs.some((p) => p.x === x && p.y === sy)) return true;
+  if (s.worm.some((p) => p.x === x && p.y === sy)) return true;
+  return false;
+}
+
+/** Gravity pass — run after EVERY successful action. If any egg lost
+ *  its support it falls and cracks: the run is over. Returns true when
+ *  at least one egg cracked. Also fires when the winning move itself
+ *  drops an egg — custody is owed until the very last turn. */
+function eggGravity(ns: GameState, events: GameEvent[]): boolean {
+  if (ns.eggs.length === 0 || ns.status === "dead") return false;
+  for (const e of ns.eggs) {
+    if (eggSupported(ns, e.x, e.y)) continue;
+    // the egg falls one cell and shatters
+    ns.status = "dead";
+    events.push({
+      type: "egg-crack",
+      at: { x: e.x, y: e.y },
+      support: supportName(ns, e.x, e.y + 1),
+    });
+    events.push({ type: "death", at: { x: e.x, y: e.y + 1 } });
+    return true;
+  }
+  return false;
+}
+
 /** Apply one action. Returns { state, valid, reason, events }.
  *  The input state is never mutated — on success a new state is returned;
  *  on failure the SAME state object is returned with valid=false. */
@@ -364,6 +450,7 @@ export function step(s: GameState, action: Action): {
     events.push({ type: "plates", ...ps });
     touchBridges(ns); // dropped remains may rest ON a bridge — it then holds
     crumblePass(ns, events);
+    eggGravity(ns, events); // dropped halves can CATCH a falling egg
     ns.lastEvents = events;
     if (ns.turn >= ns.turnLimit && ns.status === "playing") ns.status = "exhausted";
     return { state: ns, valid: true, events };
@@ -381,17 +468,21 @@ export function step(s: GameState, action: Action): {
   }
   const terr = entry.terrain;
 
-  // own body / remains block the way — the TAIL cell is legal to enter
-  // (it vacates this turn); apple can never sit under the tail so growth
-  // never conflicts with tail-follow.
+  // own body / remains / eggs block the way — the TAIL cell is legal to
+  // enter (it vacates this turn); an egg is never pushable
   const bodyHit = s.worm.slice(0, -1).some((p) => p.x === nx && p.y === ny);
   const remainHit = s.remains.some((p) => p.x === nx && p.y === ny);
-  if (bodyHit || remainHit) {
+  const eggHit = s.eggs.some((p) => p.x === nx && p.y === ny);
+  if (bodyHit || remainHit || eggHit) {
     return {
       state: s,
       valid: false,
-      reason: bodyHit ? "your own body blocks the way" : "inert remains block the way",
-      events: [{ type: "bump", reason: bodyHit ? "own body" : "remains" }],
+      reason: bodyHit
+        ? "your own body blocks the way"
+        : remainHit
+          ? "inert remains block the way"
+          : "a fragile egg blocks the way — eggs cannot be pushed or entered",
+      events: [{ type: "bump", reason: bodyHit ? "own body" : remainHit ? "remains" : "egg" }],
     };
   }
 
@@ -412,6 +503,7 @@ export function step(s: GameState, action: Action): {
       !landOk ||
       s.crates.some((p) => p.x === bx && p.y === by) ||
       s.remains.some((p) => p.x === bx && p.y === by) ||
+      s.eggs.some((p) => p.x === bx && p.y === by) ||
       s.worm.some((p) => p.x === bx && p.y === by) ||
       s.apples.some((p) => p.x === bx && p.y === by) ||
       s.keys.some((p) => p.x === bx && p.y === by);
@@ -434,6 +526,7 @@ export function step(s: GameState, action: Action): {
     events.push({ type: "plates", ...ps });
     touchBridges(ns);
     crumblePass(ns, events);
+    eggGravity(ns, events); // a pushed-out pedestal can drop an egg
     ns.lastEvents = events;
     if (ns.turn >= ns.turnLimit && ns.status === "playing") ns.status = "exhausted";
     return { state: ns, valid: true, events };
@@ -493,7 +586,8 @@ export function step(s: GameState, action: Action): {
       const blockedByEntity = next.ok
         ? ns.worm.some((p, i) => i < ns.worm.length - 1 && p.x === tx && p.y === ty) ||
           ns.remains.some((p) => p.x === tx && p.y === ty) ||
-          ns.crates.some((p) => p.x === tx && p.y === ty)
+          ns.crates.some((p) => p.x === tx && p.y === ty) ||
+          ns.eggs.some((p) => p.x === tx && p.y === ty)
         : true;
       // dirt, crates, bodies, walls, wrong-way valves stop the slide
       if (!next.ok || blockedByEntity || nextTerr === "+") {
@@ -545,8 +639,9 @@ export function step(s: GameState, action: Action): {
     if (ps2.total > 0) events.push({ type: "plates", ...ps2 });
     touchBridges(ns);
     crumblePass(ns, events);
+    eggGravity(ns, events); // the stretched body may be holding an egg aloft
     const finalTerr = ns.terrain[headPos.y][headPos.x];
-    if (finalTerr === "X") {
+    if (finalTerr === "X" && ns.status === "playing") {
       if (ns.apples.length === 0) {
         ns.status = "won";
         events.push({ type: "win", at: { ...headPos }, moves: ns.turn });
@@ -586,7 +681,11 @@ export function step(s: GameState, action: Action): {
   const ps = platesSatisfied(ns);
   if (ps.total > 0) events.push({ type: "plates", ...ps });
 
-  if (terr === "X") {
+  touchBridges(ns);
+  crumblePass(ns, events);
+  eggGravity(ns, events); // custody is owed even on the winning move
+
+  if (terr === "X" && ns.status === "playing") {
     if (ns.apples.length === 0) {
       ns.status = "won";
       events.push({ type: "win", at: { x: nx, y: ny }, moves: ns.turn });
@@ -594,9 +693,6 @@ export function step(s: GameState, action: Action): {
       events.push({ type: "exit-sealed", applesLeft: ns.apples.length });
     }
   }
-
-  touchBridges(ns);
-  crumblePass(ns, events);
 
   ns.lastEvents = events;
   if (ns.turn >= ns.turnLimit && ns.status === "playing") ns.status = "exhausted";

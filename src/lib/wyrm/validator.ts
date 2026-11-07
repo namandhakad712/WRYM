@@ -14,7 +14,7 @@ import {
   LevelDef,
   ValidatorReport,
 } from "./types";
-import { createGame, step, platePositions } from "./engine";
+import { createGame, step, platePositions, eggSupported } from "./engine";
 import { computeDifficulty } from "./difficulty";
 
 const MAX_STATES = 400_000;
@@ -93,6 +93,9 @@ function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): Validator
   const apples = start.apples.length;
   const crates = start.crates.length;
   const keys = start.keys.length;
+  const eggs = start.eggs.length;
+  // a level that SHIPS an already-falling egg is malformed
+  const floatingEgg = start.eggs.find((e) => !eggSupported(start, e.x, e.y));
   let dirt = 0;
   let valves = 0;
   let bridges = 0;
@@ -114,7 +117,21 @@ function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): Validator
     valves,
     bridges,
     ice,
+    eggs,
   };
+
+  if (floatingEgg) {
+    return {
+      solvable: false,
+      minMoves: -1,
+      solution: [],
+      statesExplored: 0,
+      difficulty: 0,
+      splitsRequired: false,
+      reason: `egg at (${floatingEgg.y},${floatingEgg.x}) starts without support`,
+      ...base,
+    };
+  }
 
   const startKey = stateKey(start);
   const seen = new Set<string>([startKey]);
@@ -138,7 +155,7 @@ function bfs(level: LevelDef, actions: Action[], allowSplit: boolean): Validator
         solution.unshift(n.action);
         n = n.parent;
       }
-      // v3 difficulty: replay the optimal line, measure seven dimensions
+      // v4 difficulty: replay the optimal line, measure eight dimensions
       const diff = computeDifficulty(level, solution.length, explored, solution, base);
       return {
         solvable: true,

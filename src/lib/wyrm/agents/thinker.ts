@@ -11,7 +11,7 @@ import {
   GameEvent,
   LevelDef,
 } from "../types";
-import { createGame, serializeState, step, MAX_TURNS, DEFAULT_TURN_LIMIT } from "../engine";
+import { createGame, serializeState, deserializeState, step, MAX_TURNS, DEFAULT_TURN_LIMIT } from "../engine";
 import { renderAscii, thinkerSystemPrompt } from "../ascii";
 import { validateLevel } from "../validator";
 import { chat } from "./llm";
@@ -51,6 +51,18 @@ export interface ThinkerResult {
   pausedCount?: number;
 }
 
+export interface ThinkerCheckpoint {
+  stateJson: string;
+  convo: ChatMsg[];
+  history: { action: Action; valid: boolean; note?: string }[];
+  steps: StepRecord[];
+  deaths: number;
+  movesUsed: number; // totalValidMoves so far
+  attempt: number;
+  consecutiveInvalid: number;
+  lastInvalidReason?: string;
+}
+
 export interface ThinkerOpts {
   maxSteps?: number;
   maxAttempts?: number;
@@ -63,6 +75,14 @@ export interface ThinkerOpts {
    *  through the same reliability pipeline (retries, limiter, circuit,
    *  context fitting) via llmChat directly. */
   llmChain?: LLMTarget[];
+  /** Resume a previously checkpointed run mid-attempt (the harness may
+   *  be sliced across process lifetimes — e.g. CI time windows). The
+   *  restored run produces ONE artifact indistinguishable from an
+   *  unbroken one: same steps, same statuses, same replay. */
+  resume?: ThinkerCheckpoint;
+  /** Called after every recorded step with the full resumable context.
+   *  Write it wherever your harness needs to survive a kill -9. */
+  onCheckpoint?: (ck: ThinkerCheckpoint) => void;
 }
 
 // (action validity is enforced by the sandbox schema — see lib/wyrm/sandbox.ts)
@@ -143,22 +163,50 @@ async function runLlmThinker(
   const maxInvalid = opts.maxConsecutiveInvalid ?? 6;
   const ctl = opts.ctl;
 
-  const allSteps: StepRecord[] = [];
-  let deaths = 0;
+  // ── resume: restore an interrupted attempt in full fidelity ──────
+  const ck0 = opts.resume;
+
+  const allSteps: StepRecord[] = ck0?.steps ?? [];
+  let deaths = ck0?.deaths ?? 0;
   let llmError: string | undefined;
   let finalStatus: ThinkerResult["status"] = "lost";
-  let attemptsUsed = 0;
-  let totalValidMoves = 0;
+  let attemptsUsed = ck0?.attempt ? ck0.attempt - 1 : 0;
+  let totalValidMoves = ck0?.movesUsed ?? 0;
   let interrupted = false;
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  for (
+    let attempt = ck0?.attempt ?? 1;
+    attempt <= maxAttempts;
+    attempt++
+  ) {
     attemptsUsed = attempt;
-    let state = createGame(level);
-    const history: { action: Action; valid: boolean; note?: string }[] = [];
-    const convo: ChatMsg[] = [{ role: "system", content: thinkerSystemPrompt() }];
-    let consecutiveInvalid = 0;
-    let lastInvalidReason: string | undefined;
+    let state =
+      ck0 && attempt === ck0.attempt
+        ? deserializeState(ck0.stateJson)
+        : createGame(level);
+    const history: { action: Action; valid: boolean; note?: string }[] =
+      ck0 && attempt === ck0.attempt ? ck0.history : [];
+    const convo: ChatMsg[] =
+      ck0 && attempt === ck0.attempt
+        ? ck0.convo
+        : [{ role: "system", content: thinkerSystemPrompt() }];
+    let consecutiveInvalid =
+      ck0 && attempt === ck0.attempt ? ck0.consecutiveInvalid : 0;
+    let lastInvalidReason: string | undefined =
+      ck0 && attempt === ck0.attempt ? ck0.lastInvalidReason : undefined;
     let attemptStatus: ThinkerResult["status"] | null = null;
+    const checkpoint = () =>
+      opts.onCheckpoint?.({
+        stateJson: serializeState(state),
+        convo,
+        history,
+        steps: allSteps,
+        deaths,
+        movesUsed: totalValidMoves,
+        attempt,
+        consecutiveInvalid,
+        lastInvalidReason,
+      });
 
     while (state.status === "playing" && state.turn < maxSteps) {
       // ── operator control plane ────────────────────────────────────
@@ -282,6 +330,7 @@ async function runLlmThinker(
         await opts.onStep?.(rec, attempt);
         consecutiveInvalid++;
         lastInvalidReason = parseNote;
+        checkpoint();
         if (consecutiveInvalid >= maxInvalid) {
           attemptStatus = "aborted";
           break;
@@ -329,6 +378,9 @@ async function runLlmThinker(
         lastInvalidReason = undefined;
         state = r.state;
         totalValidMoves++;
+        // checkpoint AFTER the state transition — a resumed process must
+        // never re-ask a move that is already recorded in steps
+        checkpoint();
         if (state.status === "won") { attemptStatus = "won"; break; }
         if (state.status === "dead") {
           deaths++;
@@ -339,6 +391,7 @@ async function runLlmThinker(
       } else {
         consecutiveInvalid++;
         lastInvalidReason = r.reason;
+        checkpoint();
         if (consecutiveInvalid >= maxInvalid) { attemptStatus = "aborted"; break; }
       }
     }

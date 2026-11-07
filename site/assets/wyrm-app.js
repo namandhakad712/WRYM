@@ -168,14 +168,15 @@
       const failSec = $("#failure-section");
       if (failSec && data.leaderboard.some(function (r) {
         const f = r.failures;
-        return f && (f.spikeDeaths + f.exhausted + f.dead + f.aborted + f.invalidActions) > 0;
+        return f && (f.spikeDeaths + f.eggCracks + f.exhausted + f.dead + f.aborted + f.invalidActions) > 0;
       })) {
         failSec.style.display = "";
         $("#failure-host").innerHTML = data.leaderboard.map(function (row) {
-          const f = row.failures || { spikeDeaths: 0, exhausted: 0, dead: 0, aborted: 0, invalidActions: 0, invalidPct: 0 };
-          const anyFail = f.spikeDeaths + f.exhausted + f.dead + f.aborted + f.invalidActions > 0;
+          const f = row.failures || { spikeDeaths: 0, eggCracks: 0, exhausted: 0, dead: 0, aborted: 0, invalidActions: 0, invalidPct: 0 };
+          const anyFail = f.spikeDeaths + f.eggCracks + f.exhausted + f.dead + f.aborted + f.invalidActions > 0;
           const chips = [
             f.spikeDeaths ? '<span class="fail-chip bad">🗡 spike deaths ' + f.spikeDeaths + "</span>" : "",
+            f.eggCracks ? '<span class="fail-chip bad">🥚 eggs cracked ' + f.eggCracks + "</span>" : "",
             f.exhausted ? '<span class="fail-chip bad">⏳ turn budget exhausted ' + f.exhausted + "</span>" : "",
             f.dead ? '<span class="fail-chip bad">💀 hard deaths ' + f.dead + "</span>" : "",
             f.aborted ? '<span class="fail-chip warn">⚠ api aborts ' + f.aborted + "</span>" : "",
@@ -445,6 +446,11 @@
     let playing = false;
     let timer = null;
 
+    // the scrubber must span the whole replay — without this the slider
+    // knob sits dead at 0 and dragging does nothing
+    $("#scrubber").max = String(Math.max(0, steps.length - 1));
+    $("#scrubber").step = "1";
+
     function show(i) {
       idx = Math.max(0, Math.min(steps.length - 1, i));
       const st = JSON.parse(steps[idx].stateJson);
@@ -465,7 +471,7 @@
       const evs = (s.events || []);
       $("#event-strip").innerHTML = evs.length
         ? evs.map(function (e) {
-            const cls = e.type === "death" || e.type === "spike" ? "bad" : (e.type === "win" || e.type === "ate" ? "good" : "");
+            const cls = e.type === "death" || e.type === "spike" || e.type === "egg-crack" ? "bad" : (e.type === "win" || e.type === "ate" ? "good" : "");
             return '<span class="ev ' + cls + '">' + esc(eventLabel(e)) + "</span>";
           }).join("")
         : "";
@@ -485,6 +491,7 @@
         case "split": return "split " + e.kept + "+" + e.dropped;
         case "plates": return "plates " + e.satisfied + "/" + e.total;
         case "spike": return "SPIKES";
+        case "egg-crack": return "EGG CRACKED — RUN LOST";
         case "crumble": return "bridge crumbles";
         case "key": return "key picked up";
         case "unlock": return "lock opened";

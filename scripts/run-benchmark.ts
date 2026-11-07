@@ -12,13 +12,14 @@
 // Guaranteed: deterministic engine, sandboxed observations, checker
 // certification per run, resilience telemetry per model call.
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from "node:fs";
 import path from "node:path";
 
 import { HANDCRAFTED_LEVELS } from "../src/lib/wyrm/levels";
 import { validateLevel } from "../src/lib/wyrm/validator";
 import { createGame } from "../src/lib/wyrm/engine";
 import { runThinker } from "../src/lib/wyrm/agents/thinker";
+import type { ThinkerCheckpoint } from "../src/lib/wyrm/agents/thinker";
 import { checkRun } from "../src/lib/wyrm/agents/checker";
 import { computeScore } from "../src/lib/wyrm/elo";
 import { thinkerSystemPrompt } from "../src/lib/wyrm/ascii";
@@ -68,6 +69,9 @@ function argOf(flag: string): string | undefined {
 const levelFilter = argOf("--levels")?.split(",").map((s) => s.trim()) ?? [];
 const modelFilter = argOf("--models")?.split(",").map((s) => s.trim()) ?? [];
 const attemptsOverride = argOf("--attempts") ? Number(argOf("--attempts")) : undefined;
+const RESUME = argv.includes("--resume");
+const ckPath = (modelKey: string, slug: string) =>
+  path.join("/tmp", `wyrm-ck-${modelKey}-${slug}.json`);
 
 const file: ModelsFile = JSON.parse(readFileSync(BENCH, "utf8"));
 const d = file.defaults ?? {};
@@ -212,10 +216,34 @@ for (const m of models) {
       continue;
     }
 
+    // resume support: a previously killed run continues from its last
+    // checkpoint — one logical run, however many process lifetimes it
+    // took. The artifact is byte-equivalent to an unbroken run.
+    const ckFile = ckPath(m.key, lv.slug);
+    let resume: ThinkerCheckpoint | undefined;
+    if (RESUME && m.kind !== "solver" && existsSync(ckFile)) {
+      try {
+        const parsed: ThinkerCheckpoint = JSON.parse(readFileSync(ckFile, "utf8"));
+        const turn = JSON.parse(parsed.stateJson).n;
+        console.log(`${tag} — resuming from checkpoint (turn ${turn})`);
+        resume = parsed;
+      } catch {
+        resume = undefined; // corrupt checkpoint — start clean
+      }
+    }
+
     const result = await runThinker(lv, m.key, {
       maxAttempts: attemptsOverride ?? d.attempts ?? 3,
       ...(chain ? { llmChain: chain } : {}),
+      ...(resume ? { resume } : {}),
+      ...(m.kind !== "solver" && RESUME
+        ? {
+            onCheckpoint: (ck) =>
+              writeFileSync(ckFile, JSON.stringify(ck)),
+          }
+        : {}),
     });
+    if (existsSync(ckFile)) rmSync(ckFile); // finished — checkpoint retired
 
     const checker = checkRun(lv, {
       steps: result.steps.map((s) => ({

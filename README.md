@@ -483,6 +483,16 @@ bun scripts/run-benchmark.ts --levels 13,16,20 --models glm-4.6 --attempts 1
 bun scripts/validate-tier3.ts            # re-certify the whole ladder
 ```
 
+Interruptible / resumable runs (long levels survive CI windows, laptop
+sleeps and `kill -9`):
+
+```bash
+# every step is checkpointed to /tmp/wyrm-ck-<model>-<level>.json;
+# re-running with --resume continues the SAME logical run from the last
+# processed step — one coherent artifact, however many process lifetimes
+bun scripts/run-benchmark.ts --models glm-4.6 --levels 24 --attempts 1 --resume
+```
+
 Containers:
 
 ```bash

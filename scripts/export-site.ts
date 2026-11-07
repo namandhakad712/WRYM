@@ -150,6 +150,7 @@ function reliabilityOf(r: RunDoc) {
 // failure taxonomy (Terminal-Bench-style error analysis)
 function failuresOf(mine: RunDoc[]) {
   let spikeDeaths = 0;
+  let eggCracks = 0;
   let exhausted = 0;
   let dead = 0;
   let aborted = 0;
@@ -162,11 +163,15 @@ function failuresOf(mine: RunDoc[]) {
     for (const s of r.steps as any[]) {
       totalSteps++;
       if (s.valid === false) invalidActions++;
-      for (const e of s.events ?? []) if (e && e.type === "spike") spikeDeaths++;
+      for (const e of s.events ?? []) {
+        if (e && e.type === "spike") spikeDeaths++;
+        if (e && e.type === "egg-crack") eggCracks++;
+      }
     }
   }
   return {
     spikeDeaths,
+    eggCracks,
     exhausted,
     dead,
     aborted,

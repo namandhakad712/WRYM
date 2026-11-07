@@ -12,11 +12,11 @@
     "kind": "zai",
     "modelId": "glm-4.6",
     "aaUrl": "https://artificialanalysis.ai/models/glm-4-6",
-    "note": "Built-in sandbox model. Zero-config fallback brain of the arena.",
-    "rpm": 6,
+    "note": "Built-in sandbox model. Zero-config fallback brain of the arena. Paced at rpm 3 — the sandbox gateway is a leaky bucket; slower sustained pace beats retry storms.",
+    "rpm": 3,
     "concurrency": 1,
-    "maxRetries": 8,
-    "retryBaseMs": 5000,
+    "maxRetries": 12,
+    "retryBaseMs": 15000,
     "enabled": true
   }
 ]

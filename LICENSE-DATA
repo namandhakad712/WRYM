@@ -1,0 +1,29 @@
+# WRYM Level Data License — CC BY 4.0
+
+The **level ladder, certified level data, run archives, and benchmark result
+data** in this repository — `src/lib/wyrm/levels.ts`, `site/data/levels.json`,
+`site/data/runs/*.json`, `site/data/index.json`, `community-levels/*.json`,
+and `results/` — are licensed under the
+**Creative Commons Attribution 4.0 International License (CC BY 4.0)**.
+
+> Summary: you may share and adapt the data for any purpose, including
+> commercially, as long as you give appropriate credit, link the license,
+> and indicate changes. Full text: https://creativecommons.org/licenses/by/4.0/
+
+Suggested attribution:
+
+> Level data from WRYM — The Worm Arena,
+> https://github.com/namandhakad712/WRYM (CC BY 4.0).
+
+## Why a split license?
+
+This follows the practice of the established game benchmarks WRYM learned
+from (BALROG, LMGame-Bench, Baba Is AI, TextWorld — all MIT for code):
+software and data have different natural licenses. Code is MIT so any
+harness, fork, or evaluation stack can embed the engine with zero friction;
+data is CC BY 4. so reused levels and results always trace back to the
+certified ladder they came from.
+
+Human-play exports from the WRYM Human Arena (schema `wyrm.humanrun/1`)
+belong to the player who generated them. Sharing them back as community
+results is welcome and counts as CC BY 4.0.

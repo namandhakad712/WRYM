@@ -1869,5 +1869,190 @@
       "ice": 0,
       "dirt": 1
     }
+  },
+  {
+    "slug": "39-vigil-of-glass",
+    "name": "Vigil of Glass",
+    "grid": [
+      "############",
+      "#..oo@...O.#",
+      "#..*.....+.#",
+      "####.####.##",
+      "#~..v..~.X.#",
+      "#.___*.....#",
+      "############"
+    ],
+    "turnLimit": 26,
+    "mechanics": [
+      "classic",
+      "valves",
+      "ice",
+      "eggs"
+    ],
+    "width": 12,
+    "height": 7,
+    "difficulty": 3.1,
+    "tier": "CORE",
+    "dims": {
+      "depth": 49.43032925625275,
+      "search": 0,
+      "irreversibility": 24.8522706924714,
+      "simulation": 7.225651367144714,
+      "threat": 26.971158678534668,
+      "choreography": 7,
+      "budget": 43.820453383427875,
+      "custody": 0
+    },
+    "minMoves": 15,
+    "statesExplored": 381,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 1,
+      "bridges": 0,
+      "ice": 3,
+      "dirt": 1
+    }
+  },
+  {
+    "slug": "40-the-turnkey-nest",
+    "name": "The Turnkey Nest",
+    "grid": [
+      "#############",
+      "#..oo@.O....#",
+      "#k*..*.L..*.#",
+      "####v####v###",
+      "#__..~~..X..#",
+      "#############"
+    ],
+    "turnLimit": 24,
+    "mechanics": [
+      "classic",
+      "valves",
+      "ice",
+      "keys",
+      "eggs"
+    ],
+    "width": 13,
+    "height": 6,
+    "difficulty": 6.5,
+    "tier": "GAUNTLET",
+    "dims": {
+      "depth": 59.71096784708669,
+      "search": 75.18885342983528,
+      "irreversibility": 84.3881954684029,
+      "simulation": 4.877057549928598,
+      "threat": 8.559898895464428,
+      "choreography": 100,
+      "budget": 76.07257743127307,
+      "custody": 21
+    },
+    "minMoves": 20,
+    "statesExplored": 31899,
+    "splitsRequired": true,
+    "counts": {
+      "apples": 3,
+      "crates": 0,
+      "plates": 0,
+      "keys": 1,
+      "valves": 2,
+      "bridges": 0,
+      "ice": 2,
+      "dirt": 0
+    }
+  },
+  {
+    "slug": "41-ossuary-bloom",
+    "name": "Ossuary Bloom",
+    "grid": [
+      "##############",
+      "#..oo@.O.O...#",
+      "#.*....+.+*..#",
+      "####.#####X###",
+      "#~..~~..~~...#",
+      "##############"
+    ],
+    "turnLimit": 22,
+    "mechanics": [
+      "classic",
+      "eggs"
+    ],
+    "width": 14,
+    "height": 6,
+    "difficulty": 3.3,
+    "tier": "CORE",
+    "dims": {
+      "depth": 49.43032925625275,
+      "search": 0,
+      "irreversibility": 43.52818779922407,
+      "simulation": 0,
+      "threat": 0,
+      "choreography": 7,
+      "budget": 56.29928344396161,
+      "custody": 30
+    },
+    "minMoves": 15,
+    "statesExplored": 161,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 2,
+      "crates": 0,
+      "plates": 0,
+      "keys": 0,
+      "valves": 0,
+      "bridges": 0,
+      "ice": 0,
+      "dirt": 2
+    }
+  },
+  {
+    "slug": "42-the-brood-ledger",
+    "name": "The Brood Ledger",
+    "grid": [
+      "#############",
+      "#*.oo@.O.O..#",
+      "#k*..*.L.+*.#",
+      "####v#####v##",
+      "#__..~~...X.#",
+      "#############"
+    ],
+    "turnLimit": 21,
+    "mechanics": [
+      "classic",
+      "valves",
+      "ice",
+      "keys",
+      "eggs"
+    ],
+    "width": 13,
+    "height": 6,
+    "difficulty": 4.6,
+    "tier": "CORE",
+    "dims": {
+      "depth": 55.87668322400161,
+      "search": 0,
+      "irreversibility": 57.562715432305,
+      "simulation": 4.877057549928598,
+      "threat": 0,
+      "choreography": 39,
+      "budget": 79.35600855193297,
+      "custody": 36
+    },
+    "minMoves": 18,
+    "statesExplored": 402,
+    "splitsRequired": false,
+    "counts": {
+      "apples": 4,
+      "crates": 0,
+      "plates": 0,
+      "keys": 1,
+      "valves": 2,
+      "bridges": 0,
+      "ice": 2,
+      "dirt": 1
+    }
   }
 ]

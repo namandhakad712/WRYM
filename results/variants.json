@@ -1,10 +1,10 @@
 {
   "schema": "wyrm.variants/1",
-  "generatedAt": "2026-11-07T06:45:05.573Z",
+  "generatedAt": "2026-11-08T07:53:05.730Z",
   "method": "horizontal-mirror, valve remap <↔>, gravity preserved (v4: eggs) — deterministic, contamination-check variants",
   "purpose": "Certified twins of every ladder level. Run any model on the twin set to test reasoning vs memorization; identical par guarantees comparable scoring.",
-  "certified": 38,
-  "total": 38,
+  "certified": 42,
+  "total": 42,
   "levels": [
     {
       "slug": "01-first-crawl-mirror",
@@ -1317,6 +1317,127 @@
         "choreography": 100,
         "budget": 92.94286409033649,
         "custody": 72
+      }
+    },
+    {
+      "slug": "39-vigil-of-glass-mirror",
+      "base": "39-vigil-of-glass",
+      "grid": [
+        "############",
+        "#.O...@oo..#",
+        "#.+.....*..#",
+        "##.####.####",
+        "#.X.~..v..~#",
+        "#.....*___.#",
+        "############"
+      ],
+      "turnLimit": 26,
+      "solvable": true,
+      "minMoves": 15,
+      "baseMinMoves": 15,
+      "parity": true,
+      "statesExplored": 381,
+      "difficulty": 3.1,
+      "tier": "CORE",
+      "dims": {
+        "depth": 49.43032925625275,
+        "search": 0,
+        "irreversibility": 24.8522706924714,
+        "simulation": 7.225651367144714,
+        "threat": 26.971158678534668,
+        "choreography": 7,
+        "budget": 43.820453383427875,
+        "custody": 0
+      }
+    },
+    {
+      "slug": "40-the-turnkey-nest-mirror",
+      "base": "40-the-turnkey-nest",
+      "grid": [
+        "#############",
+        "#....O.@oo..#",
+        "#.*..L.*..*k#",
+        "###v####v####",
+        "#..X..~~..__#",
+        "#############"
+      ],
+      "turnLimit": 24,
+      "solvable": true,
+      "minMoves": 20,
+      "baseMinMoves": 20,
+      "parity": true,
+      "statesExplored": 31898,
+      "difficulty": 6.5,
+      "tier": "GAUNTLET",
+      "dims": {
+        "depth": 59.71096784708669,
+        "search": 75.18817268547124,
+        "irreversibility": 84.3881954684029,
+        "simulation": 4.877057549928598,
+        "threat": 8.559898895464428,
+        "choreography": 100,
+        "budget": 76.07257743127307,
+        "custody": 21
+      }
+    },
+    {
+      "slug": "41-ossuary-bloom-mirror",
+      "base": "41-ossuary-bloom",
+      "grid": [
+        "##############",
+        "#...O.O.@oo..#",
+        "#..*+.+....*.#",
+        "###X#####.####",
+        "#...~~..~~..~#",
+        "##############"
+      ],
+      "turnLimit": 22,
+      "solvable": true,
+      "minMoves": 15,
+      "baseMinMoves": 15,
+      "parity": true,
+      "statesExplored": 161,
+      "difficulty": 3.3,
+      "tier": "CORE",
+      "dims": {
+        "depth": 49.43032925625275,
+        "search": 0,
+        "irreversibility": 43.52818779922407,
+        "simulation": 0,
+        "threat": 0,
+        "choreography": 7,
+        "budget": 56.29928344396161,
+        "custody": 30
+      }
+    },
+    {
+      "slug": "42-the-brood-ledger-mirror",
+      "base": "42-the-brood-ledger",
+      "grid": [
+        "#############",
+        "#..O.O.@oo.*#",
+        "#.*+.L.*..*k#",
+        "##v#####v####",
+        "#.X...~~..__#",
+        "#############"
+      ],
+      "turnLimit": 21,
+      "solvable": true,
+      "minMoves": 18,
+      "baseMinMoves": 18,
+      "parity": true,
+      "statesExplored": 402,
+      "difficulty": 4.6,
+      "tier": "CORE",
+      "dims": {
+        "depth": 55.87668322400161,
+        "search": 0,
+        "irreversibility": 57.562715432305,
+        "simulation": 4.877057549928598,
+        "threat": 0,
+        "choreography": 39,
+        "budget": 79.35600855193297,
+        "custody": 36
       }
     }
   ]

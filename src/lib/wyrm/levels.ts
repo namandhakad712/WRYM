@@ -863,6 +863,87 @@ export const HANDCRAFTED_LEVELS: LevelDef[] = [
     ],
     turnLimit: 42,
   },
+
+  // ═══ TIER VII · THE CUSTODY LADDER (v4.1, human-arena sprint) ═════
+  // Four egg-custody levels where the egg is not decoration — it is
+  // the puzzle. Gravity is south; dirt, bridges, locks, crates,
+  // remains, other eggs and your own spine are the only things that
+  // hold an egg up. Dig the support and the egg rides your head;
+  // leave the cell and it drops. Every level below was hand-traced
+  // then BFS-certified: the optimum is short, but each turn is an
+  // irreversible commitment — exactly the minimal-turn discipline
+  // the frontier models choke on.
+
+  {
+    // custody 101: the dirt column under the egg is the ONLY way into
+    // the exit shaft. dig it and the egg rides your head — you must
+    // already be long enough that a segment is still under the egg
+    // when your head lands on the heart.
+    name: "Vigil of Glass",
+    slug: "39-vigil-of-glass",
+    grid: [
+      "############",
+      "#..oo@...O.#",
+      "#..*.....+.#",
+      "####.####.##",
+      "#~..v..~.X.#",
+      "#.___*.....#",
+      "############",
+    ],
+    turnLimit: 26,
+  },
+  {
+    // the key turns the lock beneath the first egg — opening the door
+    // is safe only with four segments of spine. one short, and the
+    // egg rides down with the falling lock dust. the split is real:
+    // only a severed half keeps custody while the head hunts.
+    name: "The Turnkey Nest",
+    slug: "40-the-turnkey-nest",
+    grid: [
+      "#############",
+      "#..oo@.O....#",
+      "#k*..*.L..*.#",
+      "####v####v###",
+      "#__..~~..X..#",
+      "#############",
+    ],
+    turnLimit: 24,
+  },
+  {
+    // double custody: two eggs, two dig columns, one spine. the second
+    // dirt must be breached before the tail leaves the first — and the
+    // apple beyond the eggs must be eaten MID-CUSTODY to extend the
+    // spine that carries both to the heart embedded in the wall.
+    name: "Ossuary Bloom",
+    slug: "41-ossuary-bloom",
+    grid: [
+      "##############",
+      "#..oo@.O.O...#",
+      "#.*....+.+*..#",
+      "####.#####X###",
+      "#~..~~..~~...#",
+      "##############",
+    ],
+    turnLimit: 22,
+  },
+  {
+    // the ledger closes: egg one sleeps on a lock, egg two on dirt.
+    // key run first, unlock under custody, dig under custody, eat the
+    // fourth apple to grow the spine to six — then straight down the
+    // valve shaft. twenty-one turns, three of them slack. the
+    // cleanest no-waste line in the ladder.
+    name: "The Brood Ledger",
+    slug: "42-the-brood-ledger",
+    grid: [
+      "#############",
+      "#*.oo@.O.O..#",
+      "#k*..*.L.+*.#",
+      "####v#####v##",
+      "#__..~~...X.#",
+      "#############",
+    ],
+    turnLimit: 21,
+  },
 ];
 
 export function levelFromGridText(name: string, slug: string, text: string): LevelDef {

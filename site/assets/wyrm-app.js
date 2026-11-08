@@ -280,7 +280,8 @@
           (l.community ? ' <span class="tierchip tier-community" title="submitted via the Level Forge">community' +
             (l.author ? " · " + esc(l.author) : "") + "</span>" : "") + "</h3>" +
           '<div class="slug">' + esc(l.slug) + " · budget " + l.turnLimit + " turns · par " + l.minMoves + " · score " +
-          (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "</div>" +          '<div class="meta"><span class="diff">' +
+          (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + '</div>' +
+          '<div style="margin:6px 0 0"><a href="./play.html#play=' + encodeURIComponent(l.slug) + '" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--gold);text-decoration:none;border:1px solid rgba(255,207,51,.4);border-radius:8px;padding:4px 12px">▶ play this level</a></div>' +          '<div class="meta"><span class="diff">' +
           Array.from({ length: 10 }, function (_, k) { return '<i class="' + (k < l.difficulty ? "on" : "") + '"></i>'; }).join("") +
           '<span class="val">' + (typeof l.difficulty === "number" ? l.difficulty.toFixed(1) : l.difficulty) + "/10</span></span>" +
           '<span class="chips">' + l.mechanics.map(function (m) { return '<span class="chip">' + esc(m) + "</span>"; }).join("") + "</span></div>" +

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WRYM · Human Arena — play the benchmark yourself</title>
+<meta name="description" content="Play WRYM levels yourself. Every move is logged, every run is exportable, and on victory you are scored against the frontier models on the leaderboard — turns, retries, deaths, Elo.">
+<meta property="og:title" content="WRYM · Human Arena">
+<meta property="og:description" content="Beat the worm, then see how far ahead of the machines you are.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ea6a65'/%3E%3Ctext x='16' y='23' font-size='19' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%23fce8d5'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/wyrm.css">
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="sigil">W</div>
+      <div>
+        <h1>WRYM · Human Arena</h1>
+        <p class="subtitle">you vs the machines — play the certified ladder yourself, every step logged, every victory scored against the leaderboard</p>
+      </div>
+    </div>
+    <nav>
+      <a href="./play.html" class="active">Play</a>
+      <a href="./index.html">Leaderboard</a>
+      <a href="./levels.html">Levels</a>
+      <a href="./forge.html">Forge</a>
+      <a href="./community.html">Community</a>
+      <a href="./providers.html">Providers</a>
+      <a href="./methodology.html">Method</a>
+      <a href="./paper.html">Paper</a>
+      <a href="https://github.com/namandhakad712/WRYM">Repository</a>
+    </nav>
+  </header>
+
+  <!-- ══ level picker ══════════════════════════════════════════════ -->
+  <section id="picker">
+    <div class="arena-hero">
+      <h2>Choose your hunting ground</h2>
+      <span class="arena-sub">difficulty = certified minimal-turn optimum · egg levels punish every careless wiggle</span>
+    </div>
+    <div class="career-chip" id="career-chip">loading your career…</div>
+    <div id="tier-list"></div>
+  </section>
+
+  <!-- ══ in-game ═══════════════════════════════════════════════════ -->
+  <section id="arena" class="hidden" style="display:none">
+    <div class="arena-hero">
+      <button id="btn-back" style="font-family:var(--font);font-weight:600;border-radius:10px;padding:8px 14px;cursor:pointer;background:var(--panel);color:var(--cream);border:1px solid var(--line);box-shadow:var(--pop)">← levels</button>
+      <h2 id="arena-title">—</h2>
+      <span class="arena-sub" id="arena-sub">—</span>
+    </div>
+    <div class="resume-banner" id="resume-banner" style="display:none"></div>
+
+    <div class="arena-table">
+      <div class="stage-panel play">
+        <div class="play-hud" id="play-hud"></div>
+        <div class="play-canvas-wrap"><canvas id="play-stage"></canvas></div>
+        <div class="dpad" id="dpad">
+          <button class="du" data-act="up" aria-label="up"><svg viewBox="0 0 24 24"><path d="M12 5l7 8h-4v6h-6v-6H5z"/></svg></button>
+          <button class="dl" data-act="left" aria-label="left"><svg viewBox="0 0 24 24"><path d="M5 12l8-7v4h6v6h-4v4z"/></svg></button>
+          <button class="ds" data-act="split">SPLIT</button>
+          <button class="dr" data-act="right" aria-label="right"><svg viewBox="0 0 24 24"><path d="M19 12l-8 7v-4H5V9h4V5z"/></svg></button>
+          <button class="dd" data-act="down" aria-label="down"><svg viewBox="0 0 24 24"><path d="M12 19l-7-8h4V5h6v6h4z"/></svg></button>
+        </div>
+        <div class="play-controls">
+          <span class="key">← ↑ → ↓ / WASD</span><span style="color:var(--cream-faint)">move</span>
+          <span class="key">X</span><span style="color:var(--cream-faint)">split</span>
+          <span class="key">R</span><span style="color:var(--cream-faint)">restart attempt</span>
+          <span class="grow"></span>
+          <button id="btn-restart" class="danger">↺ restart</button>
+          <button id="btn-export-run">⤓ export run</button>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <div class="side-card">
+          <h4>live step log</h4>
+          <div class="steplog" id="steplog"></div>
+        </div>
+        <div class="side-card">
+          <h4>element legend</h4>
+          <div class="elem-legend" id="elem-legend"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>WRYM · human arena — runs are stored locally in your browser; export to share or archive. Code MIT · level data CC BY 4.0.</span>
+    <span><a href="https://github.com/namandhakad712/WRYM">github.com/namandhakad712/WRYM</a></span>
+  </footer>
+</div>
+
+<!-- ══ result modal ════════════════════════════════════════════════ -->
+<div class="result-modal" id="result-modal" role="dialog" aria-modal="true">
+  <div class="result-card">
+    <div id="res-head"></div>
+    <div class="res-score-big" id="res-score">—</div>
+    <div class="res-score-lab" id="res-score-lab">—</div>
+    <div class="res-grid" id="res-grid"></div>
+    <table class="cmp-table" id="cmp-table"></table>
+    <p class="cmp-note" id="cmp-note"></p>
+    <div class="res-actions">
+      <button id="btn-share" class="primary">⧉ copy share text</button>
+      <button id="btn-export-modal">⤓ export full run json</button>
+      <button id="btn-stay">↺ replay level</button>
+      <button id="btn-next">next level →</button>
+    </div>
+  </div>
+</div>
+
+<script src="./assets/wyrm-engine.js"></script>
+<script src="./assets/wyrm-render.js"></script>
+<script src="./assets/wyrm-nav.js"></script>
+<script src="./assets/wyrm-play.js"></script>
+</body>
+</html>

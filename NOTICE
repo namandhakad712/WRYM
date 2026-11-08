@@ -1,0 +1,50 @@
+# WRYM NOTICE
+
+This file records provenance and attribution boundaries for the WRYM
+benchmark. It complements the LICENSE (code, MIT) and LICENSE-DATA
+(level & run data, CC BY 4.0).
+
+## 1. Relationship to the game WOIM
+
+WRYM is an **independent, clean-room research benchmark inspired by the
+design space of the puzzle game WOIM** (by its respective author/publisher,
+available on Steam).
+
+- **No WOIM assets are included or redistributed** — no artwork, sprites,
+  audio, level layouts, executables, or other copyrighted material from
+  WOIM appears in this repository.
+- **No WOIM source code was used.** The WRYM engine (`src/lib/wyrm/`)
+  is an original TypeScript implementation of a deterministic worm puzzle
+  with publicly-describable genre mechanics (grid movement, apples, crates,
+  buttons, gates, spikes, one-way valves, crumble bridges, ice, eggs).
+  Game *rules and mechanics* are not copyrightable expression; this
+  repository's *expression* — code, art, levels, text — is entirely
+  original.
+- All 38+ ladder levels, the visual design of the site, the pixel art in
+  `site/assets/wyrm-render.js`, and all written material are original works
+  of this project's contributors.
+- "WOIM IN LOVE!" and similar in-game flavor text used in WRYM run events
+  are WRYM's own homage strings, chosen as commentary/reference to the
+  genre, not copies of WOIM's asset text.
+
+This is the same boundary drawn by comparable benchmarks built around
+commercial games — e.g. Baba Is Harbor: "Apache 2.0 for the code in this
+repository. Baba Is You is © Arvi 'Hempuli' Teikari; no game content or
+engine code is included or redistributed."
+
+If you are the rights holder for WOIM and believe anything here crosses a
+line, open an issue and it will be addressed immediately.
+
+## 2. Model results & trademarks
+
+Model names, Elo ratings, and run archives reference their respective
+providers and are measurements produced by this project's methodology.
+All model marks belong to their owners; leaderboard rows link to
+Artificial Analysis model pages for independent verification.
+
+## 3. Credits
+
+- Built by Naman Dhakad (@namandhakad712) with the WRYM agentic pipeline.
+- Benchmark design informed by the public methodologies of BALROG,
+  LMGame-Bench, Baba Is AI, TextWorld, GVGAI, and the Kaggle Game Arena.
+- Fonts served via Google Fonts (Fredoka, IBM Plex Mono — OFL).

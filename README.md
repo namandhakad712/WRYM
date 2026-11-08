@@ -7,7 +7,7 @@
 **Every run replayed · every thought archived · every claim certified**
 
 [![benchmark](https://img.shields.io/badge/benchmark-agentic__arena-7c221a?style=flat-square)](#the-benchmark)
-[![levels](https://img.shields.io/badge/levels-38%20BFS--certified-221c14?style=flat-square)](#the-ladder)
+[![levels](https://img.shields.io/badge/levels-42%20BFS--certified-221c14?style=flat-square)](#the-ladder)
 [![pages](https://img.shields.io/badge/site-github%20pages-221c14?style=flat-square)](https://namandhakad712.github.io/WRYM/)
 [![license](https://img.shields.io/badge/license-MIT-3a3226?style=flat-square)](#license)
 [![engine](https://img.shields.io/badge/engine-deterministic%20v2-8a6a42?style=flat-square)](#the-game)
@@ -28,11 +28,12 @@
 
 1. [What is WRYM?](#what-is-wrym)
 2. [The game](#the-game)
-3. [The ladder — 38 certified levels, peak ABYSS 8.4 — The Rubicon & The Hatchery](#the-ladder--38-certified-levels-honestly-measured)
+3. [The ladder — 42 certified levels, peak ABYSS 8.4 — The Rubicon, The Hatchery & the Tier VII custody ladder](#the-ladder--42-certified-levels-honestly-measured)
 4. [The GitHub flow: local runs → committed results → Pages](#the-github-flow-local-runs--committed-results--pages)
    * [The Level Forge — build & submit levels in the browser](#the-level-forge--build--submit-levels-in-the-browser)
    * [The community review framework (bot + maintainers)](#the-community-review-framework-bot--maintainers)
    * [The research paper](#the-research-paper)
+   * [The Human Arena — play the benchmark yourself](#the-human-arena--play-the-benchmark-yourself)
    * [Free LLM providers — $0 entry](#free-llm-providers--0-entry)
 5. [The dashboard (local control room)](#the-dashboard-local-control-room)
 6. [The agentic pipeline](#the-agentic-pipeline)
@@ -98,7 +99,7 @@ its head* — which is precisely the skill being measured.
 
 ---
 
-## The ladder — 38 certified levels, honestly measured
+## The ladder — 42 certified levels, honestly measured
 
 Every level is certified by exhaustive breadth-first search **before** it may
 enter the ladder: solvability, the optimal move count (*par*), and the **v3
@@ -204,6 +205,10 @@ cracks one.
 | 36 · Ovum Vault | **6.1** | ADVANCED | 26/30 | dig in through the pillar, key + one-way valve, lock out — the tunnel seals behind you |
 | 37 · Cold Brood | **7.4** | GAUNTLET | 33/35 | ice rink custody: slide-carry the egg, split mid-rink, two-apple sweep below |
 | 38 · **The Hatchery** | **8.0** | **ABYSS** | 40/42 | the new flagship: two eggs, two custodies, valve commit, razor budget |
+| 39 · Vigil of Glass | **3.1** | CORE | 15/26 | custody 101: the dirt column is the only door — be long enough before you dig |
+| 40 · The Turnkey Nest | **6.5** | GAUNTLET | 20/24 | the key opens the lock *under* an egg; four segments of spine or it rides down |
+| 41 · Ossuary Bloom | **3.3** | CORE | 15/22 | double custody, one spine — eat the far apple mid-carry to extend it |
+| 42 · The Brood Ledger | **4.6** | CORE | 18/21 | egg on a lock, egg on dirt, key run, 6-segment chain, 3 turns of slack |
 
 Every level also ships a certified **horizontal-mirror twin**
 (`results/variants.json`, 38/38, identical par) — a vertical flip would
@@ -256,6 +261,31 @@ Governance contract:
 
 <div align="center">
 <img src="site/assets/img/forge.png" alt="The Level Forge — palette, canvas, certificate, playtest" width="92%">
+</div>
+
+## The Human Arena — play the benchmark yourself
+
+**You are the missing row on the leaderboard.** The
+[Human Arena](https://namandhakad712.github.io/WRYM/play.html) runs the
+*exact certified engine bundle* the models play — same levels, same rules,
+same relentless checker — in your browser:
+
+- **play with arrows / WASD** (`X` split, `R` restart), or the on-screen
+  D-pad on touch devices
+- **every move is logged** — action, engine events, wall-clock ms — as a
+  `wyrm.humanrun/1` document you can export as JSON
+- **checkpoints per level** — close the tab mid-run, resume later from the
+  picker (`▶ in progress`)
+- **attempts, retries and deaths are counted** exactly like model runs,
+  and appear in your export
+- **on victory you are scored against the ladder**: solver optimum, every
+  model with a certified run on that level (moves, attempts, deaths, Δ
+  turns, Elo) — *beat the frontier or admit it beat you*
+- human runs live entirely in `localStorage` — your data never leaves the
+  browser unless you export it
+
+<div align="center">
+<img src="site/assets/img/arena.png" alt="The Human Arena — level picker and in-game view" width="92%">
 </div>
 
 ## The research paper
@@ -616,7 +646,7 @@ Dockerfile, docker-compose.yml, DOCKER.md
 
 ```bash
 bun test                          # unit suite: engine, elo, tokens, validator, site-data, secret scan
-bun scripts/validate-tier3.ts     # BFS re-certification of all 38 levels (CI runs this)
+bun scripts/validate-tier3.ts     # BFS re-certification of all 42 levels (CI runs this)
 bun scripts/test-mcp.ts           # MCP chain: client → bridge → mock upstream (16 checks)
 bun scripts/test-mechanics.ts     # engine v2 mechanics
 bun scripts/test-levels.ts        # ladder validation
@@ -659,3 +689,46 @@ The arena is **static and secrets-free by design** — full policy in
 relentless, the leaderboard is static, and the worm is the worm.<br>
 Runs executed locally · results committed · site served by GitHub Pages.</sub>
 </div>
+
+---
+
+## License
+
+**Code: MIT** · **Level & run data: CC BY 4.0** · see
+[`LICENSE`](LICENSE), [`LICENSE-DATA`](LICENSE-DATA), and [`NOTICE`](NOTICE)
+(attribution boundaries, incl. the clean-room relationship to the game
+WOIM — no WOIM assets or code are included or redistributed).
+
+Deep research (verified November 2026) into how the benchmarks WRYM sits
+among license their work:
+
+| Project | License | Note |
+|---|---|---|
+| **BALROG** (agentic LLM/VLM on games) | **MIT** | closest comparable — the field default |
+| **LMGame-Bench** / GamingAgent (ICLR 2026) | **MIT** | "Copyright 2025 LM Games" |
+| **Baba Is AI** (ICML 2024 workshop) | **MIT** | Gymnasium-style env |
+| **TextWorld** (Microsoft) | **MIT** | classic RL text-game env |
+| MiniHack (Meta) | Apache-2.0 | patent-grant variant |
+| Baba Is Harbor | Apache-2.0 | + explicit "no game content redistributed" notice (our NOTICE follows this precedent) |
+| GVGAI | GPL (old framework) | copyleft friction — deliberately avoided |
+| PolyForm Noncommercial | NC | **kills adoption**: blocks Kaggle, corporate and any commercial evaluation use |
+
+**Why MIT for the code**: every direct comparable (BALROG, LMGame-Bench,
+Baba Is AI, TextWorld) chose MIT — the ecosystem expects it, it is the
+lowest-friction option for harness builders and Kaggle-style arenas, and a
+viral/copyleft or noncommercial license would work directly against the
+community-arena goal. **Why CC BY 4.0 for data**: the standard split for
+benchmark datasets — reuse anywhere, attribution always, so certified
+levels and results trace back to this ladder. Human Arena exports
+(`wyrm.humanrun/1`) belong to the players who generated them.
+
+Citation:
+
+```bibtex
+@software{wyrm2026,
+  title  = {WRYM — The Worm Arena: a deterministic game benchmark for language models},
+  author = {Naman Dhakad and WRYM contributors},
+  url    = {https://github.com/namandhakad712/WRYM},
+  year   = {2026}
+}
+```
